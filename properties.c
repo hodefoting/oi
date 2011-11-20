@@ -115,6 +115,7 @@ static PropertiesEntry *oi_get_entry_write (Oi *oi, const char *name)
   Properties *properties = ((void*)oi_capability_ensure (oi, PROPERTIES, NULL));
   int no;
   PropertiesEntry *entry;
+  oi_lock (oi);
   no = oi_list_find_custom (properties->props, (void*)match_name, (void*)name);
   if (no >= 0)
     {
@@ -129,6 +130,7 @@ static PropertiesEntry *oi_get_entry_write (Oi *oi, const char *name)
       oi_list_append (properties->props, entry);
       entry->type = OI_PTYPE_INT;
     }
+  oi_unlock (oi);
   return entry;
 }
 
