@@ -31,7 +31,11 @@ MESSAGE  - signalling mechanism - capabilities can listen for messages emitted
            "oi:die" signal for full instances or by listening for
            "oi:remove-capability".
 
-Building additional capabilities s that can be instantiated alone (like the 
+The core capabilities are demand driven, and are added as needed when the
+relevant API methods like oi_ref or oi_set_float or listening to particular
+message. This ensures that the size of each instance remains low.
+
+Building additional capabilities that can be instantiated alone (like the 
 list can) or capabilitiess that cooperate among other capabilitiess in an
 object as well as with other objects permits flexible creation of dynamic
 structures.
