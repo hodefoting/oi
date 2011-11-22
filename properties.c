@@ -97,6 +97,7 @@ static PropertiesEntry *oi_get_entry_read (Oi *oi, const char *name)
   int no;
   PropertiesEntry *entry;
   no = oi_list_find_custom (properties->props, (void*)match_name, (void*)name);
+  oi_lock (oi); /* XXX: is this lock really needed? */
   if (no >= 0)
     entry = oi_list_get (properties->props, no);
   else
@@ -107,6 +108,7 @@ static PropertiesEntry *oi_get_entry_read (Oi *oi, const char *name)
       entry->type = OI_PTYPE_INT;
       entry->value_int = 0;
     }
+  oi_unlock (oi);
   return entry;
 }
 

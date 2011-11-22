@@ -1,12 +1,13 @@
 CFILES  = $(wildcard *.c)
 OBJS    = $(CFILES:.c=.o)
-LIBNAME = liboi
+PROJNAME = oi
+LIBNAME = lib$(PROJNAME)
 PREFIX = /usr/local
 LIBEXT  = so
 TARGETS = $(LIBNAME).a $(LIBNAME).$(LIBEXT)
 
-CFLAGS = `pkg-config glib-2.0 gio-2.0 --cflags` -I.. -I. -fpic -ldl
-LIBS = -ldl `pkg-config glib-2.0 gio-2.0 --libs`
+CFLAGS = -I.. -I. -fpic -ldl
+LIBS = -ldl -lpthread #`pkg-config glib-2.0 gio-2.0 --libs`
 CFLAGS += -O3 -g
 CFLAGS += -msse2 -msse -mssse3
 CFLAGS += -Wall
@@ -27,7 +28,7 @@ EXAMPLES_CFILES = $(wildcard examples/*.c)
 EXAMPLES_BINS   = $(EXAMPLES_CFILES:.c=)
 
 examples/%: examples/%.c $(LIBNAME).a
-	@echo "CCLD" $@; $(CC) -I .. $(CFLAGS) $(LIBS) $< $(LIBNAME).a -o $@
+	@echo "CCLD" $@; $(CC) -I .. $(CFLAGS) $(LIBS) $< $(LIBNAME).a `pkg-config --cflags --libs gobject-2.0` -o $@
 
 all: $(EXAMPLES_BINS)
 
@@ -39,5 +40,7 @@ check: all
 	make -C tests check
 
 install: $(LIBNAME).$(LIBEXT)
-	sudo install -t $(PREFIX)/bin $(BIN)
 	sudo install -t $(PREFIX)/lib $(LIBNAME).$(LIBEXT)
+	sudo install -t $(PREFIX)/lib/pkgconfig $(PROJNAME).pc
+	sudo install -d $(PREFIX)/include/$(PROJNAME)
+	sudo install -t $(PREFIX)/include/$(PROJNAME) *.h

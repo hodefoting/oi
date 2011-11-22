@@ -1,0 +1,12 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+apiversion=0.0
+
+Name: oi
+Description: dynamic C runtime experiment
+Version: 0.0.0
+
+Libs:   -L${libdir} -loi -lpthread
+Cflags: -I${includedir}/oi
