@@ -18,62 +18,186 @@
 #include "oi.h"
 #include <stdlib.h>
 
-typedef struct
-{
-  OiCapability  capability;
-  void   (*destroy)(void *item, void *user_data);
-  void    *destroy_data;
-  void   **items;
-  int      size;
-} List;
 
-static void
-list_init (Oi     *oi,
-           OiCapability *capability,
-           Oi     *args)
+@trait List
 {
-  List *list  = (List*)capability;
+  void (*destroy)(void *item, void *user_data);
+  void  *destroy_data;
+  void **items;
+  int    size;
+};
+
+static void init ()
+{
   list->items = NULL;
   list->destroy = NULL;
   list->size  = 0;
 }
 
-static void
-list_destroy (Oi      *oi,
-              OiCapability *capability)
+static void destroy ()
 {
-  List *list = (List*)capability;
   if (list->destroy)
-    oi_list_each (oi, list->destroy, list->destroy_data);
+    self@list:each (list->destroy, list->destroy_data);
   if (list->items)
     free (list->items);
 }
-OI(LIST, List, NULL, list_init, list_destroy)
-#define OI_LIST(oi) ((List*)oi_capability_get_assert (oi, LIST))
 
-Oi *oi_list_new (void)
+void  * get (int no)
 {
-  Oi *oi       = oi_new ();
-  oi_capability_add (oi, LIST, NULL);
-  return oi;
+  List *list = self@oi:capability_get_assert (LIST);
+  if (no >= 0 && no < list->size)
+    return list->items[no];
+  return NULL;
 }
 
-int
-oi_list_get_size (Oi *oi)
+void each (void (*cb)(void *item, void *user_data),
+           void *user_data)
 {
-  return OI_LIST(oi)->size;
+  int i;
+  List *list = self@oi:capability_get_assert (LIST);
+  for (i = 0; i < list->size; i++)
+    cb (list->items[i], user_data);
+}
+
+void remove_index_fast (int index)
+{
+  List *list = self@oi:capability_get_assert (LIST);
+  if (!(index >= 0 && index < list->size))
+    return;
+
+  if (list->destroy)
+    list->destroy (list->items[index], list->destroy_data);
+  list->items[index] = list->items[list->size-1];
+  list->size--;
+}
+
+void remove_index (int index)
+{
+  int j;
+  List *list = self@oi:capability_get_assert (LIST);
+  if (!(index >= 0 && index < list->size))
+    return;
+
+  if (list->destroy)
+    list->destroy (list->items[index], list->destroy_data);
+  list->size--;
+  for (j = index; j < list->size; j++)
+    list->items[j] = list->items[j+1];
+}
+
+void remove (void *data)
+{
+  List *list = self@oi:capability_get_assert (LIST);
+  int i;
+  for (i = 0; i < list->size; i++)
+    if (list->items[i] == data)
+      {
+        self@list:remove_index (i);
+        return;
+      }
+}
+
+int get_size ()
+{
+  List *list = self@oi:capability_get_assert (LIST);
+  return list->size;
+}
+
+void list_remove_fast (void *data)
+{
+  List *list = self@oi:capability_get_assert (LIST);
+  int i;
+  for (i = 0; i < list->size; i++)
+    if (list->items[i] == data)
+      {
+        self@list:remove_index_fast (i);
+        return;
+      }
+}
+
+void remove_zombie_index_fast (int index)
+{
+  List *list = self@oi:capability_get_assert (LIST);
+  if (!(index >= 0 && index < list->size))
+    return;
+
+  list->items[index] = list->items[list->size-1];
+  list->size--;
+}
+void remove_zombie_index (int index)
+{
+  List *list = self@oi:capability_get_assert (LIST);
+  int j;
+  if (!(index >= 0 && index < list->size))
+    return;
+  list->size--;
+  for (j = index; j < list->size; j++)
+    list->items[j] = list->items[j+1];
+}
+
+void remove_zombie (void *data)
+{
+  List *list = self@oi:capability_get_assert (LIST);
+  int i;
+  for (i = 0; i < list->size; i++)
+    if (list->items[i] == data)
+      {
+        self@list:remove_zombie_index (i);
+        return;
+      }
+}
+
+void remove_zombie_fast (void *data)
+{
+  List *list = self@oi:capability_get_assert (LIST);
+  int i;
+  for (i = 0; i < list->size; i++)
+    if (list->items[i] == data)
+      {
+        self@list:remove_zombie_index_fast (i);
+        return;
+      }
+}
+
+void set_destroy (void (*destroy)(void *item, void *user_data),
+                  void *user_data)
+{
+  List *list = self@oi:capability_get_assert (LIST);
+  list->destroy = destroy;
+  list->destroy_data = user_data;
+}
+
+int find_custom (int (*match_fun)(void *item, void *user_data),
+                 void *user_data)
+{
+  List *list = self@oi:capability_get_assert (LIST);
+  int i;
+  for (i = 0; i < list->size; i++)
+    if (match_fun (list->items[i], user_data))
+      return i;
+  return -1;
+}
+
+static int match_direct! (void *item, void *user_data)
+{
+  if (item == user_data)
+    return 1;
+  return 0;
+}
+
+int find (void *data)
+{
+  return (self@list:find_custom (match_direct, data));
 }
 
 #define CS 8
-#define CS_1 (CS-1)
 
-void
-oi_list_append (Oi *oi, void *data)
+void append (void *data)
 {
-  List *list = OI_LIST (oi);
+  List *list = self@oi:capability_get_assert (LIST);
 
   if (((list->size + CS)/CS) * CS >
-      ((list->size + CS_1)/CS) * CS)
+      ((list->size + (CS-1))/CS) * CS)
     {
       if (list->items == NULL)
         list->items = malloc (sizeof (void*) * CS);
@@ -85,166 +209,9 @@ oi_list_append (Oi *oi, void *data)
   list->size++;
 }
 
-void  *
-oi_list_get (Oi *oi, int no)
+@end
+
+Oi *list_new (void)
 {
-  List *list = OI_LIST (oi);
-  if (no >= 0 && no < list->size)
-    return list->items[no];
-  return NULL;
-}
-
-void
-oi_list_each (Oi *oi,
-              void (*cb)(void *item, void *user_data),
-              void *user_data)
-{
-  List *list = OI_LIST (oi);
-  int i;
-  for (i = 0; i < list->size; i++)
-    {
-      cb (list->items[i], user_data);
-    }
-}
-
-void
-oi_list_remove_index_fast (Oi *oi,
-                           int index)
-{
-  List *list = OI_LIST (oi);
-  if (!(index >= 0 && index < list->size))
-    return;
-
-  if (list->destroy)
-    list->destroy (list->items[index], list->destroy_data);
-  list->items[index] = list->items[list->size-1];
-  list->size--;
-}
-
-void
-oi_list_remove_index (Oi *oi,
-                      int index)
-{
-  List *list = OI_LIST (oi);
-  int j;
-  if (!(index >= 0 && index < list->size))
-    return;
-
-  if (list->destroy)
-    list->destroy (list->items[index], list->destroy_data);
-  list->size--;
-  for (j = index; j < list->size; j++)
-    list->items[j] = list->items[j+1];
-}
-
-void
-oi_list_remove (Oi   *oi,
-                void *data)
-{
-  List *list = OI_LIST (oi);
-  int i;
-  for (i = 0; i < list->size; i++)
-    if (list->items[i] == data)
-      {
-        oi_list_remove_index (oi, i);
-        return;
-      }
-}
-
-void
-oi_list_remove_fast (Oi   *oi,
-                     void *data)
-{
-  List *list = OI_LIST (oi);
-  int i;
-  for (i = 0; i < list->size; i++)
-    if (list->items[i] == data)
-      {
-        oi_list_remove_index_fast (oi, i);
-        return;
-      }
-}
-
-void
-oi_list_remove_zombie_index_fast (Oi *oi,
-                                  int index)
-{
-  List *list = OI_LIST (oi);
-  if (!(index >= 0 && index < list->size))
-    return;
-
-  list->items[index] = list->items[list->size-1];
-  list->size--;
-}
-void
-oi_list_remove_zombie_index (Oi *oi,
-                             int index)
-{
-  List *list = OI_LIST (oi);
-  int j;
-  if (!(index >= 0 && index < list->size))
-    return;
-  list->size--;
-  for (j = index; j < list->size; j++)
-    list->items[j] = list->items[j+1];
-}
-
-void
-oi_list_remove_zombie (Oi   *oi,
-                       void *data)
-{
-  List *list = OI_LIST (oi);
-  int i;
-  for (i = 0; i < list->size; i++)
-    if (list->items[i] == data)
-      {
-        oi_list_remove_zombie_index (oi, i);
-        return;
-      }
-}
-
-void
-oi_list_remove_zombie_fast (Oi   *oi,
-                     void *data)
-{
-  List *list = OI_LIST (oi);
-  int i;
-  for (i = 0; i < list->size; i++)
-    if (list->items[i] == data)
-      {
-        oi_list_remove_zombie_index_fast (oi, i);
-        return;
-      }
-}
-
-void oi_list_set_destroy (Oi *oi,
-                          void (*destroy)(void *item, void *user_data),
-                          void *user_data)
-{
-  List *list = OI_LIST (oi);
-  list->destroy = destroy;
-  list->destroy_data = user_data;
-}
-
-int oi_list_find_custom  (Oi *oi, int (*match_fun)(void *item, void *user_data),
-                                      void *user_data)
-{
-  List *list = OI_LIST (oi);
-  int i;
-  for (i = 0; i < list->size; i++)
-    if (match_fun (list->items[i], user_data))
-      return i;
-  return -1;
-}
-
-static int match_direct (void *item, void *user_data)
-{
-  if (item == user_data)
-    return 1;
-  return 0;
-}
-
-int oi_list_find         (Oi *oi, void *data)
-{
-  return oi_list_find_custom (oi, match_direct, data);
+  return oi_new_bare (LIST, NULL);
 }

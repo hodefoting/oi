@@ -20,6 +20,11 @@
 #include "oi.h"
 #include "stdlib.h"
 
+@trait Properties 
+{
+  Oi    *props;
+};
+
 typedef enum
 {
   OI_PTYPE_FLOAT,
@@ -42,26 +47,19 @@ typedef struct
   };
 } PropertiesEntry;
 
-typedef struct
+static void prop_destroy! (PropertiesEntry *entry, void *user_data);
+static void init ()
 {
-  OiCapability capability;
-  Oi    *props;
-} Properties;
-
-static void prop_destroy (PropertiesEntry *entry, void *user_data);
-static void properties_init (Oi *oi, OiCapability *capability, Oi *args)
-{
-  Properties *properties = (Properties*)capability;
-  properties->props = oi_list_new ();
-  oi_list_set_destroy (properties->props, (void*) prop_destroy, NULL);
+  properties->props = @list:new ();
+  properties->props@list:set_destroy ((void*) prop_destroy, NULL);
 }
 
-static void properties_destroy (Oi *oi, OiCapability *capability)
+static void destroy ()
 {
-  Properties *properties = (Properties*)capability;
-  oi_destroy (properties->props);
+  properties->props@oi:finalize();
 }
-OI(PROPERTIES, Properties, NULL, properties_init, properties_destroy)
+
+@end
 
 static void prop_unset (PropertiesEntry *entry)
 {
@@ -72,7 +70,7 @@ static void prop_unset (PropertiesEntry *entry)
     }
   else if (entry->type == OI_PTYPE_OI && entry->value_oi)
     {
-      oi_unref (entry->value_oi);
+      entry->value_oi@oi:unref ();
       entry->value_oi = NULL;
     }
 }
@@ -96,19 +94,19 @@ static PropertiesEntry *oi_get_entry_read (Oi *oi, const char *name)
   Properties *properties = ((void*)oi_capability_ensure (oi, PROPERTIES, NULL));
   int no;
   PropertiesEntry *entry;
-  no = oi_list_find_custom (properties->props, (void*)match_name, (void*)name);
-  oi_lock (oi); /* XXX: is this lock really needed? */
+  no = properties->props@list:find_custom ((void*)match_name, (void*)name);
+  oi@oi:lock (); /* XXX: is this lock really needed? */
   if (no >= 0)
-    entry = oi_list_get (properties->props, no);
+    entry = properties->props@list:get (no);
   else
     {
       entry = oi_malloc (sizeof (PropertiesEntry));
-      entry->name = oi_strdup (name);
-      oi_list_append (properties->props, entry);
+      entry->name = name@oi:strdup ();
+      properties->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
       entry->value_int = 0;
-    }
-  oi_unlock (oi);
+    } 
+  oi@oi:unlock ();
   return entry;
 }
 
@@ -118,24 +116,23 @@ static PropertiesEntry *oi_get_entry_write (Oi *oi, const char *name)
   int no;
   PropertiesEntry *entry;
   oi_lock (oi);
-  no = oi_list_find_custom (properties->props, (void*)match_name, (void*)name);
+  no = properties->props@list:find_custom((void*)match_name, (void*)name);
   if (no >= 0)
     {
-      entry = oi_list_get (properties->props, no);
+      entry = properties->props@list:get(no);
       prop_unset (entry);
     }
   else
     {
       entry = oi_malloc (sizeof (PropertiesEntry));
-      entry->name = oi_strdup (name);
+      entry->name = name@oi:strdup();
       entry->value_int = 0;
-      oi_list_append (properties->props, entry);
+      properties->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
-    }
-  oi_unlock (oi);
+    } /* XXX: oicc hack*/ ;
+  oi@oi:unlock ();
   return entry;
 }
-
 
 void   oi_set_float       (Oi *oi, const char *name, float       value)
 {
@@ -144,7 +141,7 @@ void   oi_set_float       (Oi *oi, const char *name, float       value)
   entry->value_float = value;
   entry->type = OI_PTYPE_FLOAT;
   if (changed)
-    oi_message_emit (oi, "notify", (void*)name);
+    oi@message:emit ("notify", (void*)name);
 }
 
 void   oi_set_int         (Oi *oi, const char *name, int         value)
@@ -154,17 +151,24 @@ void   oi_set_int         (Oi *oi, const char *name, int         value)
   entry->type = OI_PTYPE_INT;
   entry->value_int = value;
   if (changed)
-    oi_message_emit (oi, "notify", (void*)name);
+    oi@message:emit ("notify", (void*)name);
 }
 void   oi_set_string      (Oi *oi, const char *name, const char *value)
 {
   PropertiesEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_STRING;
+#define OFF_BY_FUDGE 1
+
   if (value)
-    entry->value_string = oi_strdup (value);
+    {
+      char *tmp = oi_malloc (strlen (value) + 1 + OFF_BY_FUDGE);
+      memcpy (tmp, value, strlen (value));
+      tmp[strlen(value)]=0;
+      entry->value_string = tmp;
+    }
   else
     entry->value_string = NULL;
-  oi_message_emit (oi, "notify", (void*)name);
+  oi@message:emit ("notify", (void*)name);
 }
 void   oi_set_oi          (Oi *oi, const char *name, Oi *value)
 {
@@ -174,7 +178,7 @@ void   oi_set_oi          (Oi *oi, const char *name, Oi *value)
     entry->value_oi = oi_ref (value);
   else
     entry->value_oi = NULL;
-  oi_message_emit (oi, "notify", (void*)name);
+  oi@message:emit ("notify", (void*)name);
 }
 
 void   oi_set_pointer     (Oi *oi, const char *name, void       *value)
@@ -182,7 +186,7 @@ void   oi_set_pointer     (Oi *oi, const char *name, void       *value)
   PropertiesEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_POINTER;
   entry->value_pointer = value;
-  oi_message_emit (oi, "notify", (void*)name);
+  oi@message:emit ("notify", (void*)name);
 }
 
 float  oi_get_float       (Oi *oi, const char *name)
@@ -257,8 +261,8 @@ oi_properties_each (Oi *oi,
                     void *user_data)
 {
   void *args[] = {cb, user_data};
-  Properties *properties = ((void*)oi_capability_get (oi, PROPERTIES));
-  oi_list_each (properties->props, each_wrapper, args);
+  Properties *properties = ((void*)oi@oi:capability_get (PROPERTIES));
+  properties->props@list:each(each_wrapper, args);
 }
 
 int

@@ -29,11 +29,11 @@ typedef struct OiCapability
 struct _OiType
 {
   const char     *name;  /* for debugging purposes */
-  struct _OiType *parent;/* parent capability, or NULL (currently NULL and unused)*/
   int             size;  /* size of a capability instance */
 
   /* function initializing a capability instance (or NULL) */
   void          (*init)    (Oi *oi, OiCapability *capability, Oi *args);
+  void          (*init_int)(Oi *oi, OiCapability *capability);
   /* function destroying a capability instance (or NULL)*/
   void          (*destroy) (Oi *oi, OiCapability *capability);
 };
@@ -43,8 +43,8 @@ struct _OiType
  *
  * it is enough to have   extern OiType  *STRING;
  */
-#define OI(NAME, s, parent, init, destroy) \
-static OiType NAME##_class = {"" #NAME, parent, sizeof (s), init, destroy};\
+#define OI(NAME, s, init, init_int, destroy) \
+static OiType NAME##_class = {"" #NAME, sizeof (s), init, init_int, destroy};\
 OiType *NAME = &NAME##_class;
 
 /* create a new bare bone oi instance */
@@ -60,24 +60,26 @@ void          oi_capability_remove     (Oi *oi, OiType *capability);
 int           oi_capability_check        (Oi *oi, OiType *capability);
 
 /* gets the capability, if any */
-OiCapability *oi_capability_get        (Oi *oi, OiType *capability);
+void         *oi_capability_get        (Oi *oi, OiType *capability);
 
 /* gets an capability, if capability doesn't already exist fail with warning 
  * (and segfault) */
-OiCapability *oi_capability_get_assert (Oi *oi, OiType *capability);
+void         *oi_capability_get_assert (Oi *oi, OiType *capability);
 
 /* gets the capability, creates and adds it if it doesn't already exist */
-OiCapability *oi_capability_ensure     (Oi *oi, OiType *capability, Oi *args);
+void         *oi_capability_ensure     (Oi *oi, OiType *capability, Oi *args);
 
 /* get a list of capabilities, the returned list of pointers is NULL terminated
  * and should not be freed by the caller.
  */
 const OiCapability **oi_capability_list     (Oi *oi, int *count);
 
-/* destroy an oi instance (normally not used, use oi_ref and oi_unref instead)*/
-void          oi_destroy               (Oi *oi);
+/* used to implement the object reaping side of oi_unref; do not use
+ * directly
+ */
+void          oi_finalize              (Oi *oi);
 
-
+Oi           *oi_new_bare (OiType *type, void *userdata);
 #include "oi-mem.h"
 
 /* core capabilities */

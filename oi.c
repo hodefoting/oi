@@ -19,60 +19,64 @@
 #include <stdlib.h>
 #include "oi.h"
 
-struct _Oi
+@trait Oi
 {
-  int           capability_count;
-  /* this could be a treap */
-  OiCapability      **capabilities;
-} __attribute((packed));
+  int             capability_count;
+  /* XXX: this could be a treap */
+  OiCapability  **capabilities;
+};
 
 int
-oi_capability_check (Oi     *oi,
-             OiType *capability)
+capability_check (OiType *capability)
 {
   int i;
-  for (i = 0; i < oi->capability_count; i++)
-    if (oi->capabilities[i]->type == capability)
+  if (self->capability_count == -66) fprintf (stderr, "Eeek");
+  if (capability == OI)
+    return 1;
+  for (i = 0; i < self->capability_count; i++)
+    if (self->capabilities[i]->type == capability)
       return 1;
   return 0;
 }
 
-OiCapability *
-oi_capability_get (Oi          *oi,
-              OiType *capability)
-
+void *capability_get (OiType *capability)
 {
   int i;
-  for (i = 0; i < oi->capability_count; i++)
-    if (oi->capabilities[i]->type == capability)
-      return oi->capabilities[i];
+  if (self->capability_count == -66) fprintf (stderr, "Eeek");
+  if (capability == OI)
+    return (OiCapability*)self;
+  for (i = 0; i < self->capability_count; i++)
+    if (self->capabilities[i]->type == capability)
+      return self->capabilities[i];
   return NULL;
 }
 
-OiCapability *
-oi_capability_get_assert (Oi          *oi,
-                     OiType *capability)
-
+void *capability_get_assert (OiType *capability)
 {
-  OiCapability *res = oi_capability_get (oi, capability);
+  OiCapability *res = self@oi:capability_get (capability);
+  if (self->capability_count == -66) fprintf (stderr, "Eeek");
+  if (capability == OI)
+    return (OiCapability*)self;
   if (!res)
     {
-      fprintf (stderr, "assert failes, object %p doesn't have capability \"%s\", if you did not expect this to happen,. it could have been caused by forgetting to pad the start of a capability instance struct.\n",
-               oi, capability->name);
-      *((Oi*)(NULL)) = *oi; /* segfault so a backtrace is meaningful */
+      fprintf (stderr, "assert failes, object %p doesn't have capability \"%s\".\n",
+               self, capability->name);
+      *((Oi*)(NULL)) = *self; /* segfault so a backtrace is meaningful */
     }
   return res;
 }
 
-OiCapability *oi_capability_ensure (Oi     *oi,
-                            OiType *capability,
-                            Oi     *args)
+void *capability_ensure (OiType *capability,
+                         Oi     *args)
 {
-  OiCapability *res = oi_capability_get (oi, capability);
+  OiCapability *res = self@oi:capability_get (capability);
+  if (self->capability_count == -66) fprintf (stderr, "Eeek");
+  if (capability == OI)
+    return (OiCapability*)self;
   if (!res)
     {
-      oi_capability_add (oi, capability, args);
-      res = oi_capability_get (oi, capability);
+      self@oi:capability_add (capability, args);
+      res = self@oi:capability_get (capability);
     }
   return res;
 }
@@ -80,89 +84,105 @@ OiCapability *oi_capability_ensure (Oi     *oi,
 #define ALLOC_CHUNK   16
 #define ALLOC_CHUNK_1 ALLOC_CHUNK-1
 
-void oi_capability_add (Oi     *oi,
-                  OiType *type,
-                  Oi     *args)
+void capability_add (OiType *type,
+                     Oi     *args)
 {
-  if (oi_capability_check (oi, type))
+  if (type == OI)
+    return;
+  if (self->capability_count == -66) fprintf (stderr, "Eeek");
+  if (self@oi:capability_check (type))
     {
       fprintf (stderr, "Object %p already have capability \"%s\"\n",
-               oi, type->name);
+               self, type->name);
       return;
     }
   if (
-       ((oi->capability_count + ALLOC_CHUNK)/ALLOC_CHUNK) * ALLOC_CHUNK >
-       ((oi->capability_count + ALLOC_CHUNK_1)/ALLOC_CHUNK) * ALLOC_CHUNK)
+       ((self->capability_count + ALLOC_CHUNK)/ALLOC_CHUNK) * ALLOC_CHUNK >
+       ((self->capability_count + ALLOC_CHUNK_1)/ALLOC_CHUNK) * ALLOC_CHUNK)
     {
-      if (oi->capabilities == NULL)
-        oi->capabilities = malloc (sizeof (OiCapability*) * ALLOC_CHUNK);
+      if (self->capabilities == NULL)
+        self->capabilities = malloc (sizeof (OiCapability*) * ALLOC_CHUNK);
       else
-        oi->capabilities = realloc (oi->capabilities, sizeof (OiCapability*) *
-                             ((oi->capability_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK );
+        self->capabilities = realloc (self->capabilities, sizeof (OiCapability*) *
+                             ((self->capability_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK );
     }
-  oi->capabilities[oi->capability_count] = oi_malloc (type->size);
-  oi->capabilities[oi->capability_count]->type = type;
-  oi->capability_count++;
+
+  self->capabilities[self->capability_count] = oi_malloc (type->size);
+  self->capabilities[self->capability_count]->type = type;
   if (type->init)
-    type->init (oi, oi->capabilities[oi->capability_count-1], args);
-  oi_message_emit (oi, "oi:add-capability", type);
+    type->init (self, self->capabilities[self->capability_count], args);
+  if (type->init_int)
+    type->init_int (self, self->capabilities[self->capability_count]);
+
+  self->capability_count++;
+
+  self@message:emit ("oi:add-capability", type);
 }
 
-static void
-oi_capability_destroy (Oi *oi, OiCapability *capability)
+static void capability_destroy (OiCapability *capability)
 {
+  if (self->capability_count == -66) fprintf (stderr, "Eeek");
   if (capability->type->destroy)
-    capability->type->destroy (oi, capability);
+    capability->type->destroy (self, capability);
   oi_free (capability->type->size, capability);
 }
 
-void
-oi_capability_remove (Oi           *oi,
-                 OiType *capability)
+void capability_remove (OiType *capability)
 {
   int i;
-  if (!oi_capability_check (oi, capability))
+  if (capability == OI)
+    return;
+  if (self->capability_count == -66) fprintf (stderr, "Eeek");
+  if (!oi_capability_check (self, capability))
     {
-      fprintf (stderr, "Object %p doesn't have capability \"%s\"\n", oi, capability->name);
+      fprintf (stderr, "Object %p doesn't have capability \"%s\"\n", self, capability->name);
       return;
-    }
-  oi_message_emit (oi, "oi:remove-capability", capability);
-  for (i = 0; i < oi->capability_count; i++)
-    if (oi->capabilities[i]->type == capability)
+    };
+
+  self@message:emit ("oi:remove-capability", capability);
+  for (i = 0; i < self->capability_count; i++)
+    if (self->capabilities[i]->type == capability)
       {
         int j;
-        oi_capability_destroy (oi, oi->capabilities[i]);
-        oi->capability_count--;
-        for (j = i; j < oi->capability_count; j++)
-          oi->capabilities[j] = oi->capabilities[j+1];
+        self@oi:capability_destroy (self->capabilities[i]);
+        self->capability_count--;
+        for (j = i; j < self->capability_count; j++)
+          self->capabilities[j] = self->capabilities[j+1];
         return;
       }
 }
 
-Oi *
-oi_new (void)
-{
-  Oi *oi = oi_malloc (sizeof(Oi));
-  oi->capabilities = NULL;
-  oi->capability_count = 0;
-  return oi;
-}
-
-void
-oi_destroy (Oi *oi)
+void finalize ()
 {
   int i;
-  oi_message_emit (oi, "oi:die", NULL);
-  for (i = oi->capability_count-1; i>=0 ; i--)
-    oi_capability_destroy (oi, oi->capabilities[i]);
-  free (oi->capabilities);
-  oi->capability_count = -66;
-  oi_free (sizeof (Oi), oi);
+  self@message:emit ("oi:die", NULL);
+  for (i = self->capability_count-1; i>=0 ; i--)
+    self@oi:capability_destroy (self->capabilities[i]);
+  free (self->capabilities);
+  self->capability_count = -66;
+  oi_free (sizeof (Oi), self);
 }
 
-const OiCapability **oi_capability_list (Oi *oi, int *count)
+const OiCapability **oi_capability_list (int *count)
 {
   if (count)
-    *count = oi->capability_count;
-  return (void*)oi->capabilities;
+    *count = self->capability_count;
+  return (void*)self->capabilities;
+}
+
+@end
+
+Oi * oi_new (void)
+{
+  Oi *self = oi_malloc (sizeof(Oi));
+  self->capabilities = NULL;
+  self->capability_count = 0;
+  return self;
+}
+
+Oi *oi_new_bare (OiType *type, void *userdata)
+{
+  Oi *self = @oi:new ();
+  self@oi:capability_add (type, userdata);
+  return self;
 }

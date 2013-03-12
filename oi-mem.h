@@ -24,6 +24,7 @@ void oi_set_memory_functions (
   void *(*realloc) (void *mem, size_t size),
   char *(*strdup) (const char *str),
   void  (*strfree) (void *str));
+
 void oi_free (size_t size, void *mem);
 void *oi_malloc (size_t size);
 void *oi_realloc (void *mem, size_t size);

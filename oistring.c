@@ -17,50 +17,40 @@
 
 #include "oi.h"
 #include "oistring.h"
+#include <stdarg.h>
+#include <stdio.h>
 
-typedef struct
+#define OI_STRING(oi) ((String*)oi_capability_get_assert (oi, STRING))
+
+@trait String
 {
-  OiCapability     capability;
   char      *data;
   int         len;
   int   allocated;
-}  __attribute((packed))  String;
+};
 
-static void string_init (Oi *oi, OiCapability *capability, Oi *args)
+static void init (Oi *args)
 {
-  String *string = (String*)capability;
   string->allocated = 8;
   string->len = 0;
   string->data = oi_malloc (string->allocated);
 }
-static void string_destroy (Oi *oi, OiCapability *capability)
+static void destroy ()
 {
-  String *string = (String*)capability;
   if (string->data)
     oi_free (string->allocated, string->data);
 }
-OI(STRING, String, NULL, string_init, string_destroy)
 
-#define OI_STRING(oi) ((String*)oi_capability_get_assert (oi, STRING))
-
-Oi *oi_string_new (const char *initial)
+void clear ()
 {
-  Oi *oi = oi_new ();
-  oi_capability_add (oi, STRING, NULL);
-  if (initial)
-    oi_string_append_str (oi, initial);
-  return oi;
-}
-void oi_string_clear (Oi *oi)
-{
-  String *string = OI_STRING (oi);
+  String *string = OI_STRING (self);
   string->len = 0;
   string->data[string->len]=0;
 }
 
-void oi_string_appendc (Oi *oi, int val)
+void appendc (int val)
 {
-  String *string = OI_STRING (oi);
+  String *string = OI_STRING (self);
   if (string->len + 2 >= string->allocated)
     {
       char *old = string->data;
@@ -72,37 +62,70 @@ void oi_string_appendc (Oi *oi, int val)
   string->data[string->len++] = val;
   string->data[string->len] = '\0';
 }
-void oi_string_append_str (Oi *oi, const char *str)
+
+void append_str (const char *str)
 {
   while (str && *str)
     {
-      oi_string_appendc (oi, *str);
+      self@string:appendc (*str);
       str++;
     }
 }
-void oi_string_append_string (Oi *oi, Oi *oi2)
+
+void append_string (Oi *oi2)
 {
-  const char *str = oi_string_get (oi2);
+  const char *str = oi2@string:get ();
   while (str && *str)
     {
-      oi_string_appendc (oi, *str);
+      self@string:appendc (*str);
       str++;
     }
 }
-const char *oi_string_get (Oi *oi)
+const char *get ()
 {
-  String *string = OI_STRING (oi);
+  String *string = OI_STRING (self);
   return string->data;
 }
 
 /* dissolving a string, means destroying it, but returning
  * the string, that should be manually freed.
  */
-char *oi_string_dissolve   (Oi *oi)
+char *dissolve   ()
 {
-  String *string = OI_STRING (oi);
+  String *string = OI_STRING (self);
   char *ret = string->data;
   string->data = NULL;
-  oi_destroy (oi);
+  self@oi:finalize();
   return ret;
+}
+
+void append_printf (const char *format, ...)
+{
+  va_list ap;
+  size_t needed;
+  char  *buffer;
+
+  va_start(ap, format);
+  needed = vsnprintf(NULL, 0, format, ap) + 1;
+  buffer = oi_malloc (needed);
+  va_end (ap);
+
+  va_start(ap, format);
+  vsnprintf(buffer, needed, format, ap);
+  va_end (ap);
+
+  self@string:append_str (buffer);
+  oi_free (needed, buffer);
+}
+
+@end
+
+Oi *string_new (const char *initial)
+{
+  Oi *self = oi_new_bare (STRING, NULL);
+  if (initial)
+    {
+      self@string:append_str (initial);
+    }
+  return self;
 }

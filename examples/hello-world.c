@@ -1,35 +1,30 @@
 #include <stdio.h>
 #include "oi.h"
 
-
-typedef struct
+@trait Foo
 {
-  OiCapability capability;
-  float   foo;
-}  __attribute((packed))  Foo;
+  float  number;
+};
 
-static void foo_init (Oi *oi, OiCapability *capability, Oi *args)
+static void init ()
 {
-  Foo *foo = (Foo*)capability;
-  foo->foo = 1;
+  foo->number = 1.0;
 }
 
-/* this creates the capability FOO that is the public handle to our type
- */
-OI(FOO, Foo, NULL, foo_init, NULL)
-
-float oi_get_foo (Oi *oi)
+float get_it ()
 {
-  Foo *foo = (Foo*)oi_capability_ensure (oi, FOO, NULL);
-  return foo->foo;
+  Foo *foo = self@oi:capability_ensure (FOO, NULL);
+  return foo->number;
 }
 
-void  oi_set_foo (Oi *oi, float f)
+void  set_it (float f)
 {
-  Foo *foo = (Foo*)oi_capability_ensure (oi, FOO, NULL);
-  foo->foo = f;
-  oi_message_emit (oi, "notify", "foo");
+  Foo *foo = self@oi:capability_ensure (FOO, NULL);
+  foo->number= f;
+  self@message:emit ("notify", "foo");
 }
+
+@end
 
 int main (int argc, char **argv)
 {
@@ -38,16 +33,18 @@ int main (int argc, char **argv)
 
   test = oi_new ();
 
-  string = oi_string_new ("fjo\n");
-  oi_string_append_str (string, "foo");
-  oi_string_append_str (string, " bar");
-  printf ("%s\n", oi_string_get (string));
-  oi_set_foo (string, 1.2);
-  printf ("%f\n", oi_get_foo (string));
+  string = string_new ("fjo\n");
+  string@string:append_str ("foo");
+  string@string:append_str (" bar");
 
-  oi_set_float (string, "foo", 1.2);
-  oi_unref (string);
-  oi_unref (test);
+  printf ("%s\n", string@string:get ());
+  string@foo:set_it (1.2);
+  printf ("%f\n", string@foo:get_it());
+
+  string@["boo"float]=1.4;
+  printf ("::%f\n", string@oi:get_float("boo"));
+  string@oi:unref ();
+  test@oi:unref ();
 
   return 0;
 }

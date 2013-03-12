@@ -22,16 +22,17 @@
 
 extern OiType  *STRING;
 
-Oi  *oi_string_new        (const char *initial);
-void oi_string_clear      (Oi *oi);
-void oi_string_appendc    (Oi *oi, int val);
-void oi_string_append_str (Oi *oi, const char *str);
-const char *oi_string_get (Oi *oi);
-void oi_string_append_string (Oi *oi, Oi *oi2);
+Oi  *string_new           (const char *initial);
+void string_clear         (Oi *oi);
+void string_appendc       (Oi *oi, int val);
+void string_append_str    (Oi *oi, const char *str);
+const char *string_get    (Oi *oi);
+void string_append_string (Oi *oi, Oi *oi2);
+void string_append_printf (Oi *oi, const char *format, ...);
 
 /* dissolving a string, means destroying it, but returning
  * the string, that should be manually freed.
  */
-char *oi_string_dissolve  (Oi *oi);
+char *string_dissolve  (Oi *oi);
 
 #endif

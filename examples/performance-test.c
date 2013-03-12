@@ -42,21 +42,21 @@ static void foo_init (Oi *oi, OiCapability *capability, Oi *args)
   Foo *foo = (Foo*)capability;
   foo->foo = 1;
 }
-OI(FOO, Foo, NULL, foo_init, NULL)
+OI(FOO, Foo, foo_init, NULL, NULL)
 
 #define OI_FOO(oi) ((Foo*)oi_capability_get_assert (oi, FOO))
 
 float oi_get_foo (Oi *oi)
 {
-  Foo *foo = (Foo*)oi_capability_ensure (oi, FOO, NULL);
+  Foo *foo = (Foo*)oi@oi:capability_ensure (FOO, NULL);
   return foo->foo;
 }
 
 void  oi_set_foo (Oi *oi, float f)
 {
-  Foo *foo = (Foo*)oi_capability_get (oi, FOO);
+  Foo *foo = (Foo*)oi@oi:capability_get (FOO);
   foo->foo = f;
-  oi_message_emit (oi, "notify", "foo");
+  oi@message:emit ("notify", "foo");
 }
 
 
@@ -137,11 +137,11 @@ int perf_test (void)
     start = oi_ticks ();
     for (i = 0; i < count; i ++)
       {
-        oi_ref (item);
-        oi_unref (item);
+        item@oi:ref ();
+        item@oi:unref ();
       }
     ref_unref_oi = 1000000.0/((oi_ticks () - start)*1.0/count);
-    oi_unref (item);
+    item@oi:unref ();
   }
 
 
@@ -150,10 +150,11 @@ int perf_test (void)
   start = oi_ticks ();
   for (i = 0; i < count; i ++)
     {
-      oi_set_float (item, "a", oi_get_float (item, "a") + 0.1);
+      float val = item@["a"float];
+      item@["a"float]=val + 0.1;
     }
   getsetprop_oi = 1000000.0/((oi_ticks () - start)*1.0/count);
-  oi_unref (item);
+  item@oi:unref ();
 }
 
 {
@@ -207,25 +208,26 @@ int perf_test (void)
   for (i = 0; i < count; i ++)
     {
       float f;
-      f = oi_get_foo (item);
+      f = item@oi:get_foo ();
       f++;
-      oi_set_foo (item, f);
+      item@oi:set_foo (f);
     }
   getsetaccesor_oi = 1000000.0/((oi_ticks () - start)*1.0/count);
-  oi_unref (item);
+  item@oi:unref ();
 }
 
 
 {
   Oi *item = oi_new ();
   start = oi_ticks ();
-  oi_message_listen (item, NULL, NULL, "notify", (void*)oops, NULL);
+  item@message:listen (NULL, NULL, "notify", (void*)oops, NULL);
   for (i = 0; i < count; i ++)
     {
-      oi_set_float (item, "a", oi_get_float (item, "a") + 0.1);
+      float val = item@["a"float];
+      item@["a"float]=val + 0.1;
     }
   getsetpropnotify_oi = 1000000.0/((oi_ticks () - start)*1.0/count);
-  oi_unref (item);
+  item@oi:unref ();
 }
 
 

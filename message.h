@@ -15,8 +15,8 @@
  * Authors:  Øyvind Kolås    <pippin@gimp.org>
  */
 
-#ifndef OI_MESSAGE_H
-#define OI_MESSAGE_H
+#ifndef message_H
+#define message_H
 
 /* The message capability is automatically instantiated for instances where
  * messages are attached, emitting messages on instances without any
@@ -25,13 +25,17 @@
 
 extern OiType     *MESSAGE;
 
-void   oi_message_emit    (Oi *oi, const char *message, void *data);
+void   message_emit (Oi *oi, const char *message, void *data);
+
+typedef void (*ClosureFunc)    (void* user_data);
+
+#define CLOSURE(aa) (ClosureFunc)(aa)
 
 /* XXX: should perhaps take a thread name, with all callbacks emited with
         the same name are serialized.
  */
 void
-oi_message_emit_remote (Oi         *oi,
+message_emit_remote (Oi         *oi,
                        const char *message_name,
                        void       *arg,
                        void (*closure) (void *arg));
@@ -41,17 +45,17 @@ oi_message_emit_remote (Oi         *oi,
  * connecting capability is
  */
 int
-oi_message_listen (Oi         *oi,
-                   Oi         *oi_self,
-                   OiCapability     *capability_self,
-                   const char *message_name,
-                   void      (*callback) (Oi *self, void *arg, void *user_data),
-                   void       *user_data);
+message_listen (Oi           *oi,
+                Oi           *oi_self,
+                OiCapability *capability_self,
+                const char   *message_name,
+                void        (*callback) (Oi *self, void *arg, void *user_data),
+                void         *user_data);
 
-void   oi_message_handler_disconnect (Oi *oi,
+void   message_handler_disconnect (Oi *oi,
                                      int handler_id);
-void   oi_message_handler_disconnect_by_func (Oi *oi,
+void   message_handler_disconnect_by_func (Oi *oi,
                           void (*callback) (Oi *self, void *arg, void *user_data));
-void   oi_message_handler_disconnect_by_func_and_data (Oi *oi,
+void   message_handler_disconnect_by_func_and_data (Oi *oi,
                           void (*callback) (Oi *self, void *arg, void *user_data));
 #endif

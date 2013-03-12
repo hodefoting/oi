@@ -20,43 +20,37 @@
 #include <pthread.h>
 #include "oi.h"
 
-typedef struct
+@trait Lock
 {
-  OiCapability          capability;
   int             lock;
   pthread_mutex_t mutex;
-}  __attribute((packed))  Lock;
+};
 
-static void lock_init (Oi *oi, OiCapability *capability, Oi     *args)
+static void init ()
 {
   pthread_mutexattr_t attr;
-  Lock *lock = (Lock*)capability;
   lock->lock = 0;
   pthread_mutexattr_init(&attr);
   pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-
   pthread_mutex_init(&lock->mutex, &attr);
 }
-static void lock_destroy (Oi *oi, OiCapability *capability)
+static void destroy ()
 {
-  Lock *lock = (Lock*)capability;
   pthread_mutex_destroy (&lock->mutex);
 }
-OI(LOCK, Lock, NULL, lock_init, lock_destroy)
+@end
 
-#define OI_LOCK(oi) ((Lock*)oi_capability_get_assert (oi, LOCK))
-
-Oi *oi_lock (Oi *oi)
+Oi *oi_lock (Oi *self)
 {
-  Lock *lock = (Lock*)oi_capability_ensure (oi, LOCK, NULL);
+  Lock *lock = (Lock*)self@oi:capability_ensure (LOCK, NULL);
   pthread_mutex_lock (&lock->mutex);
   lock->lock++;
-  return oi;
+  return self;
 }
 
-int oi_trylock (Oi *oi)
+int oi_trylock (Oi *self)
 {
-  Lock *lock = (Lock*)oi_capability_get (oi, LOCK);
+  Lock *lock = (Lock*)self@oi:capability_get (LOCK);
   int res;
   res = pthread_mutex_trylock (&lock->mutex);
   if (!res)
@@ -67,9 +61,9 @@ int oi_trylock (Oi *oi)
   return res;
 }
 
-void  oi_unlock (Oi *oi)
+void  oi_unlock (Oi *self)
 {
-  Lock *lock = (Lock*)oi_capability_get (oi, LOCK);
+  Lock *lock = (Lock*)self@oi:capability_get (LOCK);
   if (!lock || lock->lock-- == 0)
     fprintf (stderr, "unlocking unlocked lock!\n");
   pthread_mutex_unlock (&lock->mutex);

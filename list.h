@@ -19,32 +19,32 @@
 #define OI_LIST_H
 
 extern  OiType          *LIST;
-Oi     *oi_list_new          (void); /* the list is a capability, but can also be used
+Oi     *list_new          (void); /* the list is a capability, but can also be used
                                     on its own */
 
-int     oi_list_get_size          (Oi *oi);
-void    oi_list_append            (Oi *oi, void *data);
-void    oi_list_remove            (Oi *oi, void *data);
-void    oi_list_remove_fast       (Oi *oi, void *data);
-void    oi_list_remove_index      (Oi *oi, int no);
-void    oi_list_remove_index_fast (Oi *oi,
-                                   int index);
-void    oi_list_remove_zombie       (Oi *oi, void *data);
-void    oi_list_remove_zombie_fast  (Oi *oi, void *data);
-void    oi_list_remove_zombie_index (Oi *oi, int no);
-void    oi_list_remove_zombie_index_fast (Oi *oi,
-                                          int index);
-int     oi_list_find_custom  (Oi *oi, int (*match_fun)(void *item, void *user_data),
-                                      void *user_data);
-int     oi_list_find         (Oi *oi, void *data);
-void   *oi_list_get          (Oi *oi, int no);
-//void *oi_list_set          (Oi *oi, int no, void *data);
-void    oi_list_set_destroy  (Oi *oi, void (*destroy)(void *item, void *user_data),
-                              void *user_data);
-void    oi_list_each         (Oi *oi, void (*cb)(void *item, void *user_data),
-                              void *user_data);
+int     list_get_size          (Oi *oi);
+void    list_append            (Oi *oi, void *data);
+void    list_remove            (Oi *oi, void *data);
+void    list_remove_fast       (Oi *oi, void *data);
+void    list_remove_index      (Oi *oi, int no);
+void    list_remove_index_fast (Oi *oi,
+                                int index);
+void    list_remove_zombie       (Oi *oi, void *data);
+void    list_remove_zombie_fast  (Oi *oi, void *data);
+void    list_remove_zombie_index (Oi *oi, int no);
+void    list_remove_zombie_index_fast (Oi *oi,
+                                       int index);
+int     list_find_custom  (Oi *oi, int (*match_fun)(void *item, void *user_data),
+                                   void *user_data);
+int     list_find         (Oi *oi, void *data);
+void   *list_get          (Oi *oi, int no);
+//void *list_set          (Oi *oi, int no, void *data);
+void    list_set_destroy  (Oi *oi, void (*destroy)(void *item, void *user_data),
+                           void *user_data);
+void    list_each         (Oi *oi, void (*cb)(void *item, void *user_data),
+                           void *user_data);
 
-float oi_list_get_foo (Oi *oi);
-void  oi_list_set_foo (Oi *oi, float foo);
+float list_get_foo (Oi *oi);
+void  list_set_foo (Oi *oi, float foo);
 
 #endif

@@ -17,40 +17,60 @@
 
 #include "oi.h"
 
-typedef struct
+@trait Refcount
 {
-  OiCapability capability;
-  int     refcount;
-}  __attribute((packed))  Refcount;
+  int refcount;
+};
 
-static void refcount_init (Oi *oi, OiCapability *capability, Oi *args)
+static void init ()
 {
-  Refcount *refcount = (Refcount*)capability;
   refcount->refcount = 1;
 }
-OI(REFCOUNT, Refcount, NULL, refcount_init, NULL)
 
-#define OI_REFCOUNT(oi) ((Refcount*)oi_capability_get_assert (oi, REFCOUNT))
-
-Oi *oi_ref (Oi *oi)
+Oi *inc ()
 {
-  Refcount *refcount = (Refcount*)oi_capability_ensure (oi, REFCOUNT, NULL);
-  if (oi_capability_get (oi, LOCK))
-    oi_lock (oi);
+  Refcount *refcount = (Refcount*)self@oi:capability_ensure (REFCOUNT, NULL);
+  if (self@oi:capability_get (LOCK))
+    self@oi:lock ();
   refcount->refcount++;
-  if (oi_capability_get (oi, LOCK))
-    oi_unlock (oi);
-  return oi;
+  if (self@oi:capability_get (LOCK))
+    self@oi:unlock ();
+  return self;
 }
 
-void  oi_unref (Oi *oi)
+void dec ()
 {
-  Refcount *refcount = (Refcount*)oi_capability_get (oi, REFCOUNT);
-  if (oi_capability_get (oi, LOCK))
-    oi_lock (oi);
+  Refcount *refcount = (Refcount*)self@oi:capability_get (REFCOUNT);
+  if (self@oi:capability_get (LOCK))
+    self@oi:lock ();
   if (!refcount || -- refcount->refcount == 0)
-    oi_destroy (oi);
+    self@oi:finalize ();
   else
-    if (oi_capability_get (oi, LOCK))
-      oi_unlock (oi);
+    if (self@oi:capability_get (LOCK))
+      self@oi:unlock ();
+}
+
+@end
+
+Oi *oi_ref (Oi *self)
+{
+  Refcount *refcount = (Refcount*)self@oi:capability_ensure (REFCOUNT, NULL);
+  if (self@oi:capability_get (LOCK))
+    self@oi:lock ();
+  refcount->refcount++;
+  if (self@oi:capability_get (LOCK))
+    self@oi:unlock ();
+  return self;
+}
+
+void  oi_unref (Oi *self)
+{
+  Refcount *refcount = (Refcount*)self@oi:capability_get (REFCOUNT);
+  if (self@oi:capability_get (LOCK))
+    self@oi:lock ();
+  if (!refcount || -- refcount->refcount == 0)
+    self@oi:finalize ();
+  else
+    if (self@oi:capability_get (LOCK))
+      self@oi:unlock ();
 }

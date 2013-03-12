@@ -23,10 +23,10 @@
 #endif
 
 typedef struct OiMem {
-  void (*free)   (size_t size, void *mem);
-  void *(*malloc) (size_t size);
+  void  (*free)    (size_t size, void *mem);
+  void *(*malloc)  (size_t size);
   void *(*realloc) (void *mem, size_t size);
-  char *(*strdup) (const char *str);
+  char *(*strdup)  (const char *str);
   void  (*strfree) (void *str);
 } OiMem;
 
@@ -38,10 +38,10 @@ static void oi_free_default (size_t size, void *mem)
 static OiMem memfuncs = {oi_free_default, malloc, realloc, strdup, free};
 
 void oi_set_memory_functions (
-  void (*free)   (size_t size, void *mem),
-  void *(*malloc) (size_t size),
+  void  (*free)    (size_t size, void *mem),
+  void *(*malloc)  (size_t size),
   void *(*realloc) (void *mem, size_t size),
-  char *(*strdup) (const char *str),
+  char *(*strdup)  (const char *str),
   void  (*strfree) (void *str))
 {
   if (free)    memfuncs.free = free;
