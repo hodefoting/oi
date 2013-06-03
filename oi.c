@@ -91,8 +91,9 @@ void *trait_ensure (OiType *trait,
 
 /* adds an trait to an instance */
 void trait_add (OiType *type,
-                     Oi     *args)
+                Oi     *args)
 {
+  printf ("adding %s\n", type->name);
   if (type == OI)
     return;
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
