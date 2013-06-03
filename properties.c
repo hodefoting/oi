@@ -70,7 +70,7 @@ static void prop_unset (PropertiesEntry *entry)
     }
   else if (entry->type == OI_PTYPE_OI && entry->value_oi)
     {
-      entry->value_oi@oi:unref ();
+      entry->value_oi@ref:dec ();
       entry->value_oi = NULL;
     }
 }
@@ -175,7 +175,7 @@ void   oi_set_oi          (Oi *oi, const char *name, Oi *value)
   PropertiesEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_OI;
   if (value)
-    entry->value_oi = oi_ref (value);
+    entry->value_oi = value@ref:inc();
   else
     entry->value_oi = NULL;
   oi@message:emit ("notify", (void*)name);
@@ -231,7 +231,7 @@ Oi *oi_get_oi (Oi *oi, const char *name)
   PropertiesEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
     {
-      case OI_PTYPE_OI: return oi_ref (entry->value_oi);
+      case OI_PTYPE_OI: return (entry->value_oi@ref:inc());
       default:          return NULL;
     }
 }

@@ -120,7 +120,7 @@ int perf_test (void)
   for (i = 0; i < count; i ++)
     {
       Oi *item = oi_new ();
-      oi_unref (item);
+      item@ref:dec();
     }
   condecon_oi = 1000000.0/((oi_ticks () - start)*1.0/count);
 
@@ -137,11 +137,11 @@ int perf_test (void)
     start = oi_ticks ();
     for (i = 0; i < count; i ++)
       {
-        item@oi:ref ();
-        item@oi:unref ();
+        item@ref:inc ();
+        item@ref:dec ();
       }
     ref_unref_oi = 1000000.0/((oi_ticks () - start)*1.0/count);
-    item@oi:unref ();
+    item@ref:dec ();
   }
 
 
@@ -154,7 +154,7 @@ int perf_test (void)
       item@["a"float]=val + 0.1;
     }
   getsetprop_oi = 1000000.0/((oi_ticks () - start)*1.0/count);
-  item@oi:unref ();
+  item@ref:dec ();
 }
 
 {
@@ -213,7 +213,7 @@ int perf_test (void)
       item@oi:set_foo (f);
     }
   getsetaccesor_oi = 1000000.0/((oi_ticks () - start)*1.0/count);
-  item@oi:unref ();
+  item@ref:dec ();
 }
 
 
@@ -227,7 +227,7 @@ int perf_test (void)
       item@["a"float]=val + 0.1;
     }
   getsetpropnotify_oi = 1000000.0/((oi_ticks () - start)*1.0/count);
-  item@oi:unref ();
+  item@ref:dec ();
 }
 
 

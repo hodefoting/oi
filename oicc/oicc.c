@@ -787,7 +787,7 @@ static void output_linebuf (char *string)
         return;
       }
   }
-  printf ("{%s}", string);
+  printf ("%s", string);
 }
 
 /* launch gcc, with filtering of it's error messages to redirect us

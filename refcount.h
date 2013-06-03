@@ -21,7 +21,12 @@
 /* ref-count is added to object on demand if the refcounting functions are used */
 
 extern OiType  *REFCOUNT;
+
+/*
 Oi    *oi_ref   (Oi *oi);
-void   oi_unref (Oi *oi);
+void   oi_unref (Oi *oi);*/
+
+Oi    *ref_inc  (Oi *oi);
+Oi    *ref_dec  (Oi *oi);
 
 #endif

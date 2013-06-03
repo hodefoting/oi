@@ -17,60 +17,41 @@
 
 #include "oi.h"
 
-@trait Refcount
+@trait Ref
 {
-  int refcount;
+  int count;
 };
 
 static void init ()
 {
-  refcount->refcount = 1;
+  ref->count = 1;
 }
 
 Oi *inc ()
 {
-  Refcount *refcount = (Refcount*)self@oi:capability_ensure (REFCOUNT, NULL);
+  Ref *ref = self@oi:capability_ensure (REF, NULL);
   if (self@oi:capability_get (LOCK))
     self@oi:lock ();
-  refcount->refcount++;
+  ref->count++;
   if (self@oi:capability_get (LOCK))
     self@oi:unlock ();
   return self;
 }
 
-void dec ()
+Oi *dec ()
 {
-  Refcount *refcount = (Refcount*)self@oi:capability_get (REFCOUNT);
+  Ref *ref = self@oi:capability_get (REF);
   if (self@oi:capability_get (LOCK))
     self@oi:lock ();
-  if (!refcount || -- refcount->refcount == 0)
-    self@oi:finalize ();
+  if (!ref || -- ref->count == 0)
+    {
+      self@oi:finalize ();
+      return NULL;
+    }
   else
     if (self@oi:capability_get (LOCK))
       self@oi:unlock ();
+  return self;
 }
 
 @end
-
-Oi *oi_ref (Oi *self)
-{
-  Refcount *refcount = (Refcount*)self@oi:capability_ensure (REFCOUNT, NULL);
-  if (self@oi:capability_get (LOCK))
-    self@oi:lock ();
-  refcount->refcount++;
-  if (self@oi:capability_get (LOCK))
-    self@oi:unlock ();
-  return self;
-}
-
-void  oi_unref (Oi *self)
-{
-  Refcount *refcount = (Refcount*)self@oi:capability_get (REFCOUNT);
-  if (self@oi:capability_get (LOCK))
-    self@oi:lock ();
-  if (!refcount || -- refcount->refcount == 0)
-    self@oi:finalize ();
-  else
-    if (self@oi:capability_get (LOCK))
-      self@oi:unlock ();
-}

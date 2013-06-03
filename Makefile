@@ -17,3 +17,6 @@ oicc/oicc: oicc/*.c
 clean: clean-too
 clean-too:
 	make -C oicc clean
+install: install-too
+install-too:
+	make -C oicc install

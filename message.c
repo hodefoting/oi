@@ -204,7 +204,7 @@ static void dispatch_queue_thread! (void *data)
           arg =          i@oi:get_pointer ("arg");
           closure =      i@oi:get_pointer ("closure");
           oi@message:emit (message_name, arg);
-          oi@oi:unref ();
+          oi@ref:dec ();
           queue@list:remove_index (0);
 
           if (closure)
@@ -222,7 +222,7 @@ static Oi *dispatch_queue! ()
       queue = @oi:new ();
       queue@oi:lock();
       queue@oi:capability_add (LIST, NULL);
-      queue@list:set_destroy ((void*)oi_unref, NULL);
+      queue@list:set_destroy ((void*)ref_dec, NULL);
       queue@oi:unlock();
 
       pthread_create (&thread, NULL, (void*)dispatch_queue_thread, NULL);

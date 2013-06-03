@@ -43,8 +43,8 @@ int main (int argc, char **argv)
 
   string@["boo"float]=1.4;
   printf ("::%f\n", string@oi:get_float("boo"));
-  string@oi:unref ();
-  test@oi:unref ();
+  string@ref:dec ();
+  test@ref:dec ();
 
   return 0;
 }
