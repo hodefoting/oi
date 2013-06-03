@@ -61,9 +61,9 @@ Oi           *oi_new_bare (OiType *type, void *userdata);
 #include "oi-mem.h"
 
 /* core capabilities */
+#include "ref.h"
 #include "message.h"
-#include "refcount.h"
-#include "lock.h"
+#include "mutex.h"
 #include "properties.h"
 #include "list.h"
 #include "oistring.h"

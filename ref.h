@@ -15,13 +15,12 @@
  * Authors:  Øyvind Kolås    <pippin@gimp.org>
  */
 
-#ifndef OI_LOCK_H
-#define OI_LOCK_H
+#ifndef OI_REF_H
+#define OI_REF_H
 
-/* ref-count is added to object on demand if the refcounting functions are used */
+extern OiType  *REFCOUNT;
 
-extern OiType  *LOCK;
-Oi    *oi_lock   (Oi *oi);
-void   oi_unlock (Oi *oi);
+Oi    *ref_inc  (Oi *oi);
+Oi    *ref_dec  (Oi *oi);
 
 #endif

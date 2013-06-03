@@ -88,14 +88,13 @@ static int match_name (void *properties_entry, const char *name)
   PropertiesEntry *entry = properties_entry;
   return (entry && entry->name && name && !strcmp (entry->name, name));
 }
-
 static PropertiesEntry *oi_get_entry_read (Oi *oi, const char *name)
 {
   Properties *properties = ((void*)oi_trait_ensure (oi, PROPERTIES, NULL));
   int no;
   PropertiesEntry *entry;
   no = properties->props@list:find_custom ((void*)match_name, (void*)name);
-  oi@oi:lock (); /* XXX: is this lock really needed? */
+  oi@mutex:lock (); /* XXX: is this lock really needed? */
   if (no >= 0)
     entry = properties->props@list:get (no);
   else
@@ -106,7 +105,7 @@ static PropertiesEntry *oi_get_entry_read (Oi *oi, const char *name)
       entry->type = OI_PTYPE_INT;
       entry->value_int = 0;
     } 
-  oi@oi:unlock ();
+  oi@mutex:unlock ();
   return entry;
 }
 
@@ -115,7 +114,7 @@ static PropertiesEntry *oi_get_entry_write (Oi *oi, const char *name)
   Properties *properties = ((void*)oi_trait_ensure (oi, PROPERTIES, NULL));
   int no;
   PropertiesEntry *entry;
-  oi_lock (oi);
+  oi@mutex:lock ();
   no = properties->props@list:find_custom((void*)match_name, (void*)name);
   if (no >= 0)
     {
@@ -130,7 +129,7 @@ static PropertiesEntry *oi_get_entry_write (Oi *oi, const char *name)
       properties->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
     } /* XXX: oicc hack*/ ;
-  oi@oi:unlock ();
+  oi@mutex:unlock ();
   return entry;
 }
 
@@ -218,8 +217,8 @@ const char *oi_get_string (Oi *oi, const char *name)
   PropertiesEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
     {
-      case OI_PTYPE_INT:    return "(int)";
-      case OI_PTYPE_FLOAT:  return "(float)";
+      case OI_PTYPE_INT:    return "(int)";   /* XXX: printf it?, but const? */
+      case OI_PTYPE_FLOAT:  return "(float)"; /* XXX: .....  */
       case OI_PTYPE_STRING: return entry->value_string;
       case OI_PTYPE_POINTER:return "(pointer)";
       default:              return "()";
@@ -254,14 +253,13 @@ each_wrapper (void *item, void *user_data)
   void (*cb)(const char *key, void *item, void *user_data) = args[0];
   cb (entry->name, "foo", args[1]);
 }
-
 void
-oi_properties_each (Oi *oi,
+oi_properties_each (Oi *self,
                     void (*cb)(const char *key, void *item, void *user_data),
                     void *user_data)
 {
   void *args[] = {cb, user_data};
-  Properties *properties = ((void*)oi@oi:trait_get (PROPERTIES));
+  Properties *properties = (self@oi:trait_get (PROPERTIES));
   properties->props@list:each(each_wrapper, args);
 }
 

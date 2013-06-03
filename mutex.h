@@ -15,43 +15,14 @@
  * Authors:  Øyvind Kolås    <pippin@gimp.org>
  */
 
-#include "oi.h"
+#ifndef OI_MUTEX_H
+#define OI_MUTEX_H
 
-@trait Ref
-{
-  int count;
-};
+/* ref-count is added to object on demand if the refcounting functions are used */
 
-static void init ()
-{
-  ref->count = 1;
-}
+extern OiType  *MUTEX;
+Oi    *mutex_lock    (Oi *oi);
+void   mutex_unlock  (Oi *oi);
+int    mutex_trylock (Oi *oi);
 
-Oi *inc ()
-{
-  Ref *ref = self@oi:trait_ensure (REF, NULL);
-  if (self@oi:trait_get (LOCK))
-    self@oi:lock ();
-  ref->count++;
-  if (self@oi:trait_get (LOCK))
-    self@oi:unlock ();
-  return self;
-}
-
-Oi *dec ()
-{
-  Ref *ref = self@oi:trait_get (REF);
-  if (self@oi:trait_get (LOCK))
-    self@oi:lock ();
-  if (!ref || -- ref->count == 0)
-    {
-      self@oi:finalize ();
-      return NULL;
-    }
-  else
-    if (self@oi:trait_get (LOCK))
-      self@oi:unlock ();
-  return self;
-}
-
-@end
+#endif

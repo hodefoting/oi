@@ -15,18 +15,43 @@
  * Authors:  Øyvind Kolås    <pippin@gimp.org>
  */
 
-#ifndef OI_REFCOUNT_H
-#define OI_REFCOUNT_H
+#include "oi.h"
 
-/* ref-count is added to object on demand if the refcounting functions are used */
+@trait Ref
+{
+  int count;
+};
 
-extern OiType  *REFCOUNT;
+static void init ()
+{
+  ref->count = 1;
+}
 
-/*
-Oi    *oi_ref   (Oi *oi);
-void   oi_unref (Oi *oi);*/
+Oi *inc ()
+{
+  Ref *ref = self@oi:trait_ensure (REF, NULL);
+  if (self@oi:trait_get (MUTEX))
+    self@mutex:lock ();
+  ref->count++;
+  if (self@oi:trait_get (MUTEX))
+    self@mutex:unlock ();
+  return self;
+}
 
-Oi    *ref_inc  (Oi *oi);
-Oi    *ref_dec  (Oi *oi);
+Oi *dec ()
+{
+  Ref *ref = self@oi:trait_get (REF);
+  if (self@oi:trait_get (MUTEX))
+    self@mutex:lock ();
+  if (!ref || -- ref->count == 0)
+    {
+      self@oi:finalize ();
+      return NULL;
+    }
+  else
+    if (self@oi:trait_get (MUTEX))
+      self@mutex:unlock ();
+  return self;
+}
 
-#endif
+@end

@@ -38,13 +38,11 @@ int     list_find_custom  (Oi *oi, int (*match_fun)(void *item, void *user_data)
                                    void *user_data);
 int     list_find         (Oi *oi, void *data);
 void   *list_get          (Oi *oi, int no);
-//void *list_set          (Oi *oi, int no, void *data);
 void    list_set_destroy  (Oi *oi, void (*destroy)(void *item, void *user_data),
                            void *user_data);
 void    list_each         (Oi *oi, void (*cb)(void *item, void *user_data),
                            void *user_data);
-
-float list_get_foo (Oi *oi);
-void  list_set_foo (Oi *oi, float foo);
+float   list_get_foo      (Oi *oi);
+void    list_set_foo      (Oi *oi, float foo);
 
 #endif

@@ -20,7 +20,7 @@
 #include <pthread.h>
 #include "oi.h"
 
-@trait Lock
+@trait Mutex
 {
   int             lock;
   pthread_mutex_t mutex;
@@ -29,42 +29,43 @@
 static void init ()
 {
   pthread_mutexattr_t attr;
-  lock->lock = 0;
+  mutex->lock = 0;
   pthread_mutexattr_init(&attr);
   pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-  pthread_mutex_init(&lock->mutex, &attr);
+  pthread_mutex_init(&mutex->mutex, &attr);
 }
 static void destroy ()
 {
-  pthread_mutex_destroy (&lock->mutex);
+  pthread_mutex_destroy (&mutex->mutex);
 }
-@end
 
-Oi *oi_lock (Oi *self)
+Oi *lock ()
 {
-  Lock *lock = (Lock*)self@oi:trait_ensure (LOCK, NULL);
-  pthread_mutex_lock (&lock->mutex);
-  lock->lock++;
+  Mutex *mutex = self@oi:trait_ensure (MUTEX, NULL);
+  pthread_mutex_lock (&mutex->mutex);
+  mutex->lock++;
   return self;
 }
 
-int oi_trylock (Oi *self)
+int trylock ()
 {
-  Lock *lock = (Lock*)self@oi:trait_get (LOCK);
+  Mutex *mutex = self@oi:trait_get (MUTEX);
   int res;
-  res = pthread_mutex_trylock (&lock->mutex);
+  res = pthread_mutex_trylock (&mutex->mutex);
   if (!res)
     {
-      lock->lock++;
+      mutex->lock++;
       return 0;
     }
   return res;
 }
 
-void  oi_unlock (Oi *self)
+void unlock ()
 {
-  Lock *lock = (Lock*)self@oi:trait_get (LOCK);
-  if (!lock || lock->lock-- == 0)
-    fprintf (stderr, "unlocking unlocked lock!\n");
-  pthread_mutex_unlock (&lock->mutex);
+  Mutex *mutex = self@oi:trait_get (MUTEX);
+  if (!mutex || mutex->lock-- == 0)
+    fprintf (stderr, "unlocking unlocked mutex!\n");
+  pthread_mutex_unlock (&mutex->mutex);
 }
+
+@end

@@ -220,10 +220,10 @@ static Oi *dispatch_queue! ()
     {
       pthread_t thread;
       queue = @oi:new ();
-      queue@oi:lock();
+      queue@mutex:lock();
       queue@oi:trait_add (LIST, NULL);
       queue@list:set_destroy ((void*)ref_dec, NULL);
-      queue@oi:unlock();
+      queue@mutex:unlock();
 
       pthread_create (&thread, NULL, (void*)dispatch_queue_thread, NULL);
     }
@@ -235,13 +235,13 @@ void emit_remote (const char *message_name,
                   void (*closure) (void *arg))
 {
   Oi *item = @oi:new ();
-  dispatch_queue ()@oi:lock ();
+  dispatch_queue ()@mutex:lock ();
   item@oi:set_oi      ("oi", self);
   item@oi:set_string  ("message", message_name);
   item@oi:set_pointer ("arg", arg);
   item@oi:set_pointer ("closure", closure);
   dispatch_queue ()@list:append (item);
-  dispatch_queue ()@oi:unlock ();
+  dispatch_queue ()@mutex:unlock ();
 }
 
 static int
