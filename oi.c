@@ -21,62 +21,67 @@
 
 @trait Oi
 {
-  int             capability_count;
+  int             trait_count;
   /* XXX: this could be a treap */
-  OiCapability  **capabilities;
+  OiTrait  **traits;
 };
 
+/* checks if the object has the given instance */
 int
-capability_check (OiType *capability)
+trait_check (OiType *trait)
 {
   int i;
-  if (self->capability_count == -66) fprintf (stderr, "Eeek");
-  if (capability == OI)
+  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  if (trait == OI)
     return 1;
-  for (i = 0; i < self->capability_count; i++)
-    if (self->capabilities[i]->type == capability)
+  for (i = 0; i < self->trait_count; i++)
+    if (self->traits[i]->type == trait)
       return 1;
   return 0;
 }
 
-void *capability_get (OiType *capability)
+/* gets the trait, if any */
+void *trait_get (OiType *trait)
 {
   int i;
-  if (self->capability_count == -66) fprintf (stderr, "Eeek");
-  if (capability == OI)
-    return (OiCapability*)self;
-  for (i = 0; i < self->capability_count; i++)
-    if (self->capabilities[i]->type == capability)
-      return self->capabilities[i];
+  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  if (trait == OI)
+    return (OiTrait*)self;
+  for (i = 0; i < self->trait_count; i++)
+    if (self->traits[i]->type == trait)
+      return self->traits[i];
   return NULL;
 }
 
-void *capability_get_assert (OiType *capability)
+/* gets an trait, if trait doesn't already exist fail with warning 
+ * (and segfault) */
+void *trait_get_assert (OiType *trait)
 {
-  OiCapability *res = self@oi:capability_get (capability);
-  if (self->capability_count == -66) fprintf (stderr, "Eeek");
-  if (capability == OI)
-    return (OiCapability*)self;
+  OiTrait *res = self@oi:trait_get (trait);
+  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  if (trait == OI)
+    return (OiTrait*)self;
   if (!res)
     {
-      fprintf (stderr, "assert failes, object %p doesn't have capability \"%s\".\n",
-               self, capability->name);
+      fprintf (stderr, "assert failes, object %p doesn't have trait \"%s\".\n",
+               self, trait->name);
       *((Oi*)(NULL)) = *self; /* segfault so a backtrace is meaningful */
     }
   return res;
 }
 
-void *capability_ensure (OiType *capability,
+/* gets the trait, creates and adds it if it doesn't already exist */
+void *trait_ensure (OiType *trait,
                          Oi     *args)
 {
-  OiCapability *res = self@oi:capability_get (capability);
-  if (self->capability_count == -66) fprintf (stderr, "Eeek");
-  if (capability == OI)
-    return (OiCapability*)self;
+  OiTrait *res = self@oi:trait_get (trait);
+  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  if (trait == OI)
+    return (OiTrait*)self;
   if (!res)
     {
-      self@oi:capability_add (capability, args);
-      res = self@oi:capability_get (capability);
+      self@oi:trait_add (trait, args);
+      res = self@oi:trait_get (trait);
     }
   return res;
 }
@@ -84,90 +89,98 @@ void *capability_ensure (OiType *capability,
 #define ALLOC_CHUNK   16
 #define ALLOC_CHUNK_1 ALLOC_CHUNK-1
 
-void capability_add (OiType *type,
+/* adds an trait to an instance */
+void trait_add (OiType *type,
                      Oi     *args)
 {
   if (type == OI)
     return;
-  if (self->capability_count == -66) fprintf (stderr, "Eeek");
-  if (self@oi:capability_check (type))
+  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  if (self@oi:trait_check (type))
     {
-      fprintf (stderr, "Object %p already have capability \"%s\"\n",
+      fprintf (stderr, "Object %p already have trait \"%s\"\n",
                self, type->name);
       return;
     }
   if (
-       ((self->capability_count + ALLOC_CHUNK)/ALLOC_CHUNK) * ALLOC_CHUNK >
-       ((self->capability_count + ALLOC_CHUNK_1)/ALLOC_CHUNK) * ALLOC_CHUNK)
+       ((self->trait_count + ALLOC_CHUNK)/ALLOC_CHUNK) * ALLOC_CHUNK >
+       ((self->trait_count + ALLOC_CHUNK_1)/ALLOC_CHUNK) * ALLOC_CHUNK)
     {
-      if (self->capabilities == NULL)
-        self->capabilities = malloc (sizeof (OiCapability*) * ALLOC_CHUNK);
+      if (self->traits == NULL)
+        self->traits = malloc (sizeof (OiTrait*) * ALLOC_CHUNK);
       else
-        self->capabilities = realloc (self->capabilities, sizeof (OiCapability*) *
-                             ((self->capability_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK );
+        self->traits = realloc (self->traits, sizeof (OiTrait*) *
+                             ((self->trait_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK );
     }
 
-  self->capabilities[self->capability_count] = oi_malloc (type->size);
-  self->capabilities[self->capability_count]->type = type;
+  self->traits[self->trait_count] = oi_malloc (type->size);
+  self->traits[self->trait_count]->type = type;
   if (type->init)
-    type->init (self, self->capabilities[self->capability_count], args);
+    type->init (self, self->traits[self->trait_count], args);
   if (type->init_int)
-    type->init_int (self, self->capabilities[self->capability_count]);
+    type->init_int (self, self->traits[self->trait_count]);
 
-  self->capability_count++;
+  self->trait_count++;
 
-  self@message:emit ("oi:add-capability", type);
+  self@message:emit ("oi:add-trait", type);
 }
 
-static void capability_destroy (OiCapability *capability)
+static void trait_destroy (OiTrait *trait)
 {
-  if (self->capability_count == -66) fprintf (stderr, "Eeek");
-  if (capability->type->destroy)
-    capability->type->destroy (self, capability);
-  oi_free (capability->type->size, capability);
+  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  if (trait->type->destroy)
+    trait->type->destroy (self, trait);
+  oi_free (trait->type->size, trait);
 }
 
-void capability_remove (OiType *capability)
+/* remove a trait from an instance */
+void trait_remove (OiType *trait)
 {
   int i;
-  if (capability == OI)
+  if (trait == OI)
     return;
-  if (self->capability_count == -66) fprintf (stderr, "Eeek");
-  if (!oi_capability_check (self, capability))
+  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  if (!oi_trait_check (self, trait))
     {
-      fprintf (stderr, "Object %p doesn't have capability \"%s\"\n", self, capability->name);
+      fprintf (stderr, "Object %p doesn't have trait \"%s\"\n", self, trait->name);
       return;
     };
 
-  self@message:emit ("oi:remove-capability", capability);
-  for (i = 0; i < self->capability_count; i++)
-    if (self->capabilities[i]->type == capability)
+  self@message:emit ("oi:remove-trait", trait);
+  for (i = 0; i < self->trait_count; i++)
+    if (self->traits[i]->type == trait)
       {
         int j;
-        self@oi:capability_destroy (self->capabilities[i]);
-        self->capability_count--;
-        for (j = i; j < self->capability_count; j++)
-          self->capabilities[j] = self->capabilities[j+1];
+        self@oi:trait_destroy (self->traits[i]);
+        self->trait_count--;
+        for (j = i; j < self->trait_count; j++)
+          self->traits[j] = self->traits[j+1];
         return;
       }
 }
 
+/* used to implement the object reaping side of oi_unref; do not use
+ * directly
+ */
 void finalize ()
 {
   int i;
   self@message:emit ("oi:die", NULL);
-  for (i = self->capability_count-1; i>=0 ; i--)
-    self@oi:capability_destroy (self->capabilities[i]);
-  free (self->capabilities);
-  self->capability_count = -66;
+  for (i = self->trait_count-1; i>=0 ; i--)
+    self@oi:trait_destroy (self->traits[i]);
+  free (self->traits);
+  self->trait_count = -66;
   oi_free (sizeof (Oi), self);
 }
 
-const OiCapability **oi_capability_list (int *count)
+/* get a list of traits, the returned list of pointers is NULL terminated
+ * and should not be freed by the caller.
+ */
+const OiTrait **oi_trait_list (int *count)
 {
   if (count)
-    *count = self->capability_count;
-  return (void*)self->capabilities;
+    *count = self->trait_count;
+  return (void*)self->traits;
 }
 
 @end
@@ -175,14 +188,14 @@ const OiCapability **oi_capability_list (int *count)
 Oi * oi_new (void)
 {
   Oi *self = oi_malloc (sizeof(Oi));
-  self->capabilities = NULL;
-  self->capability_count = 0;
+  self->traits = NULL;
+  self->trait_count = 0;
   return self;
 }
 
 Oi *oi_new_bare (OiType *type, void *userdata)
 {
   Oi *self = @oi:new ();
-  self@oi:capability_add (type, userdata);
+  self@oi:trait_add (type, userdata);
   return self;
 }

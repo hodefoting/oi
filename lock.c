@@ -42,7 +42,7 @@ static void destroy ()
 
 Oi *oi_lock (Oi *self)
 {
-  Lock *lock = (Lock*)self@oi:capability_ensure (LOCK, NULL);
+  Lock *lock = (Lock*)self@oi:trait_ensure (LOCK, NULL);
   pthread_mutex_lock (&lock->mutex);
   lock->lock++;
   return self;
@@ -50,7 +50,7 @@ Oi *oi_lock (Oi *self)
 
 int oi_trylock (Oi *self)
 {
-  Lock *lock = (Lock*)self@oi:capability_get (LOCK);
+  Lock *lock = (Lock*)self@oi:trait_get (LOCK);
   int res;
   res = pthread_mutex_trylock (&lock->mutex);
   if (!res)
@@ -63,7 +63,7 @@ int oi_trylock (Oi *self)
 
 void  oi_unlock (Oi *self)
 {
-  Lock *lock = (Lock*)self@oi:capability_get (LOCK);
+  Lock *lock = (Lock*)self@oi:trait_get (LOCK);
   if (!lock || lock->lock-- == 0)
     fprintf (stderr, "unlocking unlocked lock!\n");
   pthread_mutex_unlock (&lock->mutex);

@@ -21,25 +21,24 @@
 
 typedef struct _Oi Oi;          /* opaque handle to an object */
 typedef struct _OiType OiType;
-typedef struct OiCapability
+typedef struct OiTrait
 {
   OiType *type;
-} OiCapability;
+} OiTrait;
 
 struct _OiType
 {
   const char     *name;  /* for debugging purposes */
-  int             size;  /* size of a capability instance */
-
-  /* function initializing a capability instance (or NULL) */
-  void          (*init)    (Oi *oi, OiCapability *capability, Oi *args);
-  void          (*init_int)(Oi *oi, OiCapability *capability);
-  /* function destroying a capability instance (or NULL)*/
-  void          (*destroy) (Oi *oi, OiCapability *capability);
+  int             size;  /* size of a trait instance */
+  /* function initializing a trait instance (or NULL) */
+  void          (*init)    (Oi *oi, OiTrait *trait, Oi *args);
+  void          (*init_int)(Oi *oi, OiTrait *trait);
+  /* function destroying a trait instance (or NULL)*/
+  void          (*destroy) (Oi *oi, OiTrait *trait);
 };
 
 /* convenience for implementing capabilities, sticking this in a C file creates
- * the capability.
+ * the trait.
  *
  * it is enough to have   extern OiType  *STRING;
  */
@@ -48,36 +47,15 @@ static OiType NAME##_class = {"" #NAME, sizeof (s), init, init_int, destroy};\
 OiType *NAME = &NAME##_class;
 
 /* create a new bare bone oi instance */
-Oi           *oi_new                   (void);
-
-/* adds an capability to an instance */
-void          oi_capability_add        (Oi *oi, OiType *capability, Oi *args);
-
-/* remove a capability from an instance */
-void          oi_capability_remove     (Oi *oi, OiType *capability);
-
-/* checks if the object has the given instance */
-int           oi_capability_check        (Oi *oi, OiType *capability);
-
-/* gets the capability, if any */
-void         *oi_capability_get        (Oi *oi, OiType *capability);
-
-/* gets an capability, if capability doesn't already exist fail with warning 
- * (and segfault) */
-void         *oi_capability_get_assert (Oi *oi, OiType *capability);
-
-/* gets the capability, creates and adds it if it doesn't already exist */
-void         *oi_capability_ensure     (Oi *oi, OiType *capability, Oi *args);
-
-/* get a list of capabilities, the returned list of pointers is NULL terminated
- * and should not be freed by the caller.
- */
-const OiCapability **oi_capability_list     (Oi *oi, int *count);
-
-/* used to implement the object reaping side of oi_unref; do not use
- * directly
- */
-void          oi_finalize              (Oi *oi);
+Oi             *oi_new                   (void);
+void            oi_trait_add        (Oi *oi, OiType *trait, Oi *args);
+void            oi_trait_remove     (Oi *oi, OiType *trait);
+int             oi_trait_check      (Oi *oi, OiType *trait);
+void           *oi_trait_get        (Oi *oi, OiType *trait);
+void           *oi_trait_get_assert (Oi *oi, OiType *trait);
+void           *oi_trait_ensure     (Oi *oi, OiType *trait, Oi *args);
+const OiTrait **oi_trait_list       (Oi *oi, int *count);
+void            oi_finalize         (Oi *oi);
 
 Oi           *oi_new_bare (OiType *type, void *userdata);
 #include "oi-mem.h"

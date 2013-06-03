@@ -18,7 +18,7 @@
 #ifndef message_H
 #define message_H
 
-/* The message capability is automatically instantiated for instances where
+/* The message trait is automatically instantiated for instances where
  * messages are attached, emitting messages on instances without any
  * attached handlers is a no-op
  */
@@ -41,16 +41,16 @@ message_emit_remote (Oi         *oi,
                        void (*closure) (void *arg));
 
 /*
- * if capability is passed, then the message is automatically disconnected when the
- * connecting capability is
+ * if trait is passed, then the message is automatically disconnected when the
+ * connecting trait is
  */
 int
-message_listen (Oi           *oi,
-                Oi           *oi_self,
-                OiCapability *capability_self,
-                const char   *message_name,
-                void        (*callback) (Oi *self, void *arg, void *user_data),
-                void         *user_data);
+message_listen (Oi         *oi,
+                Oi         *oi_self,
+                OiTrait    *trait_self,
+                const char *message_name,
+                void      (*callback) (Oi *self, void *arg, void *user_data),
+                void       *user_data);
 
 void   message_handler_disconnect (Oi *oi,
                                      int handler_id);

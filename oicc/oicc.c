@@ -354,12 +354,12 @@ void process_token (State *o)
             int i;
             if (add_nls)
             {
-            sprintf (buf, "extern OiType *%s;typedef struct _%s %s;\nstruct _%s{OiCapability capability;",
+            sprintf (buf, "extern OiType *%s;typedef struct _%s %s;\nstruct _%s{OiTrait trait;",
                 o->TRAIT, o->Trait, o->Trait, o->Trait);
             add_nls--;
             }
             else
-            sprintf (buf, "extern OiType *%s;typedef struct _%s %s;struct _%s{OiCapability capability;",
+            sprintf (buf, "extern OiType *%s;typedef struct _%s %s;struct _%s{OiTrait trait;",
                 o->TRAIT, o->Trait, o->Trait, o->Trait);
             for (i = 0; buf[i]; i++)
               {

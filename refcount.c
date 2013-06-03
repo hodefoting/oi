@@ -29,19 +29,19 @@ static void init ()
 
 Oi *inc ()
 {
-  Ref *ref = self@oi:capability_ensure (REF, NULL);
-  if (self@oi:capability_get (LOCK))
+  Ref *ref = self@oi:trait_ensure (REF, NULL);
+  if (self@oi:trait_get (LOCK))
     self@oi:lock ();
   ref->count++;
-  if (self@oi:capability_get (LOCK))
+  if (self@oi:trait_get (LOCK))
     self@oi:unlock ();
   return self;
 }
 
 Oi *dec ()
 {
-  Ref *ref = self@oi:capability_get (REF);
-  if (self@oi:capability_get (LOCK))
+  Ref *ref = self@oi:trait_get (REF);
+  if (self@oi:trait_get (LOCK))
     self@oi:lock ();
   if (!ref || -- ref->count == 0)
     {
@@ -49,7 +49,7 @@ Oi *dec ()
       return NULL;
     }
   else
-    if (self@oi:capability_get (LOCK))
+    if (self@oi:trait_get (LOCK))
       self@oi:unlock ();
   return self;
 }

@@ -20,7 +20,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#define OI_STRING(oi) ((String*)oi_capability_get_assert (oi, STRING))
+#define OI_STRING(oi) ((String*)oi_trait_get_assert (oi, STRING))
 
 @trait String
 {

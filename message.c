@@ -32,9 +32,9 @@ typedef struct
   int          id;
 } ListenerEntry;
 
-static void remove_capability_cb (void *arg, void *user_data)
+static void remove_trait_cb (void *arg, void *user_data)
 {
-  Listener *listener = self@oi:capability_get_assert(LISTENER);
+  Listener *listener = self@oi:trait_get_assert(LISTENER);
   OiType *type = arg;
   int i;
 again:
@@ -49,7 +49,7 @@ again:
         }
     }
   if (listener->listeners@list:get_size () == 0)
-    self@oi:capability_remove (LISTENER);
+    self@oi:trait_remove (LISTENER);
     /* we are no longer needed, so remove ourself */
 }
 
@@ -64,16 +64,16 @@ static void init ()
 {
   listener->listeners = @list:new ();
   listener->listeners@list:set_destroy ((void*)lnrfree, NULL);
-  self@message:listen (NULL, NULL, "oi:remove-capability", (void*)listener_remove_capability_cb, NULL);
+  self@message:listen (NULL, NULL, "oi:remove-trait", (void*)listener_remove_trait_cb, NULL);
 }
 
 static void destroy ()
 {
   listener->listeners@oi:finalize();
-  self@message:handler_disconnect_by_func (listener_remove_capability_cb);
+  self@message:handler_disconnect_by_func (listener_remove_trait_cb);
 }
 
-static int listener_match_capability_and_name! (void *listener_entry, void *arg)
+static int listener_match_trait_and_name! (void *listener_entry, void *arg)
 {
   void **args=arg;
   ListenerEntry *entry = listener_entry;
@@ -82,11 +82,11 @@ static int listener_match_capability_and_name! (void *listener_entry, void *arg)
 
 static ListenerEntry *get_entry_write (OiType *type, const char *name)
 {
-  Listener *listener = ((void*)self@oi:capability_ensure (LISTENER, NULL));
+  Listener *listener = ((void*)self@oi:trait_ensure (LISTENER, NULL));
   int no;
   ListenerEntry *entry;
   void *args[]={(void*)name, type};
-  no = listener->listeners@list:find_custom ((void*)listener_match_capability_and_name, args);
+  no = listener->listeners@list:find_custom ((void*)listener_match_trait_and_name, args);
   if (no >= 0)
     entry = listener->listeners@list:get (no);
   else
@@ -98,11 +98,11 @@ static ListenerEntry *get_entry_write (OiType *type, const char *name)
   return entry;
 }
 
-static void add (OiCapability *capability, const char *name, int id)
+static void add (OiTrait *trait, const char *name, int id)
 {
   OiType *type = NULL;
-  if (capability)
-    type = capability->type;
+  if (trait)
+    type = trait->type;
   ListenerEntry *entry = self@listener:get_entry_write (type, name);
   entry->type = type;
   entry->id = id;
@@ -123,12 +123,12 @@ typedef struct
 } MessageEntry;
 
 int listen (Oi           *oi_self,
-            OiCapability *capability_self,
+            OiTrait *trait_self,
             const char   *message_name,
             void        (*callback) (Oi *self, void *arg, void *user_data),
             void         *user_data)
 {
-  Message *message = (Message*)oi_capability_ensure (self, MESSAGE, NULL);
+  Message *message = (Message*)oi_trait_ensure (self, MESSAGE, NULL);
   MessageEntry *entry;
   entry = oi_malloc (sizeof (MessageEntry));
   entry->message_name = message_name;
@@ -139,13 +139,13 @@ int listen (Oi           *oi_self,
 
   self@message:emit ("oi:message-connect", (void*)message_name);
   if (oi_self)
-    oi_self@listener:add (capability_self, message_name, list_get_size (message->callbacks)-1);
+    oi_self@listener:add (trait_self, message_name, list_get_size (message->callbacks)-1);
   return (message->callbacks@list:get_size () - 1);
 }
 
 void handler_disconnect (int handler_id)
 {
-  Message *message = self@oi:capability_get(MESSAGE);
+  Message *message = self@oi:trait_get(MESSAGE);
   if (!message)
     return;
   self@message:emit ("oi:message-disconnect", (void*)((MessageEntry*)list_get (message->callbacks, handler_id))->message_name);
@@ -163,9 +163,9 @@ static void emit_matching! (void *entr, void *data)
 void emit (const char *message_name,
            void       *arg)
 {
-  Message *message = self@oi:capability_get(MESSAGE);
+  Message *message = self@oi:trait_get(MESSAGE);
   void *emit_data[3] = {self, (void*)message_name, arg};
-  if (self@oi:capability_check (MESSAGE))
+  if (self@oi:trait_check (MESSAGE))
     list_each (message->callbacks, emit_matching, emit_data);
 }
 
@@ -221,7 +221,7 @@ static Oi *dispatch_queue! ()
       pthread_t thread;
       queue = @oi:new ();
       queue@oi:lock();
-      queue@oi:capability_add (LIST, NULL);
+      queue@oi:trait_add (LIST, NULL);
       queue@list:set_destroy ((void*)ref_dec, NULL);
       queue@oi:unlock();
 
@@ -255,7 +255,7 @@ match_func! (void *entryp, void *callback)
 
 void   handler_disconnect_by_func (void (*callback) (Oi *self, void *arg, void *user_data))
 {
-  Message *message = self@oi:capability_get(MESSAGE);
+  Message *message = self@oi:trait_get(MESSAGE);
   int no;
   if (!message)
     return;

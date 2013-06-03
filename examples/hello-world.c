@@ -13,13 +13,13 @@ static void init ()
 
 float get_it ()
 {
-  Foo *foo = self@oi:capability_ensure (FOO, NULL);
+  Foo *foo = self@oi:trait_ensure (FOO, NULL);
   return foo->number;
 }
 
 void  set_it (float f)
 {
-  Foo *foo = self@oi:capability_ensure (FOO, NULL);
+  Foo *foo = self@oi:trait_ensure (FOO, NULL);
   foo->number= f;
   self@message:emit ("notify", "foo");
 }

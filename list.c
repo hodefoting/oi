@@ -18,7 +18,6 @@
 #include "oi.h"
 #include <stdlib.h>
 
-
 @trait List
 {
   void (*destroy)(void *item, void *user_data);
@@ -44,7 +43,7 @@ static void destroy ()
 
 void  * get (int no)
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   if (no >= 0 && no < list->size)
     return list->items[no];
   return NULL;
@@ -54,14 +53,14 @@ void each (void (*cb)(void *item, void *user_data),
            void *user_data)
 {
   int i;
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   for (i = 0; i < list->size; i++)
     cb (list->items[i], user_data);
 }
 
 void remove_index_fast (int index)
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   if (!(index >= 0 && index < list->size))
     return;
 
@@ -74,7 +73,7 @@ void remove_index_fast (int index)
 void remove_index (int index)
 {
   int j;
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   if (!(index >= 0 && index < list->size))
     return;
 
@@ -87,7 +86,7 @@ void remove_index (int index)
 
 void remove (void *data)
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   int i;
   for (i = 0; i < list->size; i++)
     if (list->items[i] == data)
@@ -99,13 +98,13 @@ void remove (void *data)
 
 int get_size ()
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   return list->size;
 }
 
 void list_remove_fast (void *data)
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   int i;
   for (i = 0; i < list->size; i++)
     if (list->items[i] == data)
@@ -117,16 +116,17 @@ void list_remove_fast (void *data)
 
 void remove_zombie_index_fast (int index)
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   if (!(index >= 0 && index < list->size))
     return;
 
   list->items[index] = list->items[list->size-1];
   list->size--;
 }
+
 void remove_zombie_index (int index)
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   int j;
   if (!(index >= 0 && index < list->size))
     return;
@@ -137,7 +137,7 @@ void remove_zombie_index (int index)
 
 void remove_zombie (void *data)
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   int i;
   for (i = 0; i < list->size; i++)
     if (list->items[i] == data)
@@ -149,7 +149,7 @@ void remove_zombie (void *data)
 
 void remove_zombie_fast (void *data)
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   int i;
   for (i = 0; i < list->size; i++)
     if (list->items[i] == data)
@@ -162,7 +162,7 @@ void remove_zombie_fast (void *data)
 void set_destroy (void (*destroy)(void *item, void *user_data),
                   void *user_data)
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   list->destroy = destroy;
   list->destroy_data = user_data;
 }
@@ -170,7 +170,7 @@ void set_destroy (void (*destroy)(void *item, void *user_data),
 int find_custom (int (*match_fun)(void *item, void *user_data),
                  void *user_data)
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
   int i;
   for (i = 0; i < list->size; i++)
     if (match_fun (list->items[i], user_data))
@@ -194,7 +194,7 @@ int find (void *data)
 
 void append (void *data)
 {
-  List *list = self@oi:capability_get_assert (LIST);
+  List *list = self@oi:trait_get_assert (LIST);
 
   if (((list->size + CS)/CS) * CS >
       ((list->size + (CS-1))/CS) * CS)
@@ -202,7 +202,7 @@ void append (void *data)
       if (list->items == NULL)
         list->items = malloc (sizeof (void*) * CS);
       else
-        list->items = realloc (list->items, sizeof (OiCapability*) *
+        list->items = realloc (list->items, sizeof (OiTrait*) *
                               ((list->size + CS)/CS)*CS);
     }
   list->items[list->size] = data;

@@ -33,28 +33,28 @@ long oi_ticks (void)
 
 typedef struct
 {
-  OiCapability capability;
+  OiTrait trait;
   int     foo;
 }  __attribute((packed))  Foo;
 
-static void foo_init (Oi *oi, OiCapability *capability, Oi *args)
+static void foo_init (Oi *oi, OiTrait *trait, Oi *args)
 {
-  Foo *foo = (Foo*)capability;
+  Foo *foo = (Foo*)trait;
   foo->foo = 1;
 }
 OI(FOO, Foo, foo_init, NULL, NULL)
 
-#define OI_FOO(oi) ((Foo*)oi_capability_get_assert (oi, FOO))
+#define OI_FOO(oi) ((Foo*)oi_trait_get_assert (oi, FOO))
 
 float oi_get_foo (Oi *oi)
 {
-  Foo *foo = (Foo*)oi@oi:capability_ensure (FOO, NULL);
+  Foo *foo = (Foo*)oi@oi:trait_ensure (FOO, NULL);
   return foo->foo;
 }
 
 void  oi_set_foo (Oi *oi, float f)
 {
-  Foo *foo = (Foo*)oi@oi:capability_get (FOO);
+  Foo *foo = (Foo*)oi@oi:trait_get (FOO);
   foo->foo = f;
   oi@message:emit ("notify", "foo");
 }
