@@ -1,40 +1,13 @@
-/* This is a very minimal C compiler wrapper; that analyses the commandline
- * for .c sources; creates duplicates of them where some code expansion is
- * done. The C compiler is then invoked with the replacement files instead of
- * the original with the same commandline as the original C compiler.
- *
- * Replacements done:
- *
- * foo@bar.baz()      ->   bar_baz(foo)
- * foo@bar.baz(qux)   ->   bar_baz(foo, qux)
- *
- * foo@["bar"baz]     ->   oi_get_baz(foo, "bar")
- * foo@["bar"baz]=qux ->   oi_set_baz(foo, "bar", qux)
- *
- * new traits are defined with:
- * @trait {struct members}
- *   methods and more
- * @end
- *
- * function definitions within @trait and @end become methods of the
- * trait; and get a trait_ prefixed. function defintions ending in
- * ! skip this treatment and are included under their own name.
- *
- *
- * Todo:
- *
- * foo@bar.trait()    ->   oi_get_trait(foo, BAR)
- * foo@bar.           ->   oi_ensure_capability(foo, BAR)
- * foo@++            alias for foo@ref.inc()
- * foo@--            alias for foo@ref.dec()
- */
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+char TMP_PATH[]="/tmp";
 
 typedef struct State
 {
@@ -83,15 +56,6 @@ enum {
 #define FLUSH()  do{    fprintf (o->fpw, "%s", o->inbuf);o->ipos=o->inbuf[0]=0;;}while(0)
 #if 0
 
-o@ref.dec
-o@ref.inc
-o@++
-o@--
-
-oi_get_float(o, "hover")
-o@property.get_float("hover")
-o@["hover"]float = 
-o@["hover"]int =
 #endif
 
 void handle_at (State *o)
@@ -872,7 +836,8 @@ int filtered_cc (char commandline[])
 
 static int oicc_main (int argc, char **argv)
 {
-  int i;
+  int i;             
+  mkdir (TMP_PATH, 0777);
   for (i = 0; i < argc; i++)
     {
       int len = strlen (argv[i]);
@@ -880,13 +845,14 @@ static int oicc_main (int argc, char **argv)
         {
           if (argv[i][len-2] == '.' &&
               argv[i][len-1] == 'c' &&
+
+              /* in case we're filtering .c file to .c.c files ... */
               !(argv[i][len-4] == '.' &&
                 argv[i][len-3] == 'c' )
               )
            {
              char *replacement = malloc (len + 50);
 
-             char TMP_PATH[]="/tmp";
              sprintf (replacement, "%s/%s", TMP_PATH, argv[i]);
              int j;
              /* make subdirs be prefix of filename */
@@ -896,9 +862,7 @@ static int oicc_main (int argc, char **argv)
                  if (r == '/')
                    replacement[j]='_';
                }
-            
 
-             //fprintf (stderr, "%i %s : %s\n",i, argv[i], replacement);
              FILE *fpr, *fpw;
              fpr = fopen (argv[i], "r");
              fpw = fopen (replacement, "w");
@@ -940,13 +904,8 @@ static int oicc_main (int argc, char **argv)
       }
     cmd[pos]=0;
 
-    //fprintf (stderr, "[%s]\n", cmd);
     return filtered_cc (cmd);
   }
-  /* XXX: if using getenv, fall back to gcc if we are set to
-   * ourself..
-   */
-  //return execvp ("gcc", argv);
 }
 
 static int oipp_main (int argc, char **argv)
@@ -978,12 +937,12 @@ help:
 
 int main (int argc, char **argv)
 {
-  const char *app = basename (argv[0]);
-  if (!strcmp (app, "oicc"))
+  const char *task = basename (argv[0]);
+  if (!strcmp (task, "oicc"))
     return oicc_main (argc, argv);
-  if (!strcmp (app, "oipp"))
+  if (!strcmp (task, "oipp"))
     return oipp_main (argc, argv);
 
-  printf ("Error: unknown oicc binary %s\n", app);
+  printf ("Error: unknown oicc task %s\n", task);
   return -1;
 }
