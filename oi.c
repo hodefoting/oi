@@ -93,7 +93,6 @@ void *trait_ensure (OiType *trait,
 void trait_add (OiType *type,
                 Oi     *args)
 {
-  printf ("adding %s\n", type->name);
   if (type == OI)
     return;
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
@@ -116,12 +115,12 @@ void trait_add (OiType *type,
 
   self->traits[self->trait_count] = oi_malloc (type->size);
   self->traits[self->trait_count]->type = type;
-  if (type->init)
-    type->init (self, self->traits[self->trait_count], args);
-  if (type->init_int)
-    type->init_int (self, self->traits[self->trait_count]);
-
   self->trait_count++;
+  if (type->init)
+    type->init (self, self->traits[self->trait_count-1], args);
+  if (type->init_int)
+    type->init_int (self, self->traits[self->trait_count-1]);
+
 
   self@message:emit ("oi:add-trait", type);
 }
