@@ -588,12 +588,23 @@ void process_token (State *o)
 
                      if (name[0]=='"')
                        {
+                         int i;
+                         char *cbname;
                          /* XXX: transform ' ' '-' etc.. */
                          memcpy(name, &name[1], sizeof(name)-1);
                          name[strlen(name)-1]=0;
+                         cbname = strdup (name);
+                         for (i = 0; cbname[i]; i++)
+                           {
+                             if (cbname[i]==':' ||
+                                 cbname[i]==' ' ||
+                                 cbname[i]=='-' ||
+                                 cbname[i]==';')
+                                cbname[i]='_';
+                           }
 
 
-                         sprintf (tempbuf, "static int %s_%s_cb (Oi *self", o->trait, name);
+                         sprintf (tempbuf, "static int %s_%s_cb (Oi *self", o->trait, cbname);
 
                          /* add to list being built up for contents
                           * of init_int implementation. 
@@ -602,7 +613,7 @@ void process_token (State *o)
 
                          o->mpos += sprintf (&o->msg[o->mpos],
                              "message_listen(self, (void*)self,(void*)%s,\"%s\", (void*)%s_%s_cb, oi_trait_get(self, %s))",
-                             o->trait, name, o->trait, name, o->TRAIT);
+                             o->trait, name, o->trait, cbname, o->TRAIT);
                        }
                      else
                      if (!strcmp (name, "init") ||
