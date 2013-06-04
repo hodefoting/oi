@@ -16,6 +16,7 @@
  */
 
 #include "oi.h"
+@generateheader
 
 @trait Ref
 {

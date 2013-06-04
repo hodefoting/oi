@@ -12,6 +12,9 @@ char TMP_PATH[]="/tmp";
 typedef struct State
 {
   size_t len;
+
+  char *header_name;
+
   FILE *fpr;
   FILE *fpw;
 
@@ -43,6 +46,10 @@ typedef struct State
   int got_init;
   int got_pre_init;
   int got_destroy;
+
+  int gen_header;
+  char header[40960];
+  int  headpos;
 } State;
 
 enum {
@@ -282,6 +289,12 @@ void process_token (State *o)
                 o->mpos = 0;
               }
 
+            if (o->gen_header)
+              {
+            o->headpos += sprintf (&o->header[o->headpos],
+                "extern OiType *%s;\n", o->TRAIT);
+              }
+
             pos += sprintf (&buf[pos], "OI(%s, %s,", o->TRAIT, o->Trait);
 
             if (o->got_init)
@@ -386,6 +399,7 @@ void process_token (State *o)
             if (!memcmp (o->cmd, "main", 4))
             {
             sprintf (buf, "int main (int argc, char **argv){Oi *self=oi_new_bare(PROGRAM, argv);Oi *args=program_get_args(self);");
+            o->in_trait=0;
             }
             else if (add_nls)
             {
@@ -431,6 +445,37 @@ void process_token (State *o)
                 }
             }
           o->Trait[o->in_trait-6] = 0;
+
+          if (!memcmp (o->cmd, "gene", 4))
+          {
+            char buf[256];
+            sprintf(buf, "#include \"%s\"\n", o->header_name);
+            o->gen_header=1;
+            o->in_trait=0;
+
+            o->state = S_NEUTRAL;
+
+            int add_nls = 0;
+            {
+              int i;
+              for (i = o->atpos; i < o->ipos; i++)
+                if (o->inbuf[i] == '\n')
+                  add_nls++;
+          }
+
+          o->ipos = o->atpos;
+            for (i = 0; buf[i]; i++)
+              {
+                o->inbuf[o->ipos++] = buf[i];
+              }
+            for (i = 0; i < add_nls; i++)
+              {
+                o->inbuf[o->ipos++] = '\n';
+              }
+            o->inbuf[o->ipos] = 0;
+            return;
+          }
+
         }
     }
 
@@ -661,9 +706,36 @@ void process_token (State *o)
                    }
                  break;
                case ')':
-                 if (o->brackd==0 && o->in_trait && o->parend==1)
+                 if (o->brackd==0 && o->in_trait && o->parend==1
+                     && o->gen_header)
                    {
-                     fprintf (stderr, "[%s]\n", &o->inbuf[o->ipos-20]);
+                     int start = 0;
+                     int done = 0;
+                     for (start = 0; !done && o->ipos+start > 0 ; start--)
+                       {
+                         switch (o->inbuf[o->ipos+start])
+                           {
+                             case ';':
+                             case '}':
+                             case '/':
+                             case '{':
+                               done = 1;
+                             break;
+                             default:
+                              break;
+                           }
+                       }
+                     start++;
+                     while (o->inbuf[o->ipos+start] == ' '||
+                            o->inbuf[o->ipos+start] == '\n'||
+                            o->inbuf[o->ipos+start] == '}' ||
+                            o->inbuf[o->ipos+start] == '/'
+                            )
+                       start++;
+                     if (!strstr (&o->inbuf[o->ipos+start], "static"))
+                     {
+                       o->headpos += sprintf (&o->header[o->headpos], "%s);\n", &o->inbuf[o->ipos+start]);
+                     }
                    }
                  break;
                  o->parend--;
@@ -822,11 +894,13 @@ void process_line (State *o)
 #endif
 }
 
-int oicc_filter (FILE *fpr, FILE *fpw)
+int oicc_filter (FILE *fpr, FILE *fpw, const char *header_name)
 {
   State state = {0.};
   State *o = &state;
   ssize_t read;
+
+  o->header_name = strdup (header_name);
 
   //unlink (dst_file);
   state.fpr = fpr;
@@ -850,6 +924,30 @@ int oicc_filter (FILE *fpr, FILE *fpw)
 
   if (state.line)
     free (state.line);
+
+  if (state.gen_header && state.headpos)
+    {
+      FILE * hf = fopen (header_name, "w");
+      {
+        char *flattened = strdup (header_name);
+        int i;
+        for (i = 0; flattened[i];i++)
+        {
+          switch (flattened[i])
+          {
+            case '.': flattened[i] = '_';
+            default:flattened[i] = toupper(flattened[i]);
+          }
+        }
+        fprintf (hf, "#ifndef O_%s\n", flattened);
+        fprintf (hf, "#define  O_%s\n", flattened);
+        fprintf (hf, "%s", state.header);
+        fprintf (hf, "#endif\n");
+        free (flattened);
+      }
+      fclose (hf);
+
+    }
 
   return 0;
 }
@@ -935,6 +1033,8 @@ static int oicc_main (int argc, char **argv)
               )
            {
              char *replacement = malloc (len + 50);
+             char *header_name = strdup(basename (argv[i]));
+             header_name[strlen(header_name)-1]='h';
 
              sprintf (replacement, "%s/%s", TMP_PATH, argv[i]);
              int j;
@@ -949,7 +1049,7 @@ static int oicc_main (int argc, char **argv)
              FILE *fpr, *fpw;
              fpr = fopen (argv[i], "r");
              fpw = fopen (replacement, "w");
-             oicc_filter (fpr, fpw);
+             oicc_filter (fpr, fpw, header_name);
              fclose (fpr);
              fclose (fpw);
              mappings[map_count][0] = argv[i];
@@ -1011,7 +1111,7 @@ help:
            {
              FILE *fpr;
              fpr = fopen (argv[i], "r");
-             oicc_filter (fpr, stdout);
+             oicc_filter (fpr, stdout, NULL);
              fclose (fpr);
            }
     }

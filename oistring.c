@@ -90,6 +90,7 @@ const char *get ()
 /* dissolving a string, means destroying it, but returning
  * the string, that should be manually freed.
  */
+
 char *dissolve   ()
 {
   String *string = OI_STRING (self);
