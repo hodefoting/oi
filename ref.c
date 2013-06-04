@@ -30,19 +30,19 @@ static void init ()
 
 Oi *inc ()
 {
-  Ref *ref = self@oi:trait_ensure (REF, NULL);
-  if (self@oi:trait_get (MUTEX))
+  Ref *ref = self@trait:ensure (REF, NULL);
+  if (self@trait:get (MUTEX))
     self@mutex:lock ();
   ref->count++;
-  if (self@oi:trait_get (MUTEX))
+  if (self@trait:get (MUTEX))
     self@mutex:unlock ();
   return self;
 }
 
 Oi *dec ()
 {
-  Ref *ref = self@oi:trait_get (REF);
-  if (self@oi:trait_get (MUTEX))
+  Ref *ref = self@trait:get (REF);
+  if (self@trait:get (MUTEX))
     self@mutex:lock ();
   if (!ref || -- ref->count == 0)
     {
@@ -50,7 +50,7 @@ Oi *dec ()
       return NULL;
     }
   else
-    if (self@oi:trait_get (MUTEX))
+    if (self@trait:get (MUTEX))
       self@mutex:unlock ();
   return self;
 }

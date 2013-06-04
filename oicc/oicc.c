@@ -284,7 +284,7 @@ void process_token (State *o)
                 o->msg[o->mpos]=0;
 
             pos += sprintf (&buf[pos], "static void %s_init_int (Oi *self){"
-  "%s *%s=oi_trait_get(self,%s);%s;}", o->trait, o->Trait, o->trait, o->TRAIT, o->msg);
+  "%s *%s=trait_get(self,%s);%s;}", o->trait, o->Trait, o->trait, o->TRAIT, o->msg);
 
                 o->mpos = 0;
               }

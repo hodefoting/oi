@@ -27,7 +27,7 @@
  *
  *                        This will be a completely syntactic detail.
  */
-@trait Oi
+@trait Trait
 {
   /* this would be where default properties could be defined; with updates
    * that make them reflect members of the struct.
@@ -42,12 +42,11 @@
 };
 
 /* checks if the object has the given instance */
-int
-trait_check (OiType *trait)
+int check (OiType *trait)
 {
   int i;
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
-  if (trait == OI)
+  if (trait == TRAIT)
     return 1;
   for (i = 0; i < self->trait_count; i++)
     if (self->traits[i]->type == trait)
@@ -56,11 +55,11 @@ trait_check (OiType *trait)
 }
 
 /* gets the trait, if any */
-void *trait_get (OiType *trait)
+void *get (OiType *trait)
 {
   int i;
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
-  if (trait == OI)
+  if (trait == TRAIT)
     return (OiTrait*)self;
   for (i = 0; i < self->trait_count; i++)
     if (self->traits[i]->type == trait)
@@ -70,11 +69,11 @@ void *trait_get (OiType *trait)
 
 /* gets an trait, if trait doesn't already exist fail with warning 
  * (and segfault) */
-void *trait_get_assert (OiType *trait)
+void *get_assert (OiType *trait)
 {
-  OiTrait *res = self@oi:trait_get (trait);
+  OiTrait *res = self@trait:get (trait);
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
-  if (trait == OI)
+  if (trait == TRAIT)
     return (OiTrait*)self;
   if (!res)
     {
@@ -86,17 +85,17 @@ void *trait_get_assert (OiType *trait)
 }
 
 /* gets the trait, creates and adds it if it doesn't already exist */
-void *trait_ensure (OiType *trait,
-                         Oi     *args)
+void *ensure (OiType *trait,
+              Oi     *args)
 {
-  OiTrait *res = self@oi:trait_get (trait);
+  OiTrait *res = self@trait:get (trait);
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
-  if (trait == OI)
+  if (trait == TRAIT)
     return (OiTrait*)self;
   if (!res)
     {
-      self@oi:trait_add (trait, args);
-      res = self@oi:trait_get (trait);
+      self@trait:add (trait, args);
+      res = self@trait:get (trait);
     }
   return res;
 }
@@ -105,13 +104,13 @@ void *trait_ensure (OiType *trait,
 #define ALLOC_CHUNK_1 ALLOC_CHUNK-1
 
 /* adds an trait to an instance */
-void trait_add (OiType *type,
-                Oi     *args)
+void add (OiType *type,
+          Oi     *args)
 {
-  if (type == OI)
+  if (type == TRAIT)
     return;
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
-  if (self@oi:trait_check (type))
+  if (self@trait:check (type))
     {
       fprintf (stderr, "Object %p already have trait \"%s\"\n",
                self, type->name);
@@ -136,7 +135,6 @@ void trait_add (OiType *type,
   if (type->init_int)
     type->init_int (self, self->traits[self->trait_count-1]);
 
-
   self@"oi:add-trait"(type);
 }
 
@@ -149,13 +147,13 @@ static void trait_destroy (OiTrait *trait)
 }
 
 /* remove a trait from an instance */
-void trait_remove (OiType *trait)
+void remove (OiType *trait)
 {
   int i;
-  if (trait == OI)
+  if (trait == TRAIT)
     return;
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
-  if (!oi_trait_check (self, trait))
+  if (!trait_check (self, trait))
     {
       fprintf (stderr, "Object %p doesn't have trait \"%s\"\n", self, trait->name);
       return;
@@ -166,7 +164,7 @@ void trait_remove (OiType *trait)
     if (self->traits[i]->type == trait)
       {
         int j;
-        self@oi:trait_destroy (self->traits[i]);
+        self@trait:trait_destroy (self->traits[i]);
         self->trait_count--;
         for (j = i; j < self->trait_count; j++)
           self->traits[j] = self->traits[j+1];
@@ -174,15 +172,12 @@ void trait_remove (OiType *trait)
       }
 }
 
-/* used to implement the object reaping side of oi_unref; do not use
- * directly
- */
 void finalize ()
 {
   int i;
   self@"oi:die"(NULL);
   for (i = self->trait_count-1; i>=0 ; i--)
-    self@oi:trait_destroy (self->traits[i]);
+    self@trait:trait_destroy (self->traits[i]);
   free (self->traits);
   self->trait_count = -66;
   oi_free (sizeof (Oi), self);
@@ -191,7 +186,7 @@ void finalize ()
 /* get a list of traits, the returned list of pointers is NULL terminated
  * and should not be freed by the caller.
  */
-const OiTrait **oi_trait_list (int *count)
+const OiTrait **list (int *count)
 {
   if (count)
     *count = self->trait_count;
@@ -199,6 +194,14 @@ const OiTrait **oi_trait_list (int *count)
 }
 
 @end
+
+/* used to implement the object reaping side of oi_unref; do not use
+ * directly
+ */
+void oi_finalize (Oi *self)
+{
+  trait_finalize (self);
+}
 
 Oi * oi_new (void)
 {
@@ -211,7 +214,6 @@ Oi * oi_new (void)
 Oi *oi_new_bare (OiType *type, void *userdata)
 {
   Oi *self = @oi:new ();
-  self@oi:trait_add (type, userdata);
+  self@trait:add (type, userdata);
   return self;
 }
-

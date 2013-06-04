@@ -37,7 +37,7 @@ typedef struct
 
 "oi:remove-trait" (void *arg, void *user_data)
 {
-  MsgDisconnect *msgdc = self@oi:trait_get_assert(MSG_DISCONNECT);
+  MsgDisconnect *msgdc = self@trait:get_assert(MSG_DISCONNECT);
   OiType *type = arg;
   int i;
 again:
@@ -52,7 +52,7 @@ again:
         }
     }
   if (msgdc->list@list:get_size () == 0)
-    self@oi:trait_remove (MSG_DISCONNECT);
+    self@trait:remove (MSG_DISCONNECT);
     /* we are no longer needed, so remove ourself */
 }
 
@@ -85,7 +85,7 @@ static int listener_match_trait_and_name! (void *listener_entry, void *arg)
 
 static ListenerEntry *get_entry_write (OiType *type, const char *name)
 {
-  MsgDisconnect *msgdc = ((void*)self@oi:trait_ensure (MSG_DISCONNECT, NULL));
+  MsgDisconnect *msgdc = ((void*)self@trait:ensure (MSG_DISCONNECT, NULL));
   int no;
   ListenerEntry *entry;
   void *args[]={(void*)name, type};
@@ -131,7 +131,7 @@ int listen (Oi           *oi_self,
             void        (*callback) (Oi *self, void *arg, void *user_data),
             void         *user_data)
 {
-  Message *message = (Message*)oi_trait_ensure (self, MESSAGE, NULL);
+  Message *message = (Message*)trait_ensure (self, MESSAGE, NULL);
   MessageEntry *entry;
   entry = oi_malloc (sizeof (MessageEntry));
   entry->message_name = message_name;
@@ -153,7 +153,7 @@ int listen (Oi           *oi_self,
 
 void handler_disconnect (int handler_id)
 {
-  Message *message = self@oi:trait_get(MESSAGE);
+  Message *message = self@trait:get(MESSAGE);
   if (!message)
     return;
   self@"oi:message-disconnect"((void*)((MessageEntry*)list_get (message->callbacks, handler_id))->message_name);
@@ -175,8 +175,8 @@ static void emit_matching! (void *entr, void *data)
 void emit (const char *message_name,
            void       *arg)
 {
-  Message *message = self@oi:trait_get(MESSAGE);
-  if (message)//self@oi:trait_check (MESSAGE))
+  Message *message = self@trait:get(MESSAGE);
+  if (message)//self@trait:check (MESSAGE))
     {
       void *emit_data[4] = {self, (void*)message_name, arg, NULL};
       list_each (message->callbacks, emit_matching, emit_data);
@@ -239,7 +239,7 @@ static Oi *dispatch_queue! ()
       pthread_t thread;
       queue = @oi:new ();
       queue@mutex:lock();
-      queue@oi:trait_add (LIST, NULL);
+      queue@trait:add (LIST, NULL);
       queue@list:set_destroy ((void*)ref_dec, NULL);
       queue@mutex:unlock();
 
@@ -273,7 +273,7 @@ match_func! (void *entryp, void *callback)
 
 void   handler_disconnect_by_func (void (*callback) (Oi *self, void *arg, void *user_data))
 {
-  Message *message = self@oi:trait_get(MESSAGE);
+  Message *message = self@trait:get(MESSAGE);
   int no;
   if (!message)
     return;

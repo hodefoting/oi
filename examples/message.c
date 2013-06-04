@@ -16,7 +16,7 @@
 @main ()
 {
   Oi *test = @oi:new();
-  test@oi:trait_add(FOO, NULL);
+  test@trait:add(FOO, NULL);
   test@"hello"("void");
   test@"hello"(NULL);
   test@ref:dec();

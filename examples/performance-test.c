@@ -44,17 +44,17 @@ static void foo_init (Oi *oi, OiTrait *trait, Oi *args)
 }
 OI(FOO, Foo, foo_init, NULL, NULL)
 
-#define OI_FOO(oi) ((Foo*)oi_trait_get_assert (oi, FOO))
+#define OI_FOO(oi) (trait_get_assert (oi, FOO))
 
 float oi_get_foo (Oi *oi)
 {
-  Foo *foo = (Foo*)oi@oi:trait_ensure (FOO, NULL);
+  Foo *foo = (Foo*)oi@trait:ensure (FOO, NULL);
   return foo->foo;
 }
 
 void  oi_set_foo (Oi *oi, float f)
 {
-  Foo *foo = (Foo*)oi@oi:trait_get (FOO);
+  Foo *foo = (Foo*)oi@trait:get (FOO);
   foo->foo = f;
   oi@"notify"("foo");
 }

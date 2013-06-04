@@ -19,7 +19,7 @@
 #define _OI_H
 #include <string.h>
 
-typedef struct _Oi Oi;          /* opaque handle to an object */
+typedef struct _Trait Oi;          /* opaque handle to an object */
 typedef struct _OiType OiType;
 typedef struct OiTrait
 {
@@ -47,17 +47,17 @@ static OiType NAME##_class = {"" #NAME, sizeof (s), init, init_int, destroy};\
 OiType *NAME = &NAME##_class;
 
 /* create a new bare bone oi instance */
-Oi             *oi_new              (void);
-void            oi_finalize         (Oi *oi);
-Oi             *oi_new_bare (OiType *type, void *userdata);
+Oi             *oi_new           (void);
+Oi             *oi_new_bare      (OiType *type, void *userdata);
+void            oi_finalize      (Oi *oi);
 
-void            oi_trait_add        (Oi *oi, OiType *trait, Oi *args);
-void            oi_trait_remove     (Oi *oi, OiType *trait);
-int             oi_trait_check      (Oi *oi, OiType *trait);
-void           *oi_trait_get        (Oi *oi, OiType *trait);
-void           *oi_trait_get_assert (Oi *oi, OiType *trait);
-void           *oi_trait_ensure     (Oi *oi, OiType *trait, Oi *args);
-const OiTrait **oi_trait_list       (Oi *oi, int *count);
+void            trait_add        (Oi *oi, OiType *trait, Oi *args);
+void            trait_remove     (Oi *oi, OiType *trait);
+int             trait_check      (Oi *oi, OiType *trait);
+void           *trait_get        (Oi *oi, OiType *trait);
+void           *trait_get_assert (Oi *oi, OiType *trait);
+void           *trait_ensure     (Oi *oi, OiType *trait, Oi *args);
+const OiTrait **trait_list       (Oi *oi, int *count);
 
 
 #include "oi-mem.h"

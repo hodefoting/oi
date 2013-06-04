@@ -90,7 +90,7 @@ static int match_name (void *properties_entry, const char *name)
 }
 static PropertiesEntry *oi_get_entry_read (Oi *oi, const char *name)
 {
-  Properties *properties = ((void*)oi_trait_ensure (oi, PROPERTIES, NULL));
+  Properties *properties = ((void*)trait_ensure (oi, PROPERTIES, NULL));
   int no;
   PropertiesEntry *entry;
   no = properties->props@list:find_custom ((void*)match_name, (void*)name);
@@ -111,7 +111,7 @@ static PropertiesEntry *oi_get_entry_read (Oi *oi, const char *name)
 
 static PropertiesEntry *oi_get_entry_write (Oi *oi, const char *name)
 {
-  Properties *properties = ((void*)oi_trait_ensure (oi, PROPERTIES, NULL));
+  Properties *properties = ((void*)trait_ensure (oi, PROPERTIES, NULL));
   int no;
   PropertiesEntry *entry;
   oi@mutex:lock ();
@@ -259,7 +259,7 @@ oi_properties_each (Oi *self,
                     void *user_data)
 {
   void *args[] = {cb, user_data};
-  Properties *properties = (self@oi:trait_get (PROPERTIES));
+  Properties *properties = (self@trait:get (PROPERTIES));
   if (properties)
     properties->props@list:each(each_wrapper, args);
 }

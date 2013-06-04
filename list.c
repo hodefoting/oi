@@ -44,7 +44,7 @@ void each (void *cbp, void *user_data)
 {
   int i;
   void (*cb)(void *item, void *user_data) = cbp;
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   for (i = 0; i < list->size; i++)
     cb (list->items[i], user_data);
 }
@@ -59,7 +59,7 @@ static void destroy ()
 
 void  * get (int no)
 {
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   if (no >= 0 && no < list->size)
     return list->items[no];
   return NULL;
@@ -68,7 +68,7 @@ void  * get (int no)
 
 void remove_index_fast (int index)
 {
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   if (!(index >= 0 && index < list->size))
     return;
 
@@ -81,7 +81,7 @@ void remove_index_fast (int index)
 void remove_index (int index)
 {
   int j;
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   if (!(index >= 0 && index < list->size))
     return;
 
@@ -94,7 +94,7 @@ void remove_index (int index)
 
 void remove (void *data)
 {
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   int i;
   for (i = 0; i < list->size; i++)
     if (list->items[i] == data)
@@ -106,13 +106,13 @@ void remove (void *data)
 
 int get_size ()
 {
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   return list->size;
 }
 
 void list_remove_fast (void *data)
 {
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   int i;
   for (i = 0; i < list->size; i++)
     if (list->items[i] == data)
@@ -124,7 +124,7 @@ void list_remove_fast (void *data)
 
 void remove_zombie_index_fast (int index)
 {
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   if (!(index >= 0 && index < list->size))
     return;
 
@@ -134,7 +134,7 @@ void remove_zombie_index_fast (int index)
 
 void remove_zombie_index (int index)
 {
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   int j;
   if (!(index >= 0 && index < list->size))
     return;
@@ -145,7 +145,7 @@ void remove_zombie_index (int index)
 
 void remove_zombie (void *data)
 {
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   int i;
   for (i = 0; i < list->size; i++)
     if (list->items[i] == data)
@@ -157,7 +157,7 @@ void remove_zombie (void *data)
 
 void remove_zombie_fast (void *data)
 {
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   int i;
   for (i = 0; i < list->size; i++)
     if (list->items[i] == data)
@@ -174,7 +174,7 @@ void set_destroy (void (*destroy)(void *item, void *user_data),
 
 void set_destroy (void *destroy, void *user_data)
 {
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   list->destroy = destroy;
   list->destroy_data = user_data;
 }
@@ -190,7 +190,7 @@ int find_custom (void *matchfunp,
                  void *user_data)
 {
   int (*match_fun)(void *item, void *user_data) = matchfunp;
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
   int i;
   for (i = 0; i < list->size; i++)
     if (match_fun (list->items[i], user_data))
@@ -213,7 +213,7 @@ int find (void *data)
 
 void append (void *data)
 {
-  List *list = self@oi:trait_get_assert (LIST);
+  List *list = self@trait:get_assert (LIST);
 
   if (((list->size + CS)/CS) * CS >
       ((list->size + (CS-1))/CS) * CS)
