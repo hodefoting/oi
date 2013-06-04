@@ -285,10 +285,8 @@ void process_token (State *o)
 
             pos += sprintf (&buf[pos], "static void %s_init_int (Var *self){"
   "%s *%s=trait_get(self,%s);%s;}", o->trait, o->Trait, o->trait, o->TRAIT, o->msg);
-
                 o->mpos = 0;
               }
-
 
             pos += sprintf (&buf[pos], "OI(%s, %s,", o->TRAIT, o->Trait);
 
@@ -610,7 +608,6 @@ void process_token (State *o)
                  FLUSH();
                  break;
 
-
                case '(':
                  /* knowing if this si the one is hard.. given function
                   * pointers and other possiblities?
@@ -640,7 +637,6 @@ void process_token (State *o)
                          o->inbuf[pos+1]=='\n' ||
                          o->inbuf[pos+1]=='\t')
                      o->inbuf[pos+1]=0;
-                     
 
                      while (o->inbuf[pos]!=' ' &&
                             o->inbuf[pos]!='*' &&

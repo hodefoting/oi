@@ -16,5 +16,8 @@ int message_listen (Var *self, Var           *oi_self,
 void message_handler_disconnect (Var *self, int handler_id);
 void message_emit (Var *self, const char *message_name,
            void       *arg);
+void message_emit_remote (Var *self, const char *message_name,
+                  void       *arg,
+                  void       *closure);
 void message_handler_disconnect_by_func (Var *self, void *callback);
 #endif

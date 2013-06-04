@@ -128,14 +128,13 @@ typedef struct
 } MessageEntry;
 
 /*
-int listen (Var           *oi_self,
+int listen (Var          *oi_self,
             void         *trait_self,
             const char   *message_name,
             void        (*callback) (Var *self, void *arg, void *user_data),
             void         *user_data)
             */
-
-int listen (Var           *oi_self,
+int listen (Var          *oi_self,
             void         *trait_self,
             const char   *message_name,
             void         *callback,
@@ -257,9 +256,14 @@ static Var *dispatch_queue! ()
   return queue;
 }
 
+/*
 void emit_remote (const char *message_name,
                   void       *arg,
                   void (*closure) (void *arg))
+*/
+void emit_remote (const char *message_name,
+                  void       *arg,
+                  void       *closure)
 {
   Var *item = var_new(NULL, NULL);
   dispatch_queue ()@mutex:lock ();
