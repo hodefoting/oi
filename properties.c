@@ -260,7 +260,8 @@ oi_properties_each (Oi *self,
 {
   void *args[] = {cb, user_data};
   Properties *properties = (self@oi:trait_get (PROPERTIES));
-  properties->props@list:each(each_wrapper, args);
+  if (properties)
+    properties->props@list:each(each_wrapper, args);
 }
 
 int

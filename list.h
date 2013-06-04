@@ -22,13 +22,13 @@ extern  OiType          *LIST;
 Oi     *list_new          (void); /* the list is a capability, but can also be used
                                     on its own */
 
-int     list_get_size          (Oi *oi);
-void    list_append            (Oi *oi, void *data);
-void    list_remove            (Oi *oi, void *data);
-void    list_remove_fast       (Oi *oi, void *data);
-void    list_remove_index      (Oi *oi, int no);
-void    list_remove_index_fast (Oi *oi,
-                                int index);
+int     list_get_size            (Oi *oi);
+void    list_append              (Oi *oi, void *data);
+void    list_remove              (Oi *oi, void *data);
+void    list_remove_fast         (Oi *oi, void *data);
+void    list_remove_index        (Oi *oi, int no);
+void    list_remove_index_fast   (Oi *oi,
+                                  int index);
 void    list_remove_zombie       (Oi *oi, void *data);
 void    list_remove_zombie_fast  (Oi *oi, void *data);
 void    list_remove_zombie_index (Oi *oi, int no);

@@ -164,17 +164,27 @@ static void emit_matching! (void *entr, void *data)
 {
   MessageEntry *entry = entr;
   void **emit_data = data;
-  if (entr && entry->message_name && entry->callback && !strcmp (emit_data[1], entry->message_name))
-    entry->callback (emit_data[0], emit_data[2], entry->user_data);
+  if (entr && entry->message_name && entry->callback &&
+      !strcmp (emit_data[1], entry->message_name))
+    {
+      entry->callback (emit_data[0], emit_data[2], entry->user_data);
+      emit_data[3]++; /* mark that we found one */
+    }
 }
 
 void emit (const char *message_name,
            void       *arg)
 {
   Message *message = self@oi:trait_get(MESSAGE);
-  void *emit_data[3] = {self, (void*)message_name, arg};
-  if (self@oi:trait_check (MESSAGE))
-    list_each (message->callbacks, emit_matching, emit_data);
+  if (message)//self@oi:trait_check (MESSAGE))
+    {
+      void *emit_data[4] = {self, (void*)message_name, arg, NULL};
+      list_each (message->callbacks, emit_matching, emit_data);
+      if (emit_data[3] == NULL && strcmp(message_name, "method-missing"))
+        {
+          self@"method-missing"(message_name);
+        }
+    }
 }
 
 static void free_sentry! (void *sentry)
