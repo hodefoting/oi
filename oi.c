@@ -19,9 +19,24 @@
 #include <stdlib.h>
 #include "oi.h"
 
+/* @trait Oi < Parent  // would be the syntax to declare that we
+ *                        depend on a parent trait to also exit.
+ *                        this provides a rudimentary closeness
+ *                        to inheritance if you only create the
+ *                        classes expected this way.
+ *
+ *                        This will be a completely syntactic detail.
+ */
 @trait Oi
 {
-  int             trait_count;
+  /* this would be where default properties could be defined; with updates
+   * that make them reflect members of the struct.
+   *
+   @property (type, name, min, max, default)
+   
+  */
+
+  int        trait_count;
   /* XXX: this could be a treap */
   OiTrait  **traits;
 };
@@ -122,7 +137,6 @@ void trait_add (OiType *type,
     type->init_int (self, self->traits[self->trait_count-1]);
 
 
-  self@message:emit ("oi:add-trait", type);
   self@"oi:add-trait"(type);
 }
 
@@ -147,7 +161,7 @@ void trait_remove (OiType *trait)
       return;
     };
 
-  self@message:emit ("oi:remove-trait", trait);
+  self@"oi:remove-trait"(trait);
   for (i = 0; i < self->trait_count; i++)
     if (self->traits[i]->type == trait)
       {
@@ -166,7 +180,7 @@ void trait_remove (OiType *trait)
 void finalize ()
 {
   int i;
-  self@message:emit ("oi:die", NULL);
+  self@"oi:die"(NULL);
   for (i = self->trait_count-1; i>=0 ; i--)
     self@oi:trait_destroy (self->traits[i]);
   free (self->traits);
@@ -201,16 +215,3 @@ Oi *oi_new_bare (OiType *type, void *userdata)
   return self;
 }
 
-Oi *oi_make_args (Oi *program, char **argv)
-{
-  Oi *ret = list_new ();
-  program@["name"oi]=string_new(argv[0]);
-  argv++;
-  while (*argv)
-    {
-      ret@list:append (string_new (*argv));
-      argv++;
-    }
-  program@["args"oi]=ret;
-  return ret;
-}

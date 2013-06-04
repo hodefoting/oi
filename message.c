@@ -140,7 +140,7 @@ int listen (Oi           *oi_self,
 
   message->callbacks@list:append (entry);
 
-  self@message:emit ("oi:message-connect", (void*)message_name);
+  self@"oi:message-connect"((void*)message_name);
 
   /* add outselves to the disconnector trait, so that if the trait goes
    * away the message callback goes away.
@@ -156,7 +156,7 @@ void handler_disconnect (int handler_id)
   Message *message = self@oi:trait_get(MESSAGE);
   if (!message)
     return;
-  self@message:emit ("oi:message-disconnect", (void*)((MessageEntry*)list_get (message->callbacks, handler_id))->message_name);
+  self@"oi:message-disconnect"((void*)((MessageEntry*)list_get (message->callbacks, handler_id))->message_name);
   message->callbacks@list:remove_index (handler_id);
 }
 

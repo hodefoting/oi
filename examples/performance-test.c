@@ -56,7 +56,7 @@ void  oi_set_foo (Oi *oi, float f)
 {
   Foo *foo = (Foo*)oi@oi:trait_get (FOO);
   foo->foo = f;
-  oi@message:emit ("notify", "foo");
+  oi@"notify"("foo");
 }
 
 

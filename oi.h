@@ -59,9 +59,10 @@ void            oi_finalize         (Oi *oi);
 
 Oi           *oi_new_bare (OiType *type, void *userdata);
 
-Oi *oi_make_args (Oi *program, char **argv);
-
 #include "oi-mem.h"
+
+extern OiType  *PROGRAM;
+Oi *program_get_args (Oi *program);
 
 /* core capabilities */
 #include "ref.h"

@@ -385,7 +385,7 @@ void process_token (State *o)
 
             if (!memcmp (o->cmd, "main", 4))
             {
-            sprintf (buf, "int main (int argc, char **argv){Oi *self=oi_new();Oi *args=oi_make_args(self, argv);");
+            sprintf (buf, "int main (int argc, char **argv){Oi *self=oi_new_bare(PROGRAM, argv);Oi *args=program_get_args(self);");
             }
             else if (add_nls)
             {
@@ -562,11 +562,13 @@ void process_token (State *o)
                  FLUSH();
                  break;
 
+
                case '(':
                  /* knowing if this si the one is hard.. given function
                   * pointers and other possiblities?
                   */
                  o->parend++;
+
                  if (o->brackd==0 && o->in_trait && o->parend==1)
                    {
                      int pos = o->ipos;
@@ -659,6 +661,11 @@ void process_token (State *o)
                    }
                  break;
                case ')':
+                 if (o->brackd==0 && o->in_trait && o->parend==1)
+                   {
+                     fprintf (stderr, "[%s]\n", &o->inbuf[o->ipos-20]);
+                   }
+                 break;
                  o->parend--;
                  break;
 
