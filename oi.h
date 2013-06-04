@@ -26,10 +26,10 @@ struct _Type
   const char     *name;  /* for debugging purposes */
   int             size;  /* size of a trait instance */
   /* function initializing a trait instance (or NULL) */
-  void          (*init)    (Oi *oi, void *trait, Oi *args);
-  void          (*init_int)(Oi *oi, void *trait);
+  void          (*init)    (Oi *self, void *trait, Oi *args);
+  void          (*init_int)(Oi *self, void *trait);
   /* function destroying a trait instance (or NULL)*/
-  void          (*destroy) (Oi *oi, void *trait);
+  void          (*destroy) (Oi *self, void *trait);
 };
 
 /* convenience for implementing capabilities, sticking this in a C file creates
