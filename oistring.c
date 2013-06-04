@@ -29,6 +29,7 @@
   int   allocated;
 };
 
+/* this is where the initial string should be set.. */
 static void init (Oi *args)
 {
   string->allocated = 8;
@@ -119,9 +120,7 @@ void append_printf (const char *format, ...)
   oi_free (needed, buffer);
 }
 
-@end
-
-Oi *string_new (const char *initial)
+Oi *new (const char *initial)
 {
   Oi *self = oi_new_bare (STRING, NULL);
   if (initial)
@@ -130,3 +129,5 @@ Oi *string_new (const char *initial)
     }
   return self;
 }
+
+@end

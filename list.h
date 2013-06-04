@@ -17,4 +17,5 @@ int list_find_custom (Oi *self, void *matchfunp,
                  void *user_data);
 int list_find (Oi *self, void *data);
 void list_append (Oi *self, void *data);
+Oi *list_new ();
 #endif

@@ -47,7 +47,10 @@ static OiType NAME##_class = {"" #NAME, sizeof (s), init, init_int, destroy};\
 OiType *NAME = &NAME##_class;
 
 /* create a new bare bone oi instance */
-Oi             *oi_new                   (void);
+Oi             *oi_new              (void);
+void            oi_finalize         (Oi *oi);
+Oi             *oi_new_bare (OiType *type, void *userdata);
+
 void            oi_trait_add        (Oi *oi, OiType *trait, Oi *args);
 void            oi_trait_remove     (Oi *oi, OiType *trait);
 int             oi_trait_check      (Oi *oi, OiType *trait);
@@ -55,15 +58,7 @@ void           *oi_trait_get        (Oi *oi, OiType *trait);
 void           *oi_trait_get_assert (Oi *oi, OiType *trait);
 void           *oi_trait_ensure     (Oi *oi, OiType *trait, Oi *args);
 const OiTrait **oi_trait_list       (Oi *oi, int *count);
-void            oi_finalize         (Oi *oi);
 
-Oi           *oi_new_bare (OiType *type, void *userdata);
-
-/* move these to be be new methods of the traits..
- * it is cleaner that way.
- */
-Oi *list_new (void);
-Oi *string_new (const char *initial);
 
 #include "oi-mem.h"
 

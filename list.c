@@ -228,9 +228,9 @@ void append (void *data)
   list->size++;
 }
 
-@end
-
-Oi *list_new (void)
+Oi *new ()
 {
   return oi_new_bare (LIST, NULL);
 }
+
+@end

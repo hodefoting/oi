@@ -8,4 +8,5 @@ void string_append_string (Oi *self, Oi *oi2);
 const char *string_get (Oi *self);
 char *string_dissolve (Oi *self);
 void string_append_printf (Oi *self, const char *format, ...);
+Oi *string_new (const char *initial);
 #endif

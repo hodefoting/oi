@@ -691,7 +691,11 @@ void process_token (State *o)
                              o->trait, name, o->trait, cbname, o->trait);
                        }
                      else
-                     if (!strcmp (name, "init") ||
+                     if (!strcmp (name, "new"))
+                     {
+                       sprintf (tempbuf, "%s_%s (", o->trait, name);
+                     }
+                     else if (!strcmp (name, "init") ||
                          !strcmp (name, "destroy"))
                      {
                      sprintf (tempbuf, "%s_%s (Oi *self, %s *%s", o->trait, name, o->Trait, o->trait);
@@ -705,6 +709,8 @@ void process_token (State *o)
                      o->ipos = pos;
                      o->state = S_MAYBE_COMMA;
 
+                     if (!strcmp (name, "new"))
+                       o->state = S_NEUTRAL;
                      return;
                    }
                  break;
