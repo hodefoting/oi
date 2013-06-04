@@ -62,7 +62,7 @@ void     var_finalize (Var *oi);
 
 /* core capabilities */
 #include "trait.h"
-#include "properties.h"
+#include "property.h"
 #include "message.h"
 #include "ref.h"
 #include "mutex.h"
