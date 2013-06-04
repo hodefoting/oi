@@ -19,25 +19,36 @@
 #define _OI_H
 #include <string.h>
 
-typedef struct _Trait Var;  /* opaque handle to an object */
-typedef struct _Type  Type;
-struct _Type
+/* The variadic intance with trait's we use for all out oi-pointers */
+typedef struct _Trait Var;
+
+/* definition of a trait-type - to be associated with an instance */
+typedef struct 
 {
   const char     *name;  /* for debugging purposes */
   int             size;  /* size of a trait instance */
+
   /* function initializing a trait instance (or NULL) */
   void          (*init)    (Var *self, void *trait, Var *args);
+
+  /* additional intialization (used internally by oi) */
   void          (*init_int)(Var *self, void *trait);
-  /* function destroying a trait instance (or NULL)*/
+
+  /* release resources held by trait instance */
   void          (*destroy) (Var *self, void *trait);
-};
+} Type;
+
+/* this macro is used for creating the instance from the set of pointers,
+ * as well as declaring a pointer to the instance.
+ *
+ */
 #define OI(NAME, s, init, init_int, destroy) \
-static Type NAME##_class = {"" #NAME, sizeof (s), init, init_int, destroy};\
-Type *NAME = &NAME##_class;
+static Type NAME##_trait = {"" #NAME, sizeof (s), init, init_int, destroy};\
+Type *NAME = &NAME##_trait;
 
 /* create a new bare bone oi instance */
 Var     *var_new      (void);
-Var     *var_new_bare (Type *type, void *userdata);
+Var     *var_new_bare (Type *type, void *args);
 void     var_finalize (Var *oi);
 
 #include "oi-mem.h"
