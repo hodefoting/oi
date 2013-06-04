@@ -13,7 +13,7 @@
 
 @
 
-int main (int argc, char **argv)
+@main ()
 {
   Oi *test = @oi:new();
   test@oi:trait_add(FOO, NULL);

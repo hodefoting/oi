@@ -33,6 +33,7 @@ typedef struct State
   char Trait[256];
   char TRAIT[256];
 
+  char cmd[256];
 
   char msg[40960];
   int mpos;
@@ -380,7 +381,12 @@ void process_token (State *o)
           {
             char buf[1024];
             int i;
-            if (add_nls)
+
+            if (!memcmp (o->cmd, "main", 4))
+            {
+            sprintf (buf, "int main (int argc, char **argv){Oi *self=oi_new();Oi *args=oi_make_args(self, argv);");
+            }
+            else if (add_nls)
             {
             sprintf (buf, "extern OiType *%s;typedef struct _%s %s;\nstruct _%s{OiTrait trait;",
                 o->TRAIT, o->Trait, o->Trait, o->Trait);
@@ -405,6 +411,11 @@ void process_token (State *o)
         }
       else
         {
+          /* should keep the command,. and only store the trait name
+           * when we know it was a trait - this initial implemntation
+           * must go..
+           */
+
           int i;
           for (i = 0; i < o->toklen; i++)
             {
@@ -412,6 +423,10 @@ void process_token (State *o)
               if (o->in_trait > 6)
                 {
                   o->Trait[o->in_trait-7] = o->token[i];
+                }
+              else if (o->in_trait < 6)
+                {
+                  o->cmd[o->in_trait-1] = o->token[i];
                 }
             }
           o->Trait[o->in_trait-6] = 0;

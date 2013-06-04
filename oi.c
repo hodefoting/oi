@@ -199,3 +199,17 @@ Oi *oi_new_bare (OiType *type, void *userdata)
   self@oi:trait_add (type, userdata);
   return self;
 }
+
+Oi *oi_make_args (Oi *program, char **argv)
+{
+  Oi *ret = list_new ();
+  program@["name"oi]=string_new(argv[0]);
+  argv++;
+  while (*argv)
+    {
+      ret@list:append (string_new (*argv));
+      argv++;
+    }
+  program@["args"oi]=ret;
+  return ret;
+}

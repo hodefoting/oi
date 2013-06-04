@@ -58,6 +58,9 @@ const OiTrait **oi_trait_list       (Oi *oi, int *count);
 void            oi_finalize         (Oi *oi);
 
 Oi           *oi_new_bare (OiType *type, void *userdata);
+
+Oi *oi_make_args (Oi *program, char **argv);
+
 #include "oi-mem.h"
 
 /* core capabilities */
