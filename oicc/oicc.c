@@ -8,7 +8,7 @@
 #include <sys/types.h>
 
 char TMP_PATH[]="/tmp";
-
+ 
 typedef struct State
 {
   size_t len;
@@ -33,6 +33,10 @@ typedef struct State
   char Trait[256];
   char TRAIT[256];
 
+
+  char msg[40960];
+  int mpos;
+
   int in_trait;
 
   int got_init;
@@ -51,6 +55,8 @@ enum {
   S_ASSIGNMENT,
   S_IN_TRAIT_DEF,
   S_IN_END,
+  S_MESSAGE,
+  S_MESSAGE2,
 };
 
 #define FLUSH()  do{    fprintf (o->fpw, "%s", o->inbuf);o->ipos=o->inbuf[0]=0;;}while(0)
@@ -94,6 +100,9 @@ void handle_at (State *o)
           case ',':
           case '+':
           case '%':
+          //case '>': /* cannot be here, since derferencing uses it..
+          //check for -?  */
+          case '<':
           case '}':
           case '{':
 
@@ -252,6 +261,16 @@ void process_token (State *o)
             int pos = 0;
             int i;
 
+            if (o->mpos)
+              {
+                o->msg[o->mpos]=0;
+
+            pos += sprintf (&buf[pos], "static void %s_init_int (Oi *self){"
+  "%s *%s=oi_trait_get(self,%s);%s;}", o->trait, o->Trait, o->trait, o->TRAIT, o->msg);
+
+                o->mpos = 0;
+              }
+
             pos += sprintf (&buf[pos], "OI(%s, %s,", o->TRAIT, o->Trait);
 
             if (o->got_init)
@@ -260,7 +279,7 @@ void process_token (State *o)
               pos += sprintf (&buf[pos], "NULL, ");
 
             if (o->got_pre_init)
-              pos += sprintf (&buf[pos], "(void*)%s_pre_init, ", o->trait);
+              pos += sprintf (&buf[pos], "(void*)%s_init_int, ", o->trait);
             else
               pos += sprintf (&buf[pos], "NULL, ");
 
@@ -477,7 +496,7 @@ void process_token (State *o)
         }
     }
 
-  if (o->toklen == 1)
+  //if (o->toklen == 1)
   {
     switch (o->state)
       {
@@ -517,6 +536,7 @@ void process_token (State *o)
                  o->parend = 0;
                  FLUSH();
                  break;
+
                case '(':
                  /* knowing if this si the one is hard.. given function
                   * pointers and other possiblities?
@@ -565,6 +585,26 @@ void process_token (State *o)
                        {
                          o->got_destroy ++;
                        }
+
+                     if (name[0]=='"')
+                       {
+                         /* XXX: transform ' ' '-' etc.. */
+                         memcpy(name, &name[1], sizeof(name)-1);
+                         name[strlen(name)-1]=0;
+
+
+                         sprintf (tempbuf, "static int %s_%s_cb (Oi *self", o->trait, name);
+
+                         /* add to list being built up for contents
+                          * of init_int implementation. 
+                          */
+                         o->got_pre_init++;
+
+                         o->mpos += sprintf (&o->msg[o->mpos],
+                             "message_listen(self, (void*)self,(void*)%s,\"%s\", (void*)%s_%s_cb, oi_trait_get(self, %s))",
+                             o->trait, name, o->trait, name, o->TRAIT);
+                       }
+                     else
                      if (!strcmp (name, "init") ||
                          !strcmp (name, "destroy"))
                      {
