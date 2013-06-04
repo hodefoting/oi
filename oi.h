@@ -42,9 +42,9 @@ static Type NAME##_class = {"" #NAME, sizeof (s), init, init_int, destroy};\
 Type *NAME = &NAME##_class;
 
 /* create a new bare bone oi instance */
-Oi     *oi_new       (void);
-Oi     *oi_new_bare  (Type *type, void *userdata);
-void    oi_finalize  (Oi *oi);
+Oi     *oi_new      (void);
+Oi     *oi_new_bare (Type *type, void *userdata);
+void    oi_finalize (Oi *oi);
 
 #include "oi-mem.h"
 

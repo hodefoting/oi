@@ -193,7 +193,7 @@ void oi_finalize (Oi *self)
 
 Oi * oi_new (void)
 {
-  Oi *self = oi_malloc (sizeof(Oi));
+  Oi *self = oi_malloc (sizeof(Trait));
   self->traits = NULL;
   self->trait_count = 0;
   return self;
