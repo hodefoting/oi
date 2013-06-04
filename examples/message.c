@@ -8,6 +8,7 @@
 "hello" (const char *data, Foo *foo)
 {
   printf ("hello %s\n", data?data:"(NULL)");
+  return 0;
 }
 
 @
