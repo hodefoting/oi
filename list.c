@@ -64,33 +64,35 @@ void * get (int no)
   return NULL;
 }
 
-void remove_index_fast (int index)
+Var *remove_index_fast (int index)
 {
   List *list = self@trait:get_assert (LIST);
   if (!(index >= 0 && index < list->size))
-    return;
+    return self;
 
   if (list->destroy)
     list->destroy (list->items[index], list->destroy_data);
   list->items[index] = list->items[list->size-1];
   list->size--;
+  return self;
 }
 
-void remove_index (int index)
+Var *remove_index (int index)
 {
   int j;
   List *list = self@trait:get_assert (LIST);
   if (!(index >= 0 && index < list->size))
-    return;
+    return self;
 
   if (list->destroy)
     list->destroy (list->items[index], list->destroy_data);
   list->size--;
   for (j = index; j < list->size; j++)
     list->items[j] = list->items[j+1];
+  return self;
 }
 
-void remove (void *data)
+Var *remove (void *data)
 {
   List *list = self@trait:get_assert (LIST);
   int i;
@@ -98,8 +100,9 @@ void remove (void *data)
     if (list->items[i] == data)
       {
         self@list:remove_index (i);
-        return;
+        return self;
       }
+  return self;
 }
 
 int get_size ()
@@ -108,7 +111,7 @@ int get_size ()
   return list->size;
 }
 
-void list_remove_fast (void *data)
+Var *list_remove_fast (void *data)
 {
   List *list = self@trait:get_assert (LIST);
   int i;
@@ -116,32 +119,35 @@ void list_remove_fast (void *data)
     if (list->items[i] == data)
       {
         self@list:remove_index_fast (i);
-        return;
+        return self;
       }
+  return self;
 }
 
-void remove_zombie_index_fast (int index)
+Var *remove_zombie_index_fast (int index)
 {
   List *list = self@trait:get_assert (LIST);
   if (!(index >= 0 && index < list->size))
-    return;
+    return self;
 
   list->items[index] = list->items[list->size-1];
   list->size--;
+  return self;
 }
 
-void remove_zombie_index (int index)
+Var *remove_zombie_index (int index)
 {
   List *list = self@trait:get_assert (LIST);
   int j;
   if (!(index >= 0 && index < list->size))
-    return;
+    return self;
   list->size--;
   for (j = index; j < list->size; j++)
     list->items[j] = list->items[j+1];
+  return self;
 }
 
-void remove_zombie (void *data)
+Var *remove_zombie (void *data)
 {
   List *list = self@trait:get_assert (LIST);
   int i;
@@ -149,11 +155,12 @@ void remove_zombie (void *data)
     if (list->items[i] == data)
       {
         self@list:remove_zombie_index (i);
-        return;
+        return self;
       }
+  return self;
 }
 
-void remove_zombie_fast (void *data)
+Var *remove_zombie_fast (void *data)
 {
   List *list = self@trait:get_assert (LIST);
   int i;
@@ -161,20 +168,22 @@ void remove_zombie_fast (void *data)
     if (list->items[i] == data)
       {
         self@list:remove_zombie_index_fast (i);
-        return;
+        return self;
       }
+  return self;
 }
 
 /*
-void set_destroy (void (*destroy)(void *item, void *user_data),
+Var *set_destroy (void (*destroy)(void *item, void *user_data),
                   void *user_data)
                   */
 
-void set_destroy (void *destroy, void *user_data)
+Var *set_destroy (void *destroy, void *user_data)
 {
   List *list = self@trait:get_assert (LIST);
   list->destroy = destroy;
   list->destroy_data = user_data;
+  return self;
 }
 
 /* XXX: fixme in the oiccc parser; so that function callbacks
@@ -209,7 +218,7 @@ int find (void *data)
 }
 
 
-void append (void *data)
+Var *append (void *data)
 {
   List *list = self@trait:get_assert (LIST);
 
@@ -224,6 +233,8 @@ void append (void *data)
     }
   list->items[list->size] = data;
   list->size++;
+
+  return self;
 }
 
 Var *new ()
