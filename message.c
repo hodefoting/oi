@@ -252,7 +252,7 @@ void emit_remote (const char *message_name,
                   void       *arg,
                   void (*closure) (void *arg))
 {
-  Var *item = @var:new ();
+  Var *item = var_new(NULL, NULL);
   dispatch_queue ()@mutex:lock ();
   item@oi:set_oi      ("oi", self);
   item@oi:set_string  ("message", message_name);

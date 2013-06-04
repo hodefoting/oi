@@ -30,11 +30,16 @@
 };
 
 /* this is where the initial string should be set.. */
-static void init (Var *args)
+static void init (const char *initial)
 {
   string->allocated = 8;
   string->len = 0;
   string->data = oi_malloc (string->allocated);
+
+  if (initial)
+    {
+      self@string:append_str (initial);
+    }
 }
 static void destroy ()
 {
@@ -122,12 +127,7 @@ void append_printf (const char *format, ...)
 
 Var *new (const char *initial)
 {
-  Var *self = var_new_bare (STRING, NULL);
-  if (initial)
-    {
-      self@string:append_str (initial);
-    }
-  return self;
+  return var_new (STRING, (void*)initial);
 }
 
 @end

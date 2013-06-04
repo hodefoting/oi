@@ -393,7 +393,7 @@ void process_token (State *o)
 
             if (!memcmp (o->cmd, "main", 4))
             {
-            sprintf (buf, "int main (int argc, char **argv){Var *self=var_new_bare(PROGRAM, argv);Var __attribute__((__unused__)) *args=program_get_args(self);");
+            sprintf (buf, "int main (int argc, char **argv){Var *self=var_new(PROGRAM, argv);Var __attribute__((__unused__)) *args=program_get_args(self);");
             o->in_trait=0;
             }
             else if (add_nls)

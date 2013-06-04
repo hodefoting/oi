@@ -13,7 +13,7 @@ static void each_arg_cb (Var *argb, void *oi)
 
 @main ()
 {
-  Var *test = @var:new();
+  Var *test = var_new(NULL,NULL);
 
   test@oi:properties_each (cb, self);
   test@["abc"float]=3.2;

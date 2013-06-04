@@ -12,7 +12,7 @@ void list_properties (Var *oi)
 
 @main ()
 {
-  Var *test = @var:new();
+  Var *test = var_new(NULL,NULL);
 
   list_properties (test);
   test@["abc"float]=3.2;

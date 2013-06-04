@@ -119,7 +119,7 @@ int perf_test (void)
   start = oi_ticks ();
   for (i = 0; i < count; i ++)
     {
-      Var *item = @var:new ();
+      Var *item = var_new (NULL, NULL);
       item@ref:dec();
     }
   condecon_oi = 1000000.0/((oi_ticks () - start)*1.0/count);
@@ -133,7 +133,7 @@ int perf_test (void)
   condecon_g = 1000000.0/((oi_ticks () - start)*1.0/count);
 
   {
-    Var *item = @var:new ();
+    Var *item = var_new (NULL, NULL);
     start = oi_ticks ();
     for (i = 0; i < count; i ++)
       {
@@ -146,7 +146,7 @@ int perf_test (void)
 
 
 {
-  Var *item = @var:new ();
+  Var *item = var_new (NULL, NULL);
   start = oi_ticks ();
   for (i = 0; i < count; i ++)
     {
@@ -203,7 +203,7 @@ int perf_test (void)
 
 
 {
-  Var *item = @var:new ();
+  Var *item = var_new (NULL, NULL);
   start = oi_ticks ();
   for (i = 0; i < count; i ++)
     {
@@ -218,7 +218,7 @@ int perf_test (void)
 
 
 {
-  Var *item = @var:new ();
+  Var *item = var_new(NULL,NULL);
   start = oi_ticks ();
   item@message:listen (NULL, NULL, "notify", (void*)oops, NULL);
   for (i = 0; i < count; i ++)

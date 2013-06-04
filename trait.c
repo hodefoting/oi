@@ -186,17 +186,12 @@ void var_finalize (Var *self)
   trait_finalize (self);
 }
 
-Var * var_new (void)
+Var *var_new (Type *type, void *args)
 {
   Var *self = oi_malloc (sizeof(Trait));
   self->traits = NULL;
   self->trait_count = 0;
-  return self;
-}
-
-Var *var_new_bare (Type *type, void *userdata)
-{
-  Var *self = @var:new ();
-  self@trait:add (type, userdata);
+  if (type)
+    self@trait:add (type, args);
   return self;
 }

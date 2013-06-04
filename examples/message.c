@@ -15,8 +15,7 @@
 
 @main ()
 {
-  Var *test = @var:new();
-  test@trait:add(FOO, NULL);
+  Var *test = var_new(FOO, NULL);
   test@"hello"("void");
   test@"hello"(NULL);
   test@ref:dec();

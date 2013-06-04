@@ -46,12 +46,20 @@ typedef struct
 static Type NAME##_trait = {"" #NAME, sizeof (s), init, init_int, destroy};\
 Type *NAME = &NAME##_trait;
 
-/* create a new bare bone oi instance */
-Var     *var_new      (void);
-Var     *var_new_bare (Type *type, void *args);
+/* create a new bare bone oi instance, 
+ * type and args can be NULL to create an instance
+ * without any initial trait.
+ */
+Var     *var_new      (Type *trait, void *trait_arg);
+
+/* destroy a variable instance, @ref:dec should be
+ * used instead; it doesn't even add the reference
+ * trait if no references have been added.
+ */
 void     var_finalize (Var *oi);
 
 #include "oi-mem.h"
+
 /* core capabilities */
 #include "trait.h"
 #include "properties.h"
@@ -59,7 +67,6 @@ void     var_finalize (Var *oi);
 #include "ref.h"
 #include "mutex.h"
 #include "list.h"
-
 #include "oistring.h"
 #include "program.h"
 

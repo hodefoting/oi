@@ -56,14 +56,13 @@ static void destroy ()
     oi_free (((list->size + CS)/CS)*CS, list->items);
 }
 
-void  * get (int no)
+void * get (int no)
 {
   List *list = self@trait:get_assert (LIST);
   if (no >= 0 && no < list->size)
     return list->items[no];
   return NULL;
 }
-
 
 void remove_index_fast (int index)
 {
@@ -229,7 +228,7 @@ void append (void *data)
 
 Var *new ()
 {
-  return var_new_bare (LIST, NULL);
+  return var_new (LIST, NULL);
 }
 
 @end

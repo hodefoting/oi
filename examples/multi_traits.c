@@ -36,7 +36,7 @@ float get_it ()
 {
   Var *test;
 
-  test = @var:new ();
+  test = var_new (NULL, NULL);
 
   printf ("%f\n", test@foo:get_it());
   test@foo:set_it (1.2);

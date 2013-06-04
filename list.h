@@ -8,7 +8,7 @@
 #define  _LIST_H_
 extern Type *LIST;
 void list_each (Var *self, void *cbp, void *user_data);
-void  * list_get (Var *self, int no);
+void * list_get (Var *self, int no);
 void list_remove_index_fast (Var *self, int index);
 void list_remove_index (Var *self, int index);
 void list_remove (Var *self, void *data);
