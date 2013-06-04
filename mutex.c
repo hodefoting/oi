@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include "oi.h"
+@generateheader
 
 @trait Mutex
 {

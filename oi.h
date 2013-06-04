@@ -61,9 +61,6 @@ Oi           *oi_new_bare (OiType *type, void *userdata);
 
 #include "oi-mem.h"
 
-extern OiType  *PROGRAM;
-Oi *program_get_args (Oi *program);
-
 /* core capabilities */
 #include "ref.h"
 #include "message.h"
@@ -71,5 +68,6 @@ Oi *program_get_args (Oi *program);
 #include "properties.h"
 #include "list.h"
 #include "oistring.h"
+#include "program.h"
 
 #endif
