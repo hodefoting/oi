@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include "oi.h"
 #include "pthread.h"
+@generateheader
 
 /*
  */
@@ -126,10 +127,18 @@ typedef struct
   void  *user_data;
 } MessageEntry;
 
+/*
 int listen (Var           *oi_self,
             void         *trait_self,
             const char   *message_name,
             void        (*callback) (Var *self, void *arg, void *user_data),
+            void         *user_data)
+            */
+
+int listen (Var           *oi_self,
+            void         *trait_self,
+            const char   *message_name,
+            void         *callback,
             void         *user_data)
 {
   Message *message = (Message*)trait_ensure (self, MESSAGE, NULL);
@@ -271,7 +280,10 @@ match_func! (void *entryp, void *callback)
   return 0;
 }
 
-void   handler_disconnect_by_func (void (*callback) (Var *self, void *arg, void *user_data))
+/* void handler_disconnect_by_func (void (*callback) (Var *self, void *arg, void *user_data))
+ */
+
+void handler_disconnect_by_func (void *callback)
 {
   Message *message = self@trait:get(MESSAGE);
   int no;
