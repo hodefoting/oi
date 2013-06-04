@@ -140,7 +140,7 @@ void   oi_set_float       (Oi *oi, const char *name, float       value)
   entry->value_float = value;
   entry->type = OI_PTYPE_FLOAT;
   if (changed)
-    oi@message:emit ("notify", (void*)name);
+    oi@"notify"((void*)name);
 }
 
 void   oi_set_int         (Oi *oi, const char *name, int         value)
@@ -150,7 +150,7 @@ void   oi_set_int         (Oi *oi, const char *name, int         value)
   entry->type = OI_PTYPE_INT;
   entry->value_int = value;
   if (changed)
-    oi@message:emit ("notify", (void*)name);
+    oi@"notify"((void*)name);
 }
 void   oi_set_string      (Oi *oi, const char *name, const char *value)
 {
@@ -167,7 +167,7 @@ void   oi_set_string      (Oi *oi, const char *name, const char *value)
     }
   else
     entry->value_string = NULL;
-  oi@message:emit ("notify", (void*)name);
+  oi@"notify"((void*)name);
 }
 void   oi_set_oi          (Oi *oi, const char *name, Oi *value)
 {
@@ -177,7 +177,7 @@ void   oi_set_oi          (Oi *oi, const char *name, Oi *value)
     entry->value_oi = value@ref:inc();
   else
     entry->value_oi = NULL;
-  oi@message:emit ("notify", (void*)name);
+  oi@"notify"((void*)name);
 }
 
 void   oi_set_pointer     (Oi *oi, const char *name, void       *value)
@@ -185,7 +185,7 @@ void   oi_set_pointer     (Oi *oi, const char *name, void       *value)
   PropertiesEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_POINTER;
   entry->value_pointer = value;
-  oi@message:emit ("notify", (void*)name);
+  oi@"notify"((void*)name);
 }
 
 float  oi_get_float       (Oi *oi, const char *name)
