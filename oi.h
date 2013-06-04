@@ -59,7 +59,11 @@ void            oi_finalize         (Oi *oi);
 
 Oi           *oi_new_bare (OiType *type, void *userdata);
 
+/* move these to be be new methods of the traits..
+ * it is cleaner that way.
+ */
 Oi *list_new (void);
+Oi *string_new (const char *initial);
 
 #include "oi-mem.h"
 

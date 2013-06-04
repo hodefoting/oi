@@ -16,7 +16,7 @@
  */
 
 #include "oi.h"
-#include "oistring.h"
+@generateheader
 #include <stdarg.h>
 #include <stdio.h>
 
