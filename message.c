@@ -182,7 +182,7 @@ void emit (const char *message_name,
       list_each (message->callbacks, emit_matching, emit_data);
       if (emit_data[3] == NULL && strcmp(message_name, "method-missing"))
         {
-          self@"method-missing"(message_name);
+          self@"method-missing"((void*)message_name);
         }
     }
 }
