@@ -284,7 +284,7 @@ void process_token (State *o)
                 o->msg[o->mpos]=0;
 
             pos += sprintf (&buf[pos], "static void %s_init_int (Var *self){"
-  "%s *%s=trait_get(self,%s);%s;}", o->trait, o->Trait, o->trait, o->TRAIT, o->msg);
+  "%s *%s=trait_get(self,%s);%s}", o->trait, o->Trait, o->trait, o->TRAIT, o->msg);
                 o->mpos = 0;
               }
 
@@ -683,7 +683,7 @@ void process_token (State *o)
                          o->got_pre_init++;
 
                          o->mpos += sprintf (&o->msg[o->mpos],
-                             "message_listen(self, (void*)self,(void*)%s,\"%s\", (void*)%s_%s_cb, %s)",
+                             "message_listen(self, (void*)self,(void*)%s,\"%s\", (void*)%s_%s_cb, %s);",
                              o->trait, name, o->trait, cbname, o->trait);
                        }
                      else

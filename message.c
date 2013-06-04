@@ -21,9 +21,6 @@
 #include "pthread.h"
 @generateheader
 
-/*
- */
-
 @trait MsgDisconnect
 {
   Var *list;

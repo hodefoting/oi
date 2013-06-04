@@ -8,7 +8,7 @@
 #define  _MESSAGE_H_
 extern Type *MSG_DISCONNECT;
 extern Type *MESSAGE;
-int message_listen (Var *self, Var           *oi_self,
+int message_listen (Var *self, Var          *oi_self,
             void         *trait_self,
             const char   *message_name,
             void         *callback,
