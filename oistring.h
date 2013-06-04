@@ -1,3 +1,9 @@
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+/* !!!! GENERATED GENERATED GENERATED GENERATED GENERATED GENERATED   !!!! */
+/* !!!!                                                               !!!! */
+/* !!!! this file is generated from the corresponding .c file by oicc !!!! */
+/* !!!!                                                               !!!! */
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 #ifndef O_OISTRING_H
 #define  O_OISTRING_H
 extern OiType *STRING;

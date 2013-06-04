@@ -1,3 +1,9 @@
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+/* !!!! GENERATED GENERATED GENERATED GENERATED GENERATED GENERATED   !!!! */
+/* !!!!                                                               !!!! */
+/* !!!! this file is generated from the corresponding .c file by oicc !!!! */
+/* !!!!                                                               !!!! */
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 #ifndef O_LIST_H
 #define  O_LIST_H
 extern OiType *LIST;

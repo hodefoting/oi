@@ -1,3 +1,9 @@
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+/* !!!! GENERATED GENERATED GENERATED GENERATED GENERATED GENERATED   !!!! */
+/* !!!!                                                               !!!! */
+/* !!!! this file is generated from the corresponding .c file by oicc !!!! */
+/* !!!!                                                               !!!! */
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 #ifndef O_TRAIT_H
 #define  O_TRAIT_H
 extern OiType *TRAIT;
