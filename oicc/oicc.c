@@ -1118,9 +1118,12 @@ help:
       
          if (argv[i][0]!='-')
            {
+             char *header_name = strdup(basename (argv[i]));
+             header_name[strlen(header_name)-1]='h';
+
              FILE *fpr;
              fpr = fopen (argv[i], "r");
-             oicc_filter (fpr, stdout, NULL);
+             oicc_filter (fpr, stdout, header_name);
              fclose (fpr);
            }
     }
