@@ -954,8 +954,8 @@ int oicc_filter (FILE *fpr, FILE *fpw, const char *header_name)
         fprintf (hf, "/* !!!! this file is generated from the corresponding .c file by oicc !!!! */\n", flattened);
         fprintf (hf, "/* !!!!                                                               !!!! */\n", flattened);
         fprintf (hf, "/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */\n", flattened);
-        fprintf (hf, "#ifndef O_%s\n", flattened);
-        fprintf (hf, "#define  O_%s\n", flattened);
+        fprintf (hf, "#ifndef _%s_\n", flattened);
+        fprintf (hf, "#define  _%s_\n", flattened);
         fprintf (hf, "%s", state.header);
         fprintf (hf, "#endif\n");
         free (flattened);

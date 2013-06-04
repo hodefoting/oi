@@ -4,8 +4,8 @@
 /* !!!! this file is generated from the corresponding .c file by oicc !!!! */
 /* !!!!                                                               !!!! */
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-#ifndef O_LIST_H
-#define  O_LIST_H
+#ifndef _LIST_H_
+#define  _LIST_H_
 extern Type *LIST;
 void list_each (Var *self, void *cbp, void *user_data);
 void  * list_get (Var *self, int no);

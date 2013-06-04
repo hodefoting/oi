@@ -4,8 +4,8 @@
 /* !!!! this file is generated from the corresponding .c file by oicc !!!! */
 /* !!!!                                                               !!!! */
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-#ifndef O_OISTRING_H
-#define  O_OISTRING_H
+#ifndef _OISTRING_H_
+#define  _OISTRING_H_
 extern Type *STRING;
 void string_clear (Var *self);
 void string_appendc (Var *self, int val);

@@ -4,8 +4,8 @@
 /* !!!! this file is generated from the corresponding .c file by oicc !!!! */
 /* !!!!                                                               !!!! */
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-#ifndef O_TRAIT_H
-#define  O_TRAIT_H
+#ifndef _TRAIT_H_
+#define  _TRAIT_H_
 extern Type *TRAIT;
 int trait_check (Var *self, Type *trait);
 void *trait_get (Var *self, Type *trait);
