@@ -7,7 +7,7 @@
 #ifndef O_MUTEX_H
 #define  O_MUTEX_H
 extern Type *MUTEX;
-Oi *mutex_lock (Oi *self);
-int mutex_trylock (Oi *self);
-void mutex_unlock (Oi *self);
+Var *mutex_lock (Var *self);
+int mutex_trylock (Var *self);
+void mutex_unlock (Var *self);
 #endif

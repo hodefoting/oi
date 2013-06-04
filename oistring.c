@@ -30,7 +30,7 @@
 };
 
 /* this is where the initial string should be set.. */
-static void init (Oi *args)
+static void init (Var *args)
 {
   string->allocated = 8;
   string->len = 0;
@@ -73,7 +73,7 @@ void append_str (const char *str)
     }
 }
 
-void append_string (Oi *oi2)
+void append_string (Var *oi2)
 {
   const char *str = oi2@string:get ();
   while (str && *str)
@@ -97,7 +97,7 @@ char *dissolve   ()
   String *string = OI_STRING (self);
   char *ret = string->data;
   string->data = NULL;
-  self@oi:finalize();
+  self@var:finalize();
   return ret;
 }
 
@@ -120,9 +120,9 @@ void append_printf (const char *format, ...)
   oi_free (needed, buffer);
 }
 
-Oi *new (const char *initial)
+Var *new (const char *initial)
 {
-  Oi *self = oi_new_bare (STRING, NULL);
+  Var *self = var_new_bare (STRING, NULL);
   if (initial)
     {
       self@string:append_str (initial);

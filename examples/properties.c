@@ -5,14 +5,14 @@ static void cb (const char *name, void *value, void* oi)
 {
   printf ("%s %f\n", name, oi@oi:get_float(name));
 }
-void list_properties (Oi *oi)
+void list_properties (Var *oi)
 {
   oi_properties_each (oi, cb, oi);
 }
 
 @main ()
 {
-  Oi *test = @oi:new();
+  Var *test = @var:new();
 
   list_properties (test);
   test@["abc"float]=3.2;

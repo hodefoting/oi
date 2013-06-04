@@ -15,7 +15,7 @@
 
 @main ()
 {
-  Oi *test = @oi:new();
+  Var *test = @var:new();
   test@trait:add(FOO, NULL);
   test@"hello"("void");
   test@"hello"(NULL);

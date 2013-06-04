@@ -6,14 +6,14 @@ static void cb (const char *name, void *value, void* oi)
   printf ("%s %f\n", name, oi@oi:get_float(name));
 }
 
-static void each_arg_cb (Oi *argb, void *oi)
+static void each_arg_cb (Var *argb, void *oi)
 {
   printf ("  %s\n", argb@string:get());
 }
 
 @main ()
 {
-  Oi *test = @oi:new();
+  Var *test = @var:new();
 
   test@oi:properties_each (cb, self);
   test@["abc"float]=3.2;

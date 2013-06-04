@@ -39,7 +39,6 @@ static void init ()
 
 /* void each (void (*cb)(void *item, void *user_data), void *user_data) */
 
-
 void each (void *cbp, void *user_data)
 {
   int i;
@@ -228,9 +227,9 @@ void append (void *data)
   list->size++;
 }
 
-Oi *new ()
+Var *new ()
 {
-  return oi_new_bare (LIST, NULL);
+  return var_new_bare (LIST, NULL);
 }
 
 @end

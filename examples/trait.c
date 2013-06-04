@@ -26,9 +26,9 @@ float get_it ()
 
 @main ()
 {
-  Oi *test;
+  Var *test;
 
-  test = oi_new ();
+  test = @var:new ();
 
   printf ("%f\n", test@foo:get_it());
   test@foo:set_it (1.2);

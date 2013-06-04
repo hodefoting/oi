@@ -28,7 +28,7 @@ static void init ()
   ref->count = 1;
 }
 
-Oi *inc ()
+Var *inc ()
 {
   Ref *ref = self@trait:ensure (REF, NULL);
   if (self@trait:get (MUTEX))
@@ -39,14 +39,14 @@ Oi *inc ()
   return self;
 }
 
-Oi *dec ()
+Var *dec ()
 {
   Ref *ref = self@trait:get (REF);
   if (self@trait:get (MUTEX))
     self@mutex:lock ();
   if (!ref || -- ref->count == 0)
     {
-      self@oi:finalize ();
+      self@var:finalize ();
       return NULL;
     }
   else

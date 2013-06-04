@@ -19,26 +19,26 @@
 #define _OI_H
 #include <string.h>
 
-typedef struct _Trait Oi;  /* opaque handle to an object */
+typedef struct _Trait Var;  /* opaque handle to an object */
 typedef struct _Type  Type;
 struct _Type
 {
   const char     *name;  /* for debugging purposes */
   int             size;  /* size of a trait instance */
   /* function initializing a trait instance (or NULL) */
-  void          (*init)    (Oi *self, void *trait, Oi *args);
-  void          (*init_int)(Oi *self, void *trait);
+  void          (*init)    (Var *self, void *trait, Var *args);
+  void          (*init_int)(Var *self, void *trait);
   /* function destroying a trait instance (or NULL)*/
-  void          (*destroy) (Oi *self, void *trait);
+  void          (*destroy) (Var *self, void *trait);
 };
 #define OI(NAME, s, init, init_int, destroy) \
 static Type NAME##_class = {"" #NAME, sizeof (s), init, init_int, destroy};\
 Type *NAME = &NAME##_class;
 
 /* create a new bare bone oi instance */
-Oi     *oi_new      (void);
-Oi     *oi_new_bare (Type *type, void *userdata);
-void    oi_finalize (Oi *oi);
+Var     *var_new      (void);
+Var     *var_new_bare (Type *type, void *userdata);
+void     var_finalize (Var *oi);
 
 #include "oi-mem.h"
 /* core capabilities */

@@ -20,16 +20,16 @@
 
 @generateheader
 
-typedef struct OiTrait
+typedef struct VarTrait
 {
   Type *type;
-} OiTrait;
+} VarTrait;
 
 @trait Trait
 {
   int        trait_count;
   /* XXX: this could be a treap */
-  OiTrait  **traits;
+  VarTrait  **traits;
 };
 
 /* checks if the object has the given instance */
@@ -51,7 +51,7 @@ void *get (Type *trait)
   int i;
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
   if (trait == TRAIT)
-    return (OiTrait*)self;
+    return (VarTrait*)self;
   for (i = 0; i < self->trait_count; i++)
     if (self->traits[i]->type == trait)
       return self->traits[i];
@@ -62,26 +62,26 @@ void *get (Type *trait)
  * (and segfault) */
 void *get_assert (Type *trait)
 {
-  OiTrait *res = self@trait:get (trait);
+  VarTrait *res = self@trait:get (trait);
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
   if (trait == TRAIT)
-    return (OiTrait*)self;
+    return (VarTrait*)self;
   if (!res)
     {
       fprintf (stderr, "assert failes, object %p doesn't have trait \"%s\".\n",
                self, trait->name);
-      *((Oi*)(NULL)) = *self; /* segfault so a backtrace is meaningful */
+      *((Var*)(NULL)) = *self; /* segfault so a backtrace is meaningful */
     }
   return res;
 }
 
 /* gets the trait, creates and adds it if it doesn't already exist */
-void *ensure (Type *trait, Oi *args)
+void *ensure (Type *trait, Var *args)
 {
-  OiTrait *res = self@trait:get (trait);
+  VarTrait *res = self@trait:get (trait);
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
   if (trait == TRAIT)
-    return (OiTrait*)self;
+    return (VarTrait*)self;
   if (!res)
     {
       self@trait:add (trait, args);
@@ -93,7 +93,7 @@ void *ensure (Type *trait, Oi *args)
 #define ALLOC_CHUNK   16
 
 /* adds an trait to an instance */
-void add (Type *type, Oi *args)
+void add (Type *type, Var *args)
 {
   if (type == TRAIT)
     return;
@@ -109,9 +109,9 @@ void add (Type *type, Oi *args)
        ((self->trait_count + (ALLOC_CHUNK-1))/ALLOC_CHUNK) * ALLOC_CHUNK)
     {
       if (self->traits == NULL)
-        self->traits = oi_malloc (sizeof (OiTrait*) * ALLOC_CHUNK);
+        self->traits = oi_malloc (sizeof (VarTrait*) * ALLOC_CHUNK);
       else
-        self->traits = oi_realloc (self->traits, sizeof (OiTrait*) *
+        self->traits = oi_realloc (self->traits, sizeof (VarTrait*) *
                              ((self->trait_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK );
     }
 
@@ -126,7 +126,7 @@ void add (Type *type, Oi *args)
   self@"oi:add-trait"(type);
 }
 
-static void trait_destroy (OiTrait *trait)
+static void trait_destroy (VarTrait *trait)
 {
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
   if (trait->type->destroy)
@@ -169,7 +169,7 @@ void finalize ()
   oi_free (((self->trait_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK,
         self->traits);
   self->trait_count = -66;
-  oi_free (sizeof (Oi), self);
+  oi_free (sizeof (Var), self);
 }
 
 /* get a list of traits, the returned list of pointers is NULL terminated
@@ -186,22 +186,22 @@ void **list (int *count)
 /* used to implement the object reaping side of oi_unref; do not use
  * directly
  */
-void oi_finalize (Oi *self)
+void var_finalize (Var *self)
 {
   trait_finalize (self);
 }
 
-Oi * oi_new (void)
+Var * var_new (void)
 {
-  Oi *self = oi_malloc (sizeof(Trait));
+  Var *self = oi_malloc (sizeof(Trait));
   self->traits = NULL;
   self->trait_count = 0;
   return self;
 }
 
-Oi *oi_new_bare (Type *type, void *userdata)
+Var *var_new_bare (Type *type, void *userdata)
 {
-  Oi *self = @oi:new ();
+  Var *self = @var:new ();
   self@trait:add (type, userdata);
   return self;
 }

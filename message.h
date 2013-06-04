@@ -25,7 +25,7 @@
 
 extern Type     *MESSAGE;
 
-void   message_emit (Oi *oi, const char *message, void *data);
+void   message_emit (Var *oi, const char *message, void *data);
 
 typedef void (*ClosureFunc)    (void* user_data);
 
@@ -35,7 +35,7 @@ typedef void (*ClosureFunc)    (void* user_data);
         the same name are serialized.
  */
 void
-message_emit_remote (Oi         *oi,
+message_emit_remote (Var         *oi,
                        const char *message_name,
                        void       *arg,
                        void (*closure) (void *arg));
@@ -45,17 +45,17 @@ message_emit_remote (Oi         *oi,
  * connecting trait is
  */
 int
-message_listen (Oi         *oi,
-                Oi         *oi_self,
+message_listen (Var         *oi,
+                Var         *oi_self,
                 void       *trait_self,
                 const char *message_name,
-                void      (*callback) (Oi *self, void *arg, void *user_data),
+                void      (*callback) (Var *self, void *arg, void *user_data),
                 void       *user_data);
 
-void   message_handler_disconnect (Oi *oi,
+void   message_handler_disconnect (Var *oi,
                                      int handler_id);
-void   message_handler_disconnect_by_func (Oi *oi,
-                          void (*callback) (Oi *self, void *arg, void *user_data));
-void   message_handler_disconnect_by_func_and_data (Oi *oi,
-                          void (*callback) (Oi *self, void *arg, void *user_data));
+void   message_handler_disconnect_by_func (Var *oi,
+                          void (*callback) (Var *self, void *arg, void *user_data));
+void   message_handler_disconnect_by_func_and_data (Var *oi,
+                          void (*callback) (Var *self, void *arg, void *user_data));
 #endif

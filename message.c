@@ -25,7 +25,7 @@
 
 @trait MsgDisconnect
 {
-  Oi *list;
+  Var *list;
 };
 
 typedef struct
@@ -54,6 +54,7 @@ again:
   if (msgdc->list@list:get_size () == 0)
     self@trait:remove (MSG_DISCONNECT);
     /* we are no longer needed, so remove ourself */
+  return 0;
 }
 
 static void lnrfree! (ListenerEntry *entry)
@@ -71,7 +72,7 @@ static void init ()
 
 static void destroy ()
 {
-  msg_disconnect->list@oi:finalize();
+  msg_disconnect->list@var:finalize();
 
   self@message:handler_disconnect_by_func ((void*)msg_disconnect_oi_remove_trait_cb);
 }
@@ -115,20 +116,20 @@ static void add (void *trait, const char *name, int id)
 
 @trait Message
 {
-  Oi  *callbacks;
+  Var  *callbacks;
 };
 
 typedef struct
 {
   const char *message_name;
-  void  (*callback) (Oi *self, void *arg, void *user_data);
+  void  (*callback) (Var *self, void *arg, void *user_data);
   void  *user_data;
 } MessageEntry;
 
-int listen (Oi           *oi_self,
+int listen (Var           *oi_self,
             void         *trait_self,
             const char   *message_name,
-            void        (*callback) (Oi *self, void *arg, void *user_data),
+            void        (*callback) (Var *self, void *arg, void *user_data),
             void         *user_data)
 {
   Message *message = (Message*)trait_ensure (self, MESSAGE, NULL);
@@ -198,19 +199,19 @@ static void init ()
 }
 static void destroy ()
 {
-  message->callbacks@oi:finalize();
+  message->callbacks@var:finalize();
 }
 
 
-static Oi *queue = NULL;
+static Var *queue = NULL;
 static void dispatch_queue_thread! (void *data)
 {
   while (1)
     {
       while (queue@list:get_size ())
         {
-          Oi *i;
-          Oi *oi;
+          Var *i;
+          Var *oi;
           const char *message_name;
           void *arg;
           void (*closure) (void *arg);
@@ -232,14 +233,13 @@ static void dispatch_queue_thread! (void *data)
       usleep (1000);
     }
 }
-static Oi *dispatch_queue! ()
+static Var *dispatch_queue! ()
 {
   if (!queue)
     {
       pthread_t thread;
-      queue = @oi:new ();
+      queue = @list:new ();
       queue@mutex:lock();
-      queue@trait:add (LIST, NULL);
       queue@list:set_destroy ((void*)ref_dec, NULL);
       queue@mutex:unlock();
 
@@ -252,7 +252,7 @@ void emit_remote (const char *message_name,
                   void       *arg,
                   void (*closure) (void *arg))
 {
-  Oi *item = @oi:new ();
+  Var *item = @var:new ();
   dispatch_queue ()@mutex:lock ();
   item@oi:set_oi      ("oi", self);
   item@oi:set_string  ("message", message_name);
@@ -271,7 +271,7 @@ match_func! (void *entryp, void *callback)
   return 0;
 }
 
-void   handler_disconnect_by_func (void (*callback) (Oi *self, void *arg, void *user_data))
+void   handler_disconnect_by_func (void (*callback) (Var *self, void *arg, void *user_data))
 {
   Message *message = self@trait:get(MESSAGE);
   int no;

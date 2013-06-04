@@ -2,11 +2,14 @@ CC = ./oicc/oicc
 
 include ../.mm/magic
 
+
 EXAMPLES_PKGMODULES=gobject-2.0
 LIB_PKGMODULES=
 PROJECT_NAME      = oi
 
 include ../.mm/lib
+
+CFLAGS += -Wall -Wextra
 
 oicc/oicc: oicc/*.c
 	CC=gcc make -C oicc all
