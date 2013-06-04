@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 Øyvind Kolås
+/* Copyright (c) 2011,2013 Øyvind Kolås
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,26 +16,12 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include "oi.h"
 
-/* @trait Oi < Parent  // would be the syntax to declare that we
- *                        depend on a parent trait to also exit.
- *                        this provides a rudimentary closeness
- *                        to inheritance if you only create the
- *                        classes expected this way.
- *
- *                        This will be a completely syntactic detail.
- */
+@generateheader
+
 @trait Trait
 {
-  /* this would be where default properties could be defined; with updates
-   * that make them reflect members of the struct.
-   *
-   @property (type, name, min, max, default)
-   
-  */
-
   int        trait_count;
   /* XXX: this could be a treap */
   OiTrait  **traits;
@@ -85,8 +71,7 @@ void *get_assert (OiType *trait)
 }
 
 /* gets the trait, creates and adds it if it doesn't already exist */
-void *ensure (OiType *trait,
-              Oi     *args)
+void *ensure (OiType *trait, Oi *args)
 {
   OiTrait *res = self@trait:get (trait);
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
@@ -101,11 +86,9 @@ void *ensure (OiType *trait,
 }
 
 #define ALLOC_CHUNK   16
-#define ALLOC_CHUNK_1 ALLOC_CHUNK-1
 
 /* adds an trait to an instance */
-void add (OiType *type,
-          Oi     *args)
+void add (OiType *type, Oi *args)
 {
   if (type == TRAIT)
     return;
@@ -118,12 +101,12 @@ void add (OiType *type,
     }
   if (
        ((self->trait_count + ALLOC_CHUNK)/ALLOC_CHUNK) * ALLOC_CHUNK >
-       ((self->trait_count + ALLOC_CHUNK_1)/ALLOC_CHUNK) * ALLOC_CHUNK)
+       ((self->trait_count + (ALLOC_CHUNK-1))/ALLOC_CHUNK) * ALLOC_CHUNK)
     {
       if (self->traits == NULL)
-        self->traits = malloc (sizeof (OiTrait*) * ALLOC_CHUNK);
+        self->traits = oi_malloc (sizeof (OiTrait*) * ALLOC_CHUNK);
       else
-        self->traits = realloc (self->traits, sizeof (OiTrait*) *
+        self->traits = oi_realloc (self->traits, sizeof (OiTrait*) *
                              ((self->trait_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK );
     }
 
@@ -178,7 +161,8 @@ void finalize ()
   self@"oi:die"(NULL);
   for (i = self->trait_count-1; i>=0 ; i--)
     self@trait:trait_destroy (self->traits[i]);
-  free (self->traits);
+  oi_free (((self->trait_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK,
+        self->traits);
   self->trait_count = -66;
   oi_free (sizeof (Oi), self);
 }
@@ -192,7 +176,6 @@ const OiTrait **list (int *count)
     *count = self->trait_count;
   return (void*)self->traits;
 }
-
 @end
 
 /* used to implement the object reaping side of oi_unref; do not use

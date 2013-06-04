@@ -19,7 +19,7 @@
 #define _OI_H
 #include <string.h>
 
-typedef struct _Trait Oi;          /* opaque handle to an object */
+typedef struct _Trait Oi;  /* opaque handle to an object */
 typedef struct _OiType OiType;
 typedef struct OiTrait
 {
@@ -47,18 +47,9 @@ static OiType NAME##_class = {"" #NAME, sizeof (s), init, init_int, destroy};\
 OiType *NAME = &NAME##_class;
 
 /* create a new bare bone oi instance */
-Oi             *oi_new           (void);
-Oi             *oi_new_bare      (OiType *type, void *userdata);
-void            oi_finalize      (Oi *oi);
-
-void            trait_add        (Oi *oi, OiType *trait, Oi *args);
-void            trait_remove     (Oi *oi, OiType *trait);
-int             trait_check      (Oi *oi, OiType *trait);
-void           *trait_get        (Oi *oi, OiType *trait);
-void           *trait_get_assert (Oi *oi, OiType *trait);
-void           *trait_ensure     (Oi *oi, OiType *trait, Oi *args);
-const OiTrait **trait_list       (Oi *oi, int *count);
-
+Oi     *oi_new       (void);
+Oi     *oi_new_bare  (OiType *type, void *userdata);
+void    oi_finalize  (Oi *oi);
 
 #include "oi-mem.h"
 
@@ -68,6 +59,7 @@ const OiTrait **trait_list       (Oi *oi, int *count);
 #include "mutex.h"
 #include "properties.h"
 #include "list.h"
+#include "trait.h"
 #include "oistring.h"
 #include "program.h"
 
