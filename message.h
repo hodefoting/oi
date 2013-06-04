@@ -47,7 +47,7 @@ message_emit_remote (Oi         *oi,
 int
 message_listen (Oi         *oi,
                 Oi         *oi_self,
-                OiTrait    *trait_self,
+                void       *trait_self,
                 const char *message_name,
                 void      (*callback) (Oi *self, void *arg, void *user_data),
                 void       *user_data);

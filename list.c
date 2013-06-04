@@ -221,7 +221,7 @@ void append (void *data)
       if (list->items == NULL)
         list->items = oi_malloc (sizeof (void*) * CS);
       else
-        list->items = oi_realloc (list->items, sizeof (OiTrait*) *
+        list->items = oi_realloc (list->items, sizeof (Type*) *
                                   ((list->size + CS)/CS)*CS);
     }
   list->items[list->size] = data;

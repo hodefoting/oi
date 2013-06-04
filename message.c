@@ -101,11 +101,11 @@ static ListenerEntry *get_entry_write (Type *type, const char *name)
   return entry;
 }
 
-static void add (OiTrait *trait, const char *name, int id)
+static void add (void *trait, const char *name, int id)
 {
   Type *type = NULL;
   if (trait)
-    type = trait->type;
+    type = *( (Type**)(trait));
   ListenerEntry *entry = self@msg_disconnect:get_entry_write (type, name);
   entry->type = type;
   entry->id = id;
@@ -126,7 +126,7 @@ typedef struct
 } MessageEntry;
 
 int listen (Oi           *oi_self,
-            OiTrait *trait_self,
+            void         *trait_self,
             const char   *message_name,
             void        (*callback) (Oi *self, void *arg, void *user_data),
             void         *user_data)
@@ -180,9 +180,9 @@ void emit (const char *message_name,
     {
       void *emit_data[4] = {self, (void*)message_name, arg, NULL};
       list_each (message->callbacks, emit_matching, emit_data);
-      if (emit_data[3] == NULL && strcmp(message_name, "method-missing"))
+      if (emit_data[3] == NULL && strcmp(message_name, "message-trap"))
         {
-          self@"method-missing"((void*)message_name);
+          self@"message-trap"((void*)message_name);
         }
     }
 }

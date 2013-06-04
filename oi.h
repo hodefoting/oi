@@ -20,21 +20,16 @@
 #include <string.h>
 
 typedef struct _Trait Oi;  /* opaque handle to an object */
-typedef struct _Type Type;
-typedef struct OiTrait
-{
-  Type *type;
-} OiTrait;
-
+typedef struct _Type  Type;
 struct _Type
 {
   const char     *name;  /* for debugging purposes */
   int             size;  /* size of a trait instance */
   /* function initializing a trait instance (or NULL) */
-  void          (*init)    (Oi *oi, OiTrait *trait, Oi *args);
-  void          (*init_int)(Oi *oi, OiTrait *trait);
+  void          (*init)    (Oi *oi, void *trait, Oi *args);
+  void          (*init_int)(Oi *oi, void *trait);
   /* function destroying a trait instance (or NULL)*/
-  void          (*destroy) (Oi *oi, OiTrait *trait);
+  void          (*destroy) (Oi *oi, void *trait);
 };
 
 /* convenience for implementing capabilities, sticking this in a C file creates
@@ -54,12 +49,13 @@ void    oi_finalize  (Oi *oi);
 #include "oi-mem.h"
 
 /* core capabilities */
-#include "ref.h"
-#include "message.h"
-#include "mutex.h"
-#include "properties.h"
-#include "list.h"
 #include "trait.h"
+#include "properties.h"
+#include "message.h"
+#include "ref.h"
+#include "mutex.h"
+#include "list.h"
+
 #include "oistring.h"
 #include "program.h"
 

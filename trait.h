@@ -14,5 +14,5 @@ void *trait_ensure (Oi *self, Type *trait, Oi *args);
 void trait_add (Oi *self, Type *type, Oi *args);
 void trait_remove (Oi *self, Type *trait);
 void trait_finalize (Oi *self);
-const OiTrait **trait_list (Oi *self, int *count);
+void **trait_list (Oi *self, int *count);
 #endif

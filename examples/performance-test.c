@@ -33,11 +33,11 @@ long oi_ticks (void)
 
 typedef struct
 {
-  OiTrait trait;
+  Type   *trait_type;
   int     foo;
 }  __attribute((packed))  Foo;
 
-static void foo_init (Oi *oi, OiTrait *trait, Oi *args)
+static void foo_init (Oi *oi, void *trait, Oi *args)
 {
   Foo *foo = (Foo*)trait;
   foo->foo = 1;

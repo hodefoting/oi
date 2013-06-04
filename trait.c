@@ -20,6 +20,11 @@
 
 @generateheader
 
+typedef struct OiTrait
+{
+  Type *type;
+} OiTrait;
+
 @trait Trait
 {
   int        trait_count;
@@ -170,7 +175,7 @@ void finalize ()
 /* get a list of traits, the returned list of pointers is NULL terminated
  * and should not be freed by the caller.
  */
-const OiTrait **list (int *count)
+void **list (int *count)
 {
   if (count)
     *count = self->trait_count;

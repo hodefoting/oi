@@ -401,7 +401,7 @@ void process_token (State *o)
             if (o->gen_header)
             o->headpos += sprintf (&o->header[o->headpos],
                 "extern Type *%s;\n", o->TRAIT);
-            sprintf (buf, "extern Type *%s;typedef struct _%s %s;\nstruct _%s{OiTrait trait;",
+            sprintf (buf, "extern Type *%s;typedef struct _%s %s;\nstruct _%s{Type *trait_type;",
                 o->TRAIT, o->Trait, o->Trait, o->Trait);
             add_nls--;
             }
