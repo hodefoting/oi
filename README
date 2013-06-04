@@ -2,12 +2,15 @@ I like exploring ideas by compulsively writing code. GObject provides a way to
 do inheritance based higher level programming; at the cost of having to write
 quite a bit of boiler plate.
 
-This is an experiment in writing a dynamically configurable type system in C where capabilities can be added and removed on instances at runtime.
+This is an experiment in writing a dynamically configurable type system in C
+where traits/capabilities can be added and removed on instances at runtime.
 
-Encapsulation within an instance is done by developing orthogonal capabilities
-that each carry state and has methods per instance.
+Encapsulation within an instance is done by developing orthogonal traits that
+each carry state and has methods per instance. Traits can be instantiated on
+demand by their methods on the instance they are called on, providing a highly
+dynamic programming environment.
 
-Some core capabilities:
+The core traits in Oi:
 
 TRAIT    - handles memory management and life cycle management of the other
            capabilities/traits on an object.
