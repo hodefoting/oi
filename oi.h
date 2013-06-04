@@ -31,12 +31,6 @@ struct _Type
   /* function destroying a trait instance (or NULL)*/
   void          (*destroy) (Oi *self, void *trait);
 };
-
-/* convenience for implementing capabilities, sticking this in a C file creates
- * the trait.
- *
- * it is enough to have   extern Type  *STRING;
- */
 #define OI(NAME, s, init, init_int, destroy) \
 static Type NAME##_class = {"" #NAME, sizeof (s), init, init_int, destroy};\
 Type *NAME = &NAME##_class;
@@ -47,7 +41,6 @@ Oi     *oi_new_bare (Type *type, void *userdata);
 void    oi_finalize (Oi *oi);
 
 #include "oi-mem.h"
-
 /* core capabilities */
 #include "trait.h"
 #include "properties.h"
