@@ -400,8 +400,8 @@ void process_token (State *o)
             {
             if (o->gen_header)
             o->headpos += sprintf (&o->header[o->headpos],
-                "extern OiType *%s;\n", o->TRAIT);
-            sprintf (buf, "extern OiType *%s;typedef struct _%s %s;\nstruct _%s{OiTrait trait;",
+                "extern Type *%s;\n", o->TRAIT);
+            sprintf (buf, "extern Type *%s;typedef struct _%s %s;\nstruct _%s{OiTrait trait;",
                 o->TRAIT, o->Trait, o->Trait, o->Trait);
             add_nls--;
             }
@@ -409,8 +409,8 @@ void process_token (State *o)
             {
             if (o->gen_header)
             o->headpos += sprintf (&o->header[o->headpos],
-                "extern OiType *%s;\n", o->TRAIT);
-            sprintf (buf, "extern OiType *%s;typedef struct _%s %s;struct _%s{OiTrait trait;",
+                "extern Type *%s;\n", o->TRAIT);
+            sprintf (buf, "extern Type *%s;typedef struct _%s %s;struct _%s{OiTrait trait;",
                 o->TRAIT, o->Trait, o->Trait, o->Trait);
             }
             for (i = 0; buf[i]; i++)

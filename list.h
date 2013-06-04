@@ -6,7 +6,7 @@
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 #ifndef O_LIST_H
 #define  O_LIST_H
-extern OiType *LIST;
+extern Type *LIST;
 void list_each (Oi *self, void *cbp, void *user_data);
 void  * list_get (Oi *self, int no);
 void list_remove_index_fast (Oi *self, int index);

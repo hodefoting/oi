@@ -6,7 +6,7 @@
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 #ifndef O_OISTRING_H
 #define  O_OISTRING_H
-extern OiType *STRING;
+extern Type *STRING;
 void string_clear (Oi *self);
 void string_appendc (Oi *self, int val);
 void string_append_str (Oi *self, const char *str);

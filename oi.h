@@ -20,13 +20,13 @@
 #include <string.h>
 
 typedef struct _Trait Oi;  /* opaque handle to an object */
-typedef struct _OiType OiType;
+typedef struct _Type Type;
 typedef struct OiTrait
 {
-  OiType *type;
+  Type *type;
 } OiTrait;
 
-struct _OiType
+struct _Type
 {
   const char     *name;  /* for debugging purposes */
   int             size;  /* size of a trait instance */
@@ -40,15 +40,15 @@ struct _OiType
 /* convenience for implementing capabilities, sticking this in a C file creates
  * the trait.
  *
- * it is enough to have   extern OiType  *STRING;
+ * it is enough to have   extern Type  *STRING;
  */
 #define OI(NAME, s, init, init_int, destroy) \
-static OiType NAME##_class = {"" #NAME, sizeof (s), init, init_int, destroy};\
-OiType *NAME = &NAME##_class;
+static Type NAME##_class = {"" #NAME, sizeof (s), init, init_int, destroy};\
+Type *NAME = &NAME##_class;
 
 /* create a new bare bone oi instance */
 Oi     *oi_new       (void);
-Oi     *oi_new_bare  (OiType *type, void *userdata);
+Oi     *oi_new_bare  (Type *type, void *userdata);
 void    oi_finalize  (Oi *oi);
 
 #include "oi-mem.h"

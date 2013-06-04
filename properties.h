@@ -18,7 +18,7 @@
 #ifndef OI_PROPERTIES_H
 #define OI_PROPERTIES_H
 
-extern OiType     *PROPERTIES;
+extern Type     *PROPERTIES;
 
 /* implement all conversions, and make it impossible to change the type
    of a property after it has been first instantiated? (not permitting changes

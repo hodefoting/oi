@@ -30,15 +30,15 @@
 
 typedef struct
 {
-  OiType *type;
-  char   *name;
-  int     id;
+  Type *type;
+  char *name;
+  int   id;
 } ListenerEntry;
 
 "oi:remove-trait" (void *arg, void *user_data)
 {
   MsgDisconnect *msgdc = self@trait:get_assert(MSG_DISCONNECT);
-  OiType *type = arg;
+  Type *type = arg;
   int i;
 again:
   for (i = 0; i < (msgdc->list@list:get_size()); i++)
@@ -83,7 +83,7 @@ static int listener_match_trait_and_name! (void *listener_entry, void *arg)
   return (entry->type == args[1] && !strcmp (entry->name, args[0]));
 }
 
-static ListenerEntry *get_entry_write (OiType *type, const char *name)
+static ListenerEntry *get_entry_write (Type *type, const char *name)
 {
   MsgDisconnect *msgdc = ((void*)self@trait:ensure (MSG_DISCONNECT, NULL));
   int no;
@@ -103,7 +103,7 @@ static ListenerEntry *get_entry_write (OiType *type, const char *name)
 
 static void add (OiTrait *trait, const char *name, int id)
 {
-  OiType *type = NULL;
+  Type *type = NULL;
   if (trait)
     type = trait->type;
   ListenerEntry *entry = self@msg_disconnect:get_entry_write (type, name);

@@ -28,7 +28,7 @@
 };
 
 /* checks if the object has the given instance */
-int check (OiType *trait)
+int check (Type *trait)
 {
   int i;
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
@@ -41,7 +41,7 @@ int check (OiType *trait)
 }
 
 /* gets the trait, if any */
-void *get (OiType *trait)
+void *get (Type *trait)
 {
   int i;
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
@@ -55,7 +55,7 @@ void *get (OiType *trait)
 
 /* gets an trait, if trait doesn't already exist fail with warning 
  * (and segfault) */
-void *get_assert (OiType *trait)
+void *get_assert (Type *trait)
 {
   OiTrait *res = self@trait:get (trait);
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
@@ -71,7 +71,7 @@ void *get_assert (OiType *trait)
 }
 
 /* gets the trait, creates and adds it if it doesn't already exist */
-void *ensure (OiType *trait, Oi *args)
+void *ensure (Type *trait, Oi *args)
 {
   OiTrait *res = self@trait:get (trait);
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
@@ -88,7 +88,7 @@ void *ensure (OiType *trait, Oi *args)
 #define ALLOC_CHUNK   16
 
 /* adds an trait to an instance */
-void add (OiType *type, Oi *args)
+void add (Type *type, Oi *args)
 {
   if (type == TRAIT)
     return;
@@ -130,7 +130,7 @@ static void trait_destroy (OiTrait *trait)
 }
 
 /* remove a trait from an instance */
-void remove (OiType *trait)
+void remove (Type *trait)
 {
   int i;
   if (trait == TRAIT)
@@ -194,7 +194,7 @@ Oi * oi_new (void)
   return self;
 }
 
-Oi *oi_new_bare (OiType *type, void *userdata)
+Oi *oi_new_bare (Type *type, void *userdata)
 {
   Oi *self = @oi:new ();
   self@trait:add (type, userdata);

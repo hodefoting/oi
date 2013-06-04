@@ -23,7 +23,7 @@
  * attached handlers is a no-op
  */
 
-extern OiType     *MESSAGE;
+extern Type     *MESSAGE;
 
 void   message_emit (Oi *oi, const char *message, void *data);
 
