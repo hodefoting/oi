@@ -59,6 +59,8 @@ void            oi_finalize         (Oi *oi);
 
 Oi           *oi_new_bare (OiType *type, void *userdata);
 
+Oi *list_new (void);
+
 #include "oi-mem.h"
 
 /* core capabilities */

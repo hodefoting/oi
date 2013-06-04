@@ -18,6 +18,8 @@
 #include "oi.h"
 #include <stdlib.h>
 
+@genearateheader
+
 @trait List
 {
   void (*destroy)(void *item, void *user_data);
@@ -31,6 +33,18 @@ static void init ()
   list->items = NULL;
   list->destroy = NULL;
   list->size  = 0;
+}
+
+/* void each (void (*cb)(void *item, void *user_data), void *user_data) */
+
+
+void each (void *cbp, void *user_data)
+{
+  int i;
+  void (*cb)(void *item, void *user_data) = cbp;
+  List *list = self@oi:trait_get_assert (LIST);
+  for (i = 0; i < list->size; i++)
+    cb (list->items[i], user_data);
 }
 
 static void destroy ()
@@ -49,14 +63,6 @@ void  * get (int no)
   return NULL;
 }
 
-void each (void (*cb)(void *item, void *user_data),
-           void *user_data)
-{
-  int i;
-  List *list = self@oi:trait_get_assert (LIST);
-  for (i = 0; i < list->size; i++)
-    cb (list->items[i], user_data);
-}
 
 void remove_index_fast (int index)
 {
@@ -159,17 +165,29 @@ void remove_zombie_fast (void *data)
       }
 }
 
+/*
 void set_destroy (void (*destroy)(void *item, void *user_data),
                   void *user_data)
+                  */
+
+void set_destroy (void *destroy, void *user_data)
 {
   List *list = self@oi:trait_get_assert (LIST);
   list->destroy = destroy;
   list->destroy_data = user_data;
 }
 
+/* XXX: fixme in the oiccc parser; so that function callbacks
+ * can exist.
+ *
 int find_custom (int (*match_fun)(void *item, void *user_data),
                  void *user_data)
+                 */
+
+int find_custom (void *matchfunp,
+                 void *user_data)
 {
+  int (*match_fun)(void *item, void *user_data) = matchfunp;
   List *list = self@oi:trait_get_assert (LIST);
   int i;
   for (i = 0; i < list->size; i++)
