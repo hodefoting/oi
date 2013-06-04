@@ -612,8 +612,8 @@ void process_token (State *o)
                          o->got_pre_init++;
 
                          o->mpos += sprintf (&o->msg[o->mpos],
-                             "message_listen(self, (void*)self,(void*)%s,\"%s\", (void*)%s_%s_cb, oi_trait_get(self, %s))",
-                             o->trait, name, o->trait, cbname, o->TRAIT);
+                             "message_listen(self, (void*)self,(void*)%s,\"%s\", (void*)%s_%s_cb, %s)",
+                             o->trait, name, o->trait, cbname, o->trait);
                        }
                      else
                      if (!strcmp (name, "init") ||
