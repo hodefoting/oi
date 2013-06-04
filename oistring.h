@@ -7,12 +7,12 @@
 #ifndef _OISTRING_H_
 #define  _OISTRING_H_
 extern Type *STRING;
-void string_clear (Var *self);
-void string_appendc (Var *self, int val);
-void string_append_str (Var *self, const char *str);
-void string_append_string (Var *self, Var *oi2);
+Var *string_clear (Var *self);
+Var *string_appendc (Var *self, int val);
+Var *string_append_str (Var *self, const char *str);
+Var *string_append_string (Var *self, Var *oi2);
 const char *string_get (Var *self);
 char *string_dissolve (Var *self);
-void string_append_printf (Var *self, const char *format, ...);
+Var *string_append_printf (Var *self, const char *format, ...);
 Var *string_new (const char *initial);
 #endif
