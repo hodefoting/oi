@@ -171,9 +171,11 @@ foo:
                       break;
                     trait[a-(o->atpos + 1)] = o->inbuf[a];
                   }
+
+                trait[a-(o->atpos+1)]=0;
+
                 int start;
                 int end;
-                trait[a-(o->atpos+1)]=0;
                 start = a+1;
                 for (a = start; a < o->ipos; a ++)
                   {
@@ -185,6 +187,9 @@ foo:
                   }
                 end = a;
                 method[end-start]=0;
+
+                if(trait[0]=='"')
+                  trait[strlen(trait)-1]=0;
 
                 /* we should splice ourselves into the inbuf stream, and set a
                  * flag the we can be expecting to have to insert a , unless
@@ -200,7 +205,11 @@ foo:
                   sprintf (tempbuf, "%s_%s::%s", trait, method, preamble);
                   break;
                   default:
-                  sprintf (tempbuf, "%c %s_%s::%s", foo, trait, method, preamble);
+                  if (trait[0]=='"')
+                  {
+                  
+                    sprintf (tempbuf, "message_emit (%s, %s", preamble, trait);
+                  }
                   break;
                 }
 
