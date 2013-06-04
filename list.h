@@ -16,7 +16,5 @@ void list_set_destroy (Oi *self, void *destroy, void *user_data);
 int list_find_custom (Oi *self, void *matchfunp,
                  void *user_data);
 int list_find (Oi *self, void *data);
-#define CS 8
-
 void list_append (Oi *self, void *data);
 #endif

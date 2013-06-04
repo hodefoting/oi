@@ -28,6 +28,8 @@
   int    size;
 };
 
+#define CS 8
+
 static void init ()
 {
   list->items = NULL;
@@ -52,7 +54,7 @@ static void destroy ()
   if (list->destroy)
     self@list:each (list->destroy, list->destroy_data);
   if (list->items)
-    free (list->items);
+    oi_free (((list->size + CS)/CS)*CS, list->items);
 }
 
 void  * get (int no)
@@ -208,7 +210,6 @@ int find (void *data)
   return (self@list:find_custom (match_direct, data));
 }
 
-#define CS 8
 
 void append (void *data)
 {
@@ -218,10 +219,10 @@ void append (void *data)
       ((list->size + (CS-1))/CS) * CS)
     {
       if (list->items == NULL)
-        list->items = malloc (sizeof (void*) * CS);
+        list->items = oi_malloc (sizeof (void*) * CS);
       else
-        list->items = realloc (list->items, sizeof (OiTrait*) *
-                              ((list->size + CS)/CS)*CS);
+        list->items = oi_realloc (list->items, sizeof (OiTrait*) *
+                                  ((list->size + CS)/CS)*CS);
     }
   list->items[list->size] = data;
   list->size++;
