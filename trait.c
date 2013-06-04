@@ -20,16 +20,11 @@
 
 @generateheader
 
-typedef struct VarTrait
-{
-  Type *type;
-} VarTrait;
-
 @trait Trait
 {
-  int        trait_count;
+  int      trait_count;
   /* XXX: this could be a treap */
-  VarTrait  **traits;
+  Trait  **traits;
 };
 
 /* checks if the object has the given instance */
@@ -40,7 +35,7 @@ int check (Type *trait)
   if (trait == TRAIT)
     return 1;
   for (i = 0; i < self->trait_count; i++)
-    if (self->traits[i]->type == trait)
+    if (self->traits[i]->trait_type == trait)
       return 1;
   return 0;
 }
@@ -51,9 +46,9 @@ void *get (Type *trait)
   int i;
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
   if (trait == TRAIT)
-    return (VarTrait*)self;
+    return (Trait*)self;
   for (i = 0; i < self->trait_count; i++)
-    if (self->traits[i]->type == trait)
+    if (self->traits[i]->trait_type == trait)
       return self->traits[i];
   return NULL;
 }
@@ -62,10 +57,10 @@ void *get (Type *trait)
  * (and segfault) */
 void *get_assert (Type *trait)
 {
-  VarTrait *res = self@trait:get (trait);
+  Trait *res = self@trait:get (trait);
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
   if (trait == TRAIT)
-    return (VarTrait*)self;
+    return (Trait*)self;
   if (!res)
     {
       fprintf (stderr, "assert failes, object %p doesn't have trait \"%s\".\n",
@@ -78,10 +73,10 @@ void *get_assert (Type *trait)
 /* gets the trait, creates and adds it if it doesn't already exist */
 void *ensure (Type *trait, Var *args)
 {
-  VarTrait *res = self@trait:get (trait);
+  Trait *res = self@trait:get (trait);
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
   if (trait == TRAIT)
-    return (VarTrait*)self;
+    return (Trait*)self;
   if (!res)
     {
       self@trait:add (trait, args);
@@ -109,14 +104,14 @@ void add (Type *type, Var *args)
        ((self->trait_count + (ALLOC_CHUNK-1))/ALLOC_CHUNK) * ALLOC_CHUNK)
     {
       if (self->traits == NULL)
-        self->traits = oi_malloc (sizeof (VarTrait*) * ALLOC_CHUNK);
+        self->traits = oi_malloc (sizeof (Trait*) * ALLOC_CHUNK);
       else
-        self->traits = oi_realloc (self->traits, sizeof (VarTrait*) *
+        self->traits = oi_realloc (self->traits, sizeof (Trait*) *
                              ((self->trait_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK );
     }
 
   self->traits[self->trait_count] = oi_malloc (type->size);
-  self->traits[self->trait_count]->type = type;
+  self->traits[self->trait_count]->trait_type = type;
   self->trait_count++;
   if (type->init)
     type->init (self, self->traits[self->trait_count-1], args);
@@ -126,12 +121,12 @@ void add (Type *type, Var *args)
   self@"oi:add-trait"(type);
 }
 
-static void trait_destroy (VarTrait *trait)
+static void trait_destroy (Trait *trait)
 {
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
-  if (trait->type->destroy)
-    trait->type->destroy (self, trait);
-  oi_free (trait->type->size, trait);
+  if (trait->trait_type->destroy)
+    trait->trait_type->destroy (self, trait);
+  oi_free (trait->trait_type->size, trait);
 }
 
 /* remove a trait from an instance */
@@ -149,7 +144,7 @@ void remove (Type *trait)
 
   self@"oi:remove-trait"(trait);
   for (i = 0; i < self->trait_count; i++)
-    if (self->traits[i]->type == trait)
+    if (self->traits[i]->trait_type == trait)
       {
         int j;
         self@trait:trait_destroy (self->traits[i]);
