@@ -20,36 +20,39 @@
 #include "oi.h"
 #include "pthread.h"
 
-@trait Listener
+/*
+ */
+
+@trait MsgDisconnect
 {
-  Oi     *listeners;
+  Oi *list;
 };
 
 typedef struct
 {
   OiType *type;
-  char        *name;
-  int          id;
+  char   *name;
+  int     id;
 } ListenerEntry;
 
-static void remove_trait_cb (void *arg, void *user_data)
+"oi:remove-trait" (void *arg, void *user_data)
 {
-  Listener *listener = self@oi:trait_get_assert(LISTENER);
+  MsgDisconnect *msgdc = self@oi:trait_get_assert(MSG_DISCONNECT);
   OiType *type = arg;
   int i;
 again:
-  for (i = 0; i < (listener->listeners@list:get_size()); i++)
+  for (i = 0; i < (msgdc->list@list:get_size()); i++)
     {
-      ListenerEntry *entry = listener->listeners@list:get(i);
+      ListenerEntry *entry = msgdc->list@list:get(i);
       if (entry->type == type)
         {
           self@message:handler_disconnect (entry->id);
-          listener->listeners@list:remove(entry);
+          msgdc->list@list:remove(entry);
           goto again;
         }
     }
-  if (listener->listeners@list:get_size () == 0)
-    self@oi:trait_remove (LISTENER);
+  if (msgdc->list@list:get_size () == 0)
+    self@oi:trait_remove (MSG_DISCONNECT);
     /* we are no longer needed, so remove ourself */
 }
 
@@ -62,15 +65,15 @@ static void lnrfree! (ListenerEntry *entry)
 
 static void init ()
 {
-  listener->listeners = @list:new ();
-  listener->listeners@list:set_destroy ((void*)lnrfree, NULL);
-  self@message:listen (NULL, NULL, "oi:remove-trait", (void*)listener_remove_trait_cb, NULL);
+  msg_disconnect->list= @list:new ();
+  msg_disconnect->list@list:set_destroy ((void*)lnrfree, NULL);
 }
 
 static void destroy ()
 {
-  listener->listeners@oi:finalize();
-  self@message:handler_disconnect_by_func (listener_remove_trait_cb);
+  msg_disconnect->list@oi:finalize();
+
+  self@message:handler_disconnect_by_func ((void*)msg_disconnect_oi_remove_trait_cb);
 }
 
 static int listener_match_trait_and_name! (void *listener_entry, void *arg)
@@ -82,18 +85,18 @@ static int listener_match_trait_and_name! (void *listener_entry, void *arg)
 
 static ListenerEntry *get_entry_write (OiType *type, const char *name)
 {
-  Listener *listener = ((void*)self@oi:trait_ensure (LISTENER, NULL));
+  MsgDisconnect *msgdc = ((void*)self@oi:trait_ensure (MSG_DISCONNECT, NULL));
   int no;
   ListenerEntry *entry;
   void *args[]={(void*)name, type};
-  no = listener->listeners@list:find_custom ((void*)listener_match_trait_and_name, args);
+  no = msgdc->list@list:find_custom ((void*)listener_match_trait_and_name, args);
   if (no >= 0)
-    entry = listener->listeners@list:get (no);
+    entry = msgdc->list@list:get (no);
   else
     {
       entry = oi_malloc (sizeof (ListenerEntry));
       entry->name = oi_strdup (name);
-      listener->listeners@list:append (entry);
+      msgdc->list@list:append (entry);
     }
   return entry;
 }
@@ -103,7 +106,7 @@ static void add (OiTrait *trait, const char *name, int id)
   OiType *type = NULL;
   if (trait)
     type = trait->type;
-  ListenerEntry *entry = self@listener:get_entry_write (type, name);
+  ListenerEntry *entry = self@msg_disconnect:get_entry_write (type, name);
   entry->type = type;
   entry->id = id;
 }
@@ -138,8 +141,13 @@ int listen (Oi           *oi_self,
   message->callbacks@list:append (entry);
 
   self@message:emit ("oi:message-connect", (void*)message_name);
+
+  /* add outselves to the disconnector trait, so that if the trait goes
+   * away the message callback goes away.
+   */
   if (oi_self)
-    oi_self@listener:add (trait_self, message_name, list_get_size (message->callbacks)-1);
+    oi_self@msg_disconnect:add (trait_self, message_name, list_get_size (message->callbacks)-1);
+
   return (message->callbacks@list:get_size () - 1);
 }
 
