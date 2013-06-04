@@ -168,7 +168,8 @@ foo:
 
                 for (a = o->atpos + 1; a < o->ipos; a ++)
                   {
-                    if (o->inbuf[a]==':')
+                    /* do not do this splitting if we're a string.. */
+                    if (trait[0]!='"' && o->inbuf[a]==':')
                       break;
                     trait[a-(o->atpos + 1)] = o->inbuf[a];
                   }

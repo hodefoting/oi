@@ -123,6 +123,7 @@ void trait_add (OiType *type,
 
 
   self@message:emit ("oi:add-trait", type);
+  self@"oi:add-trait"(type);
 }
 
 static void trait_destroy (OiTrait *trait)
