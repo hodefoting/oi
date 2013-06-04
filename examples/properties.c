@@ -7,7 +7,7 @@ static void cb (const char *name, void *value, void* oi)
 }
 void list_properties (Var *oi)
 {
-  oi_properties_each (oi, cb, oi);
+  oi@property:each (cb, oi);
 }
 
 @main ()

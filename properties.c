@@ -19,8 +19,9 @@
 
 #include "oi.h"
 #include "stdlib.h"
+@generateheader
 
-@trait Properties 
+@trait Property 
 {
   Var    *props;
 };
@@ -45,23 +46,41 @@ typedef struct
     void       *value_pointer;
     Var         *value_oi;
   };
-} PropertiesEntry;
+} PropertyEntry;
 
-static void prop_destroy! (PropertiesEntry *entry, void *user_data);
+static void prop_destroy! (PropertyEntry *entry, void *user_data);
 static void init ()
 {
-  properties->props = @list:new ();
-  properties->props@list:set_destroy ((void*) prop_destroy, NULL);
+  property->props = @list:new ();
+  property->props@list:set_destroy ((void*) prop_destroy, NULL);
 }
 
 static void destroy ()
 {
-  properties->props@var:finalize();
+  property->props@var:finalize();
 }
 
-@end
+static void
+each_wrapper! (void *item, void *user_data)
+{
+  void **args = user_data;
+  PropertyEntry *entry = item;
+  void (*cb)(const char *key, void *item, void *user_data) = args[0];
+  cb (entry->name, "foo", args[1]);
+}
+/*
+void each (void (*cb)(const char *key, void *item, void *user_data),
+           void *user_data)
+           */
+void each (void *cb, void *user_data)
+{
+  void *args[] = {cb, user_data};
+  Property *property = (self@trait:get (PROPERTY));
+  if (property)
+    property->props@list:each(each_wrapper, args);
+}
 
-static void prop_unset (PropertiesEntry *entry)
+static void prop_unset! (PropertyEntry *entry)
 {
   if (entry->type == OI_PTYPE_STRING && entry->value_string)
     {
@@ -75,33 +94,33 @@ static void prop_unset (PropertiesEntry *entry)
     }
 }
 
-static void prop_destroy (PropertiesEntry *entry, void *user_data)
+static void prop_destroy! (PropertyEntry *entry, void *user_data)
 {
   prop_unset (entry);
   if (entry->name)
     oi_strfree ((void*)entry->name);
-  oi_free (sizeof (PropertiesEntry), entry);
+  oi_free (sizeof (PropertyEntry), entry);
 }
 
-static int match_name (void *properties_entry, const char *name)
+static int match_name! (void *property_entry, const char *name)
 {
-  PropertiesEntry *entry = properties_entry;
+  PropertyEntry *entry = property_entry;
   return (entry && entry->name && name && !strcmp (entry->name, name));
 }
-static PropertiesEntry *oi_get_entry_read (Var *oi, const char *name)
+static PropertyEntry *oi_get_entry_read! (Var *oi, const char *name)
 {
-  Properties *properties = ((void*)trait_ensure (oi, PROPERTIES, NULL));
+  Property *property = ((void*)trait_ensure (oi, PROPERTY, NULL));
   int no;
-  PropertiesEntry *entry;
-  no = properties->props@list:find_custom ((void*)match_name, (void*)name);
+  PropertyEntry *entry;
+  no = property->props@list:find_custom ((void*)match_name, (void*)name);
   oi@mutex:lock (); /* XXX: is this lock really needed? */
   if (no >= 0)
-    entry = properties->props@list:get (no);
+    entry = property->props@list:get (no);
   else
     {
-      entry = oi_malloc (sizeof (PropertiesEntry));
+      entry = oi_malloc (sizeof (PropertyEntry));
       entry->name = name@oi:strdup ();
-      properties->props@list:append (entry);
+      property->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
       entry->value_int = 0;
     } 
@@ -109,33 +128,33 @@ static PropertiesEntry *oi_get_entry_read (Var *oi, const char *name)
   return entry;
 }
 
-static PropertiesEntry *oi_get_entry_write (Var *oi, const char *name)
+static PropertyEntry *oi_get_entry_write! (Var *oi, const char *name)
 {
-  Properties *properties = ((void*)trait_ensure (oi, PROPERTIES, NULL));
+  Property *property = ((void*)trait_ensure (oi, PROPERTY, NULL));
   int no;
-  PropertiesEntry *entry;
+  PropertyEntry *entry;
   oi@mutex:lock ();
-  no = properties->props@list:find_custom((void*)match_name, (void*)name);
+  no = property->props@list:find_custom((void*)match_name, (void*)name);
   if (no >= 0)
     {
-      entry = properties->props@list:get(no);
+      entry = property->props@list:get(no);
       prop_unset (entry);
     }
   else
     {
-      entry = oi_malloc (sizeof (PropertiesEntry));
+      entry = oi_malloc (sizeof (PropertyEntry));
       entry->name = name@oi:strdup();
       entry->value_int = 0;
-      properties->props@list:append (entry);
+      property->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
     } /* XXX: oicc hack*/ ;
   oi@mutex:unlock ();
   return entry;
 }
 
-void   oi_set_float       (Var *oi, const char *name, float       value)
+void   oi_set_float! (Var *oi, const char *name, float       value)
 {
-  PropertiesEntry *entry = oi_get_entry_write (oi, name);
+  PropertyEntry *entry = oi_get_entry_write (oi, name);
   int changed = entry->value_float != value;
   entry->value_float = value;
   entry->type = OI_PTYPE_FLOAT;
@@ -143,18 +162,18 @@ void   oi_set_float       (Var *oi, const char *name, float       value)
     oi@"notify"((void*)name);
 }
 
-void   oi_set_int         (Var *oi, const char *name, int         value)
+void   oi_set_int! (Var *oi, const char *name, int         value)
 {
-  PropertiesEntry *entry = oi_get_entry_write (oi, name);
+  PropertyEntry *entry = oi_get_entry_write (oi, name);
   int changed = entry->value_int != value;
   entry->type = OI_PTYPE_INT;
   entry->value_int = value;
   if (changed)
     oi@"notify"((void*)name);
 }
-void   oi_set_string      (Var *oi, const char *name, const char *value)
+void   oi_set_string! (Var *oi, const char *name, const char *value)
 {
-  PropertiesEntry *entry = oi_get_entry_write (oi, name);
+  PropertyEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_STRING;
 #define OFF_BY_FUDGE 1
 
@@ -169,9 +188,9 @@ void   oi_set_string      (Var *oi, const char *name, const char *value)
     entry->value_string = NULL;
   oi@"notify"((void*)name);
 }
-void   oi_set_oi          (Var *oi, const char *name, Var *value)
+void   oi_set_oi! (Var *oi, const char *name, Var *value)
 {
-  PropertiesEntry *entry = oi_get_entry_write (oi, name);
+  PropertyEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_OI;
   if (value)
     entry->value_oi = value@ref:inc();
@@ -180,17 +199,17 @@ void   oi_set_oi          (Var *oi, const char *name, Var *value)
   oi@"notify"((void*)name);
 }
 
-void   oi_set_pointer     (Var *oi, const char *name, void       *value)
+void   oi_set_pointer! (Var *oi, const char *name, void       *value)
 {
-  PropertiesEntry *entry = oi_get_entry_write (oi, name);
+  PropertyEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_POINTER;
   entry->value_pointer = value;
   oi@"notify"((void*)name);
 }
 
-float  oi_get_float       (Var *oi, const char *name)
+float  oi_get_float! (Var *oi, const char *name)
 {
-  PropertiesEntry *entry = oi_get_entry_read (oi, name);
+  PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
     {
       case OI_PTYPE_INT:    return entry->value_int;
@@ -200,9 +219,9 @@ float  oi_get_float       (Var *oi, const char *name)
     }
 }
 
-int    oi_get_int         (Var *oi, const char *name)
+int    oi_get_int! (Var *oi, const char *name)
 {
-  PropertiesEntry *entry = oi_get_entry_read (oi, name);
+  PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
     {
       case OI_PTYPE_INT:    return entry->value_int;
@@ -212,9 +231,9 @@ int    oi_get_int         (Var *oi, const char *name)
     }
 }
 
-const char *oi_get_string (Var *oi, const char *name)
+const char *oi_get_string! (Var *oi, const char *name)
 {
-  PropertiesEntry *entry = oi_get_entry_read (oi, name);
+  PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
     {
       case OI_PTYPE_INT:    return "(int)";   /* XXX: printf it?, but const? */
@@ -225,9 +244,9 @@ const char *oi_get_string (Var *oi, const char *name)
     }
 }
 
-Var *oi_get_oi (Var *oi, const char *name)
+Var *oi_get_oi! (Var *oi, const char *name)
 {
-  PropertiesEntry *entry = oi_get_entry_read (oi, name);
+  PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
     {
       case OI_PTYPE_OI: return (entry->value_oi@ref:inc());
@@ -235,9 +254,9 @@ Var *oi_get_oi (Var *oi, const char *name)
     }
 }
 
-void  *oi_get_pointer     (Var *oi, const char *name)
+void  *oi_get_pointer!     (Var *oi, const char *name)
 {
-  PropertiesEntry *entry = oi_get_entry_read (oi, name);
+  PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
     {
       case OI_PTYPE_POINTER: return entry->value_pointer;
@@ -245,30 +264,13 @@ void  *oi_get_pointer     (Var *oi, const char *name)
     }
 }
 
-static void
-each_wrapper (void *item, void *user_data)
+int is_string (const char *name)
 {
-  void **args = user_data;
-  PropertiesEntry *entry = item;
-  void (*cb)(const char *key, void *item, void *user_data) = args[0];
-  cb (entry->name, "foo", args[1]);
-}
-void
-oi_properties_each (Var *self,
-                    void (*cb)(const char *key, void *item, void *user_data),
-                    void *user_data)
-{
-  void *args[] = {cb, user_data};
-  Properties *properties = (self@trait:get (PROPERTIES));
-  if (properties)
-    properties->props@list:each(each_wrapper, args);
-}
-
-int
-oi_property_is_string (Var *oi, const char *name)
-{
-  PropertiesEntry *entry = oi_get_entry_read (oi, name);
+  PropertyEntry *entry = oi_get_entry_read (self, name);
   if (!entry)
     return 0;
   return entry->type == OI_PTYPE_STRING;
 }
+
+@end
+

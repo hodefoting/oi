@@ -15,10 +15,10 @@ static void each_arg_cb (Var *argb, void *oi)
 {
   Var *test = var_new(NULL,NULL);
 
-  test@oi:properties_each (cb, test);
+  test@property:each (cb, test);
   test@["abc"float]=3.2;
   test@["times"string]="3.1415";
-  test@oi:properties_each (cb, test);
+  test@property:each (cb, test);
 
   printf ("%s\n", self@["name"oi]@string:get());
   printf ("%i arguments\n", args@list:get_size());
