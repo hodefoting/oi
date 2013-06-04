@@ -44,10 +44,10 @@ void oi_set_memory_functions (
   char *(*strdup)  (const char *str),
   void  (*strfree) (void *str))
 {
-  if (free)    memfuncs.free = free;
-  if (malloc)  memfuncs.malloc = malloc;
+  if (free)    memfuncs.free    = free;
+  if (malloc)  memfuncs.malloc  = malloc;
   if (realloc) memfuncs.realloc = realloc;
-  if (strdup)  memfuncs.strdup = strdup;
+  if (strdup)  memfuncs.strdup  = strdup;
   if (strfree) memfuncs.strfree = strfree;
 }
 
