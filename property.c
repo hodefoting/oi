@@ -45,7 +45,7 @@ typedef struct
     const char *value_string;
     void       *value_pointer;
     var          value_oi;
-  };
+  } o;
 } PropertyEntry;
 
 static void prop_destroy! (PropertyEntry *entry, void *user_data);
@@ -82,15 +82,15 @@ void each (void *cb, void *user_data)
 
 static void prop_unset! (PropertyEntry *entry)
 {
-  if (entry->type == OI_PTYPE_STRING && entry->value_string)
+  if (entry->type == OI_PTYPE_STRING && entry->o.value_string)
     {
-      oi_strfree ((void*)entry->value_string);
-      entry->value_string = NULL;
+      oi_strfree ((void*)entry->o.value_string);
+      entry->o.value_string = NULL;
     }
-  else if (entry->type == OI_PTYPE_OI && entry->value_oi)
+  else if (entry->type == OI_PTYPE_OI && entry->o.value_oi)
     {
-      entry->value_oi@ref:dec ();
-      entry->value_oi = NULL;
+      entry->o.value_oi@ref:dec ();
+      entry->o.value_oi = NULL;
     }
 }
 
@@ -122,7 +122,7 @@ static PropertyEntry *oi_get_entry_read! (var oi, const char *name)
       entry->name = name@oi:strdup ();
       property->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
-      entry->value_int = 0;
+      entry->o.value_int = 0;
     } 
   oi@mutex:unlock ();
   return entry;
@@ -144,7 +144,7 @@ static PropertyEntry *oi_get_entry_write! (var oi, const char *name)
     {
       entry = oi_malloc (sizeof (PropertyEntry));
       entry->name = name@oi:strdup();
-      entry->value_int = 0;
+      entry->o.value_int = 0;
       property->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
     } /* XXX: oicc hack*/ ;
@@ -155,8 +155,8 @@ static PropertyEntry *oi_get_entry_write! (var oi, const char *name)
 void   oi_set_float! (var oi, const char *name, float       value)
 {
   PropertyEntry *entry = oi_get_entry_write (oi, name);
-  int changed = entry->value_float != value;
-  entry->value_float = value;
+  int changed = entry->o.value_float != value;
+  entry->o.value_float = value;
   entry->type = OI_PTYPE_FLOAT;
   if (changed)
     oi@"notify"((void*)name);
@@ -165,9 +165,9 @@ void   oi_set_float! (var oi, const char *name, float       value)
 void   oi_set_int! (var oi, const char *name, int         value)
 {
   PropertyEntry *entry = oi_get_entry_write (oi, name);
-  int changed = entry->value_int != value;
+  int changed = entry->o.value_int != value;
   entry->type = OI_PTYPE_INT;
-  entry->value_int = value;
+  entry->o.value_int = value;
   if (changed)
     oi@"notify"((void*)name);
 }
@@ -182,10 +182,10 @@ void   oi_set_string! (var oi, const char *name, const char *value)
       char *tmp = oi_malloc (strlen (value) + 1 + OFF_BY_FUDGE);
       memcpy (tmp, value, strlen (value));
       tmp[strlen(value)]=0;
-      entry->value_string = tmp;
+      entry->o.value_string = tmp;
     }
   else
-    entry->value_string = NULL;
+    entry->o.value_string = NULL;
   oi@"notify"((void*)name);
 }
 void   oi_set_oi! (var oi, const char *name, var value)
@@ -193,9 +193,9 @@ void   oi_set_oi! (var oi, const char *name, var value)
   PropertyEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_OI;
   if (value)
-    entry->value_oi = value@ref:inc();
+    entry->o.value_oi = value@ref:inc();
   else
-    entry->value_oi = NULL;
+    entry->o.value_oi = NULL;
   oi@"notify"((void*)name);
 }
 
@@ -203,7 +203,7 @@ void   oi_set_pointer! (var oi, const char *name, void       *value)
 {
   PropertyEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_POINTER;
-  entry->value_pointer = value;
+  entry->o.value_pointer = value;
   oi@"notify"((void*)name);
 }
 
@@ -212,9 +212,9 @@ float  oi_get_float! (var oi, const char *name)
   PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
     {
-      case OI_PTYPE_INT:    return entry->value_int;
-      case OI_PTYPE_FLOAT:  return entry->value_float;
-      case OI_PTYPE_STRING: return atof(entry->value_string);
+      case OI_PTYPE_INT:    return entry->o.value_int;
+      case OI_PTYPE_FLOAT:  return entry->o.value_float;
+      case OI_PTYPE_STRING: return atof(entry->o.value_string);
       default: return 0.0;
     }
 }
@@ -224,9 +224,9 @@ int    oi_get_int! (var oi, const char *name)
   PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
     {
-      case OI_PTYPE_INT:    return entry->value_int;
-      case OI_PTYPE_FLOAT:  return entry->value_float;
-      case OI_PTYPE_STRING: return atof(entry->value_string);
+      case OI_PTYPE_INT:    return entry->o.value_int;
+      case OI_PTYPE_FLOAT:  return entry->o.value_float;
+      case OI_PTYPE_STRING: return atof(entry->o.value_string);
       default: return 0.0;
     }
 }
@@ -238,7 +238,7 @@ const char *oi_get_string! (var oi, const char *name)
     {
       case OI_PTYPE_INT:    return "(int)";   /* XXX: printf it?, but const? */
       case OI_PTYPE_FLOAT:  return "(float)"; /* XXX: .....  */
-      case OI_PTYPE_STRING: return entry->value_string;
+      case OI_PTYPE_STRING: return entry->o.value_string;
       case OI_PTYPE_POINTER:return "(pointer)";
       default:              return "()";
     }
@@ -249,7 +249,7 @@ var oi_get_oi! (var oi, const char *name)
   PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
     {
-      case OI_PTYPE_OI: return (entry->value_oi@ref:inc());
+      case OI_PTYPE_OI: return (entry->o.value_oi@ref:inc());
       default:          return NULL;
     }
 }
@@ -259,7 +259,7 @@ void  *oi_get_pointer!     (var oi, const char *name)
   PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
     {
-      case OI_PTYPE_POINTER: return entry->value_pointer;
+      case OI_PTYPE_POINTER: return entry->o.value_pointer;
       default: return NULL;
     }
 }
