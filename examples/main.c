@@ -1,11 +1,6 @@
 #include <stdio.h>
 #include "oi.h"
 
-static void cb (const char *name, void *value, void* oi)
-{
-  printf ("%s %f\n", name, oi@oi:get_float(name));
-}
-
 static void each_arg_cb (Var argb, void *oi)
 {
   printf ("  %s\n", argb@string:get());
@@ -13,11 +8,8 @@ static void each_arg_cb (Var argb, void *oi)
 
 @main ()
 {
-  Var test = var_new(NULL,NULL);
+  Var test = var_new (NULL,NULL);
 
-  test@property:each (cb, test);
-  test@["abc"float]=3.2;
-  test@["times"string]="3.1415";
   test@property:each (cb, test);
 
   printf ("%s\n", self@["name"oi]@string:get());
