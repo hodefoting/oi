@@ -7,8 +7,8 @@
 #ifndef _MESSAGE_H_
 #define  _MESSAGE_H_
 extern Type *MESSAGE;
-int message_listen (Var *self, Var          *oi_self,
-            void         *trait_self,
+int message_listen (Var *self, Var          *listener,
+            void         *listener_trait,
             const char   *message_name,
             void         *callback,
             void         *user_data);

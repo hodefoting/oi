@@ -41,8 +41,8 @@ int listen (Var          *oi_self,
             void        (*callback) (Var *self, void *arg, void *user_data),
             void         *user_data)
             */
-int listen (Var          *oi_self,
-            void         *trait_self,
+int listen (Var          *listener,
+            void         *listener_trait,
             const char   *message_name,
             void         *callback,
             void         *user_data)
@@ -61,8 +61,8 @@ int listen (Var          *oi_self,
   /* add outselves to the disconnector trait, so that if the trait goes
    * away the message callback goes away.
    */
-  if (oi_self)
-    oi_self@own:add_message_cb (trait_self, message_name, list_get_size (message->callbacks)-1);
+  if (listener)
+    listener@own:add_message_cb (listener_trait, message_name, list_get_size (message->callbacks)-1);
 
   return (message->callbacks@list:get_size () - 1);
 }

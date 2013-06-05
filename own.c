@@ -11,8 +11,7 @@
 typedef struct
 {
   Var  *instance;
-
-  Type *type; /* or NULL/Trait if meaning the full instance */
+  Type *trait_type; /* or NULL/Trait if meaning the full instance */
 } InstanceEntry;
 
 typedef struct
@@ -47,7 +46,12 @@ again:
   return 0;
 }
 
-static void lnrfree! (MessageEntry *entry)
+static void instance_entry_free! (InstanceEntry *entry)
+{
+  oi_free (sizeof (InstanceEntry), entry);
+}
+
+static void msg_entry_free! (MessageEntry *entry)
 {
   if (entry->name)
     oi_strfree (entry->name);
@@ -56,8 +60,12 @@ static void lnrfree! (MessageEntry *entry)
 
 static void init ()
 {
+  own->instances = @list:new ();
+  own->custom = @list:new ();
   own->message_cbs= @list:new ();
-  own->message_cbs@list:set_destroy ((void*)lnrfree, NULL);
+
+  own->instances@list:set_destroy ((void*)instance_entry_free, NULL);
+  own->message_cbs@list:set_destroy ((void*)msg_entry_free, NULL);
 }
 
 static void destroy ()
@@ -74,7 +82,7 @@ static int listener_match_trait_and_name! (void *listener_entry, void *arg)
   return (entry->type == args[1] && !strcmp (entry->name, args[0]));
 }
 
-static MessageEntry *get_entry_write (Type *type, const char *name)
+static MessageEntry *get_msg_entry_write (Type *type, const char *name)
 {
   Own *own = ((void*)self@trait:ensure (OWN, NULL));
   int no;
@@ -97,9 +105,26 @@ void add_message_cb (void *trait, const char *name, int id)
   Type *type = NULL;
   if (trait)
     type = *( (Type**)(trait));
-  MessageEntry *entry = self@own:get_entry_write (type, name);
+  MessageEntry *entry = self@own:get_msg_entry_write (type, name);
   entry->type = type;
   entry->id = id;
+}
+
+static void unref_instance_cb! (Var *instance)
+{
+  instance@ref:dec();
+}
+
+void add_instance (Var *instance)
+{
+  /*
+  Own *own = self@trait:ensure (OWN, NULL);
+  InstanceEntry *entry = oi_malloc (sizeof(InstanceEntry));
+  own->instances@list:append (entry); 
+  entry->instance = instance;
+  */;
+  self@message:listen(self, NULL, "oi:die",
+      unref_instance_cb, instance);
 }
 
 @end
