@@ -450,7 +450,7 @@ void process_token (State *o)
           if (!memcmp (o->cmd, "gene", 4))
           {
             char buf[256];
-            sprintf(buf, "#include \"%s\"\n", o->header_name);
+            sprintf(buf, "#include \"%s\"", o->header_name);
             o->gen_header=1;
             o->in_trait=0;
 
