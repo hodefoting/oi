@@ -941,6 +941,7 @@ int oicc_filter (FILE *fpr, FILE *fpw, const char *header_name)
           switch (flattened[i])
           {
             case '.': flattened[i] = '_';
+            case '-': flattened[i] = '_';
             default:flattened[i] = toupper(flattened[i]);
           }
         }
