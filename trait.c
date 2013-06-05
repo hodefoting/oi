@@ -27,11 +27,18 @@
   Trait  **traits;
 };
 
-/* checks if the object has the given instance */
+#define DEATH_MARK   -66
+
+static inline void check_dead ()
+{
+  if (self->trait_count == DEATH_MARK) fprintf (stderr, "Eeek");
+}
+
+/* checks if the object has the given trait */
 int check (Type *trait)
 {
   int i;
-  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  self@trait:check_dead ();
   if (trait == TRAIT)
     return 1;
   for (i = 0; i < self->trait_count; i++)
@@ -44,7 +51,7 @@ int check (Type *trait)
 void *get (Type *trait)
 {
   int i;
-  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  self@trait:check_dead ();
   if (trait == TRAIT)
     return (Trait*)self;
   for (i = 0; i < self->trait_count; i++)
@@ -58,7 +65,7 @@ void *get (Type *trait)
 void *get_assert (Type *trait)
 {
   Trait *res = self@trait:get (trait);
-  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  self@trait:check_dead ();
   if (trait == TRAIT)
     return (Trait*)self;
   if (!res)
@@ -74,7 +81,7 @@ void *get_assert (Type *trait)
 void *ensure (Type *trait, var args)
 {
   Trait *res = self@trait:get (trait);
-  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  self@trait:check_dead ();
   if (trait == TRAIT)
     return (Trait*)self;
   if (!res)
@@ -90,9 +97,9 @@ void *ensure (Type *trait, var args)
 /* adds an trait to an instance */
 void add (Type *type, var args)
 {
+  self@trait:check_dead ();
   if (type == TRAIT)
     return;
-  if (self->trait_count == -66) fprintf (stderr, "Eeek");
   if (self@trait:check (type))
     {
       fprintf (stderr, "Object %p already have trait \"%s\"\n",
@@ -123,7 +130,7 @@ void add (Type *type, var args)
 
 static void trait_destroy (Trait *trait)
 {
-  if (self->trait_count == -66) fprintf (stderr, "Eeek");
+  self@trait:check_dead ();
   if (trait->trait_type->destroy)
     trait->trait_type->destroy (self, trait);
   oi_free (trait->trait_type->size, trait);
@@ -133,9 +140,9 @@ static void trait_destroy (Trait *trait)
 void remove (Type *trait)
 {
   int i;
+  self@trait:check_dead ();
   if (trait == TRAIT)
     return;
-  if (self->trait_count == -66) fprintf (stderr, "Eeek");
   if (!trait_check (self, trait))
     {
       fprintf (stderr, "Object %p doesn't have trait \"%s\"\n", self, trait->name);
@@ -155,15 +162,16 @@ void remove (Type *trait)
       }
 }
 
-void finalize ()
+static void finalize ()
 {
   int i;
+  self@trait:check_dead ();
   self@"oi:die"(NULL);
   for (i = self->trait_count-1; i>=0 ; i--)
     self@trait:trait_destroy (self->traits[i]);
   oi_free (((self->trait_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK,
         self->traits);
-  self->trait_count = -66;
+  self->trait_count = DEATH_MARK;
   oi_free (sizeof (var), self);
 }
 
@@ -176,17 +184,16 @@ void **list (int *count)
     *count = self->trait_count;
   return (void*)self->traits;
 }
-@end
 
 /* used to implement the object reaping side of oi_unref; do not use
  * directly
  */
-void var_finalize (var self)
+void var_finalize! (var self)
 {
   trait_finalize (self);
 }
 
-var var_new (Type *type, void *args)
+var var_new! (Type *type, void *args)
 {
   var self = oi_malloc (sizeof(Trait));
   self->traits = NULL;
@@ -195,3 +202,6 @@ var var_new (Type *type, void *args)
     self@trait:add (type, args);
   return self;
 }
+
+@end
+

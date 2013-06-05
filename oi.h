@@ -46,18 +46,6 @@ typedef struct
 static Type NAME##_trait = {"" #NAME, sizeof (s), init, init_int, destroy};\
 Type *NAME = &NAME##_trait;
 
-/* create a new bare bone oi instance, 
- * type and args can be NULL to create an instance
- * without any initial trait.
- */
-var      var_new      (Type *trait, void *trait_arg);
-
-/* destroy a variable instance, @ref:dec should be
- * used instead; it doesn't even add the reference
- * trait if no references have been added.
- */
-void     var_finalize (var oi);
-
 #include "oi-mem.h"
 
 #include "own.h"
