@@ -24,7 +24,7 @@
 
 @trait Message
 {
-  Var  *callbacks;
+  Var callbacks;
 };
 
 typedef struct
@@ -41,7 +41,7 @@ int listen (Var          *oi_self,
             void        (*callback) (Var *self, void *arg, void *user_data),
             void         *user_data)
             */
-int listen (Var          *listener,
+int listen (Var           listener,
             void         *listener_trait,
             const char   *message_name,
             void         *callback,
@@ -118,15 +118,15 @@ static void destroy ()
 }
 
 
-static Var *queue = NULL;
+static Var  queue = NULL;
 static void dispatch_queue_thread! (void *data)
 {
   while (1)
     {
       while (queue@list:get_size ())
         {
-          Var *i;
-          Var *oi;
+          Var  i;
+          Var  oi;
           const char *message_name;
           void *arg;
           void (*closure) (void *arg);
@@ -148,7 +148,7 @@ static void dispatch_queue_thread! (void *data)
       usleep (1000);
     }
 }
-static Var *dispatch_queue! ()
+static Var dispatch_queue! ()
 {
   if (!queue)
     {
@@ -172,7 +172,7 @@ void emit_remote (const char *message_name,
                   void       *arg,
                   void       *closure)
 {
-  Var *item = var_new(NULL, NULL);
+  Var item = var_new(NULL, NULL);
   dispatch_queue ()@mutex:lock ();
   item@oi:set_oi      ("oi", self);
   item@oi:set_string  ("message", message_name);

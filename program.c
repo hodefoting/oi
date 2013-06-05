@@ -20,7 +20,7 @@
 
 @trait Program
 {
-  Var *args;
+  Var args;
 };
 
 static void init (char **argv)
@@ -35,11 +35,10 @@ static void init (char **argv)
     }
 }
 
-Var *get_args ()
+Var get_args ()
 {
   Program *program = self@trait:get (PROGRAM);
   return program->args;
-
 }
 
 @end

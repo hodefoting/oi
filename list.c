@@ -64,7 +64,7 @@ void * get (int no)
   return NULL;
 }
 
-Var *remove_index_fast (int index)
+Var remove_index_fast (int index)
 {
   List *list = self@trait:get_assert (LIST);
   if (!(index >= 0 && index < list->size))
@@ -77,7 +77,7 @@ Var *remove_index_fast (int index)
   return self;
 }
 
-Var *remove_index (int index)
+Var remove_index (int index)
 {
   int j;
   List *list = self@trait:get_assert (LIST);
@@ -92,7 +92,7 @@ Var *remove_index (int index)
   return self;
 }
 
-Var *remove (void *data)
+Var remove (void *data)
 {
   List *list = self@trait:get_assert (LIST);
   int i;
@@ -111,7 +111,7 @@ int get_size ()
   return list->size;
 }
 
-Var *list_remove_fast (void *data)
+Var list_remove_fast (void *data)
 {
   List *list = self@trait:get_assert (LIST);
   int i;
@@ -124,7 +124,7 @@ Var *list_remove_fast (void *data)
   return self;
 }
 
-Var *remove_zombie_index_fast (int index)
+Var remove_zombie_index_fast (int index)
 {
   List *list = self@trait:get_assert (LIST);
   if (!(index >= 0 && index < list->size))
@@ -135,7 +135,7 @@ Var *remove_zombie_index_fast (int index)
   return self;
 }
 
-Var *remove_zombie_index (int index)
+Var remove_zombie_index (int index)
 {
   List *list = self@trait:get_assert (LIST);
   int j;
@@ -147,7 +147,7 @@ Var *remove_zombie_index (int index)
   return self;
 }
 
-Var *remove_zombie (void *data)
+Var remove_zombie (void *data)
 {
   List *list = self@trait:get_assert (LIST);
   int i;
@@ -160,7 +160,7 @@ Var *remove_zombie (void *data)
   return self;
 }
 
-Var *remove_zombie_fast (void *data)
+Var remove_zombie_fast (void *data)
 {
   List *list = self@trait:get_assert (LIST);
   int i;
@@ -178,7 +178,7 @@ Var *set_destroy (void (*destroy)(void *item, void *user_data),
                   void *user_data)
                   */
 
-Var *set_destroy (void *destroy, void *user_data)
+Var set_destroy (void *destroy, void *user_data)
 {
   List *list = self@trait:get_assert (LIST);
   list->destroy = destroy;
@@ -218,7 +218,7 @@ int find (void *data)
 }
 
 
-Var *append (void *data)
+Var append (void *data)
 {
   List *list = self@trait:get_assert (LIST);
 
@@ -237,7 +237,7 @@ Var *append (void *data)
   return self;
 }
 
-Var *new ()
+Var new ()
 {
   return var_new (LIST, NULL);
 }

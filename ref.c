@@ -28,7 +28,7 @@ static void init ()
   ref->count = 1;
 }
 
-Var *inc ()
+Var inc ()
 {
   Ref *ref = self@trait:ensure (REF, NULL);
   if (self@trait:get (MUTEX))
@@ -39,7 +39,7 @@ Var *inc ()
   return self;
 }
 
-Var *dec ()
+Var dec ()
 {
   Ref *ref = self@trait:get (REF);
   if (self@trait:get (MUTEX))

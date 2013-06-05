@@ -34,7 +34,7 @@ float get_it ()
 
 @main ()
 {
-  Var *test;
+  Var test;
 
   test = var_new (NULL, NULL);
 

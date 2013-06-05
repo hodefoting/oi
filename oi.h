@@ -20,7 +20,7 @@
 #include <string.h>
 
 /* The variadic intance with trait's we use for all out oi-pointers */
-typedef struct _Trait Var;
+typedef struct _Trait * Var;
 
 /* definition of a trait-type - to be associated with an instance */
 typedef struct 
@@ -29,13 +29,13 @@ typedef struct
   int             size;  /* size of a trait instance */
 
   /* function initializing a trait instance (or NULL) */
-  void          (*init)    (Var *self, void *trait, Var *args);
+  void          (*init)    (Var self, void *trait, Var args);
 
   /* additional intialization (used internally by oi) */
-  void          (*init_int)(Var *self, void *trait);
+  void          (*init_int)(Var self, void *trait);
 
   /* release resources held by trait instance */
-  void          (*destroy) (Var *self, void *trait);
+  void          (*destroy) (Var self, void *trait);
 } Type;
 
 /* this macro is used for creating the instance from the set of pointers,
@@ -50,13 +50,13 @@ Type *NAME = &NAME##_trait;
  * type and args can be NULL to create an instance
  * without any initial trait.
  */
-Var     *var_new      (Type *trait, void *trait_arg);
+Var      var_new      (Type *trait, void *trait_arg);
 
 /* destroy a variable instance, @ref:dec should be
  * used instead; it doesn't even add the reference
  * trait if no references have been added.
  */
-void     var_finalize (Var *oi);
+void     var_finalize (Var oi);
 
 #include "oi-mem.h"
 

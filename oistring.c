@@ -47,7 +47,7 @@ static void destroy ()
     oi_free (string->allocated, string->data);
 }
 
-Var *clear ()
+Var clear ()
 {
   String *string = OI_STRING (self);
   string->len = 0;
@@ -55,7 +55,7 @@ Var *clear ()
   return self;
 }
 
-Var *appendc (int val)
+Var appendc (int val)
 {
   String *string = OI_STRING (self);
   if (string->len + 2 >= string->allocated)
@@ -71,7 +71,7 @@ Var *appendc (int val)
   return self;
 }
 
-Var *append_str (const char *str)
+Var append_str (const char *str)
 {
   while (str && *str)
     {
@@ -81,7 +81,7 @@ Var *append_str (const char *str)
   return self;
 }
 
-Var *append_string (Var *oi2)
+Var append_string (Var oi2)
 {
   const char *str = oi2@string:get ();
   while (str && *str)
@@ -110,7 +110,7 @@ char *dissolve   ()
   return ret;
 }
 
-Var *append_printf (const char *format, ...)
+Var append_printf (const char *format, ...)
 {
   va_list ap;
   size_t needed;
@@ -130,7 +130,7 @@ Var *append_printf (const char *format, ...)
   return self;
 }
 
-Var *new (const char *initial)
+Var new (const char *initial)
 {
   return var_new (STRING, (void*)initial);
 }

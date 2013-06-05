@@ -3,7 +3,7 @@
 
 @main ()
 {
-  Var *test = string_new("test");
+  Var test = string_new("test");
 
   printf ("%s\n", test@string:get());
   test@string:append_printf(" %i", 23);

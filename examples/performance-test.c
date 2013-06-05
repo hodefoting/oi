@@ -37,7 +37,7 @@ typedef struct
   int     foo;
 }  __attribute((packed))  Foo;
 
-static void foo_init (Var *oi, void *trait, Var *args)
+static void foo_init (Var oi, void *trait, Var args)
 {
   Foo *foo = (Foo*)trait;
   foo->foo = 1;
@@ -46,13 +46,13 @@ OI(FOO, Foo, foo_init, NULL, NULL)
 
 #define OI_FOO(oi) (trait_get_assert (oi, FOO))
 
-float oi_get_foo (Var *oi)
+float oi_get_foo (Var oi)
 {
   Foo *foo = (Foo*)oi@trait:ensure (FOO, NULL);
   return foo->foo;
 }
 
-void  oi_set_foo (Var *oi, float f)
+void  oi_set_foo (Var oi, float f)
 {
   Foo *foo = (Foo*)oi@trait:get (FOO);
   foo->foo = f;
@@ -119,7 +119,7 @@ int perf_test (void)
   start = oi_ticks ();
   for (i = 0; i < count; i ++)
     {
-      Var *item = var_new (NULL, NULL);
+      Var item = var_new (NULL, NULL);
       item@ref:dec();
     }
   condecon_oi = 1000000.0/((oi_ticks () - start)*1.0/count);
@@ -133,7 +133,7 @@ int perf_test (void)
   condecon_g = 1000000.0/((oi_ticks () - start)*1.0/count);
 
   {
-    Var *item = var_new (NULL, NULL);
+    Var item = var_new (NULL, NULL);
     start = oi_ticks ();
     for (i = 0; i < count; i ++)
       {
@@ -146,7 +146,7 @@ int perf_test (void)
 
 
 {
-  Var *item = var_new (NULL, NULL);
+  Var item = var_new (NULL, NULL);
   start = oi_ticks ();
   for (i = 0; i < count; i ++)
     {
@@ -203,7 +203,7 @@ int perf_test (void)
 
 
 {
-  Var *item = var_new (NULL, NULL);
+  Var item = var_new (NULL, NULL);
   start = oi_ticks ();
   for (i = 0; i < count; i ++)
     {
@@ -218,7 +218,7 @@ int perf_test (void)
 
 
 {
-  Var *item = var_new(NULL,NULL);
+  Var item = var_new(NULL,NULL);
   start = oi_ticks ();
   item@message:listen (NULL, NULL, "notify", (void*)oops, NULL);
   for (i = 0; i < count; i ++)

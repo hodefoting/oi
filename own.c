@@ -3,14 +3,14 @@
 
 @trait Own
 {
-  Var *message_cbs;
-  Var *instances;
-  Var *custom;
+  Var message_cbs;
+  Var instances;
+  Var custom;
 };
 
 typedef struct
 {
-  Var  *instance;
+  Var  instance;
   Type *trait_type; /* or NULL/Trait if meaning the full instance */
 } InstanceEntry;
 
@@ -110,7 +110,7 @@ void add_message_cb (void *trait, const char *name, int id)
   entry->id = id;
 }
 
-static void unref_instance_cb! (Var *instance)
+static void unref_instance_cb! (Var instance)
 {
   instance@ref:dec();
 }

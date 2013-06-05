@@ -65,13 +65,13 @@ void *get_assert (Type *trait)
     {
       fprintf (stderr, "assert failes, object %p doesn't have trait \"%s\".\n",
                self, trait->name);
-      *((Var*)(NULL)) = *self; /* segfault so a backtrace is meaningful */
+      *((Var)(NULL)) = *self; /* segfault so a backtrace is meaningful */
     }
   return res;
 }
 
 /* gets the trait, creates and adds it if it doesn't already exist */
-void *ensure (Type *trait, Var *args)
+void *ensure (Type *trait, Var args)
 {
   Trait *res = self@trait:get (trait);
   if (self->trait_count == -66) fprintf (stderr, "Eeek");
@@ -88,7 +88,7 @@ void *ensure (Type *trait, Var *args)
 #define ALLOC_CHUNK   16
 
 /* adds an trait to an instance */
-void add (Type *type, Var *args)
+void add (Type *type, Var args)
 {
   if (type == TRAIT)
     return;
@@ -181,14 +181,14 @@ void **list (int *count)
 /* used to implement the object reaping side of oi_unref; do not use
  * directly
  */
-void var_finalize (Var *self)
+void var_finalize (Var self)
 {
   trait_finalize (self);
 }
 
-Var *var_new (Type *type, void *args)
+Var var_new (Type *type, void *args)
 {
-  Var *self = oi_malloc (sizeof(Trait));
+  Var self = oi_malloc (sizeof(Trait));
   self->traits = NULL;
   self->trait_count = 0;
   if (type)

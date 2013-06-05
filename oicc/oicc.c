@@ -283,7 +283,7 @@ void process_token (State *o)
               {
                 o->msg[o->mpos]=0;
 
-            pos += sprintf (&buf[pos], "static void %s_init_int (Var *self){"
+            pos += sprintf (&buf[pos], "static void %s_init_int (Var self){"
   "%s *%s=trait_get(self,%s);%s}", o->trait, o->Trait, o->trait, o->TRAIT, o->msg);
                 o->mpos = 0;
               }
@@ -391,7 +391,7 @@ void process_token (State *o)
 
             if (!memcmp (o->cmd, "main", 4))
             {
-            sprintf (buf, "int main (int argc, char **argv){Var *self=var_new(PROGRAM, argv);Var __attribute__((__unused__)) *args=program_get_args(self);");
+            sprintf (buf, "int main (int argc, char **argv){Var self=var_new(PROGRAM, argv);Var __attribute__((__unused__)) args=program_get_args(self);");
             o->in_trait=0;
             }
             else if (add_nls)
@@ -675,7 +675,7 @@ void process_token (State *o)
                            }
 
 
-                         sprintf (tempbuf, "static int %s_%s_cb (Var *self", o->trait, cbname);
+                         sprintf (tempbuf, "static int %s_%s_cb (Var self", o->trait, cbname);
 
                          /* add to list being built up for contents
                           * of init_int implementation. 
@@ -694,10 +694,10 @@ void process_token (State *o)
                      else if (!strcmp (name, "init") ||
                          !strcmp (name, "destroy"))
                      {
-                     sprintf (tempbuf, "%s_%s (Var *self, %s *%s", o->trait, name, o->Trait, o->trait);
+                     sprintf (tempbuf, "%s_%s (Var self, %s *%s", o->trait, name, o->Trait, o->trait);
                      }
                      else
-                     sprintf (tempbuf, "%s_%s (Var *self", o->trait, name);
+                     sprintf (tempbuf, "%s_%s (Var self", o->trait, name);
 
                      for (i = 0; tempbuf[i]; i++)
                        o->inbuf[pos++] = tempbuf[i];

@@ -7,6 +7,6 @@
 #ifndef _REF_H_
 #define  _REF_H_
 extern Type *REF;
-Var *ref_inc (Var *self);
-Var *ref_dec (Var *self);
+Var ref_inc (Var self);
+Var ref_dec (Var self);
 #endif
