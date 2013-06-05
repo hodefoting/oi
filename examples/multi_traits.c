@@ -42,7 +42,7 @@ float get_it ()
 
 @main ()
 {
-  Var test;
+  var test;
 
   test = var_new (NULL, NULL);
 

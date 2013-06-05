@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include "oi.h"
 
-static void each_arg_cb (Var argb, void *oi)
+static void each_arg_cb (var argb, void *oi)
 {
   printf ("  %s\n", argb@string:get());
 }
 
 @main ()
 {
-  Var test = var_new (NULL,NULL);
+  var test = var_new (NULL,NULL);
 
   printf ("%s\n", self@["name"oi]@string:get());
   printf ("%i arguments\n", args@list:get_size());

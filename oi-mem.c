@@ -22,20 +22,20 @@
 #undef strdup
 #endif
 
-typedef struct VarMem {
+typedef struct varMem {
   void  (*free)    (size_t size, void *mem);
   void *(*malloc)  (size_t size);
   void *(*realloc) (void *mem, size_t size);
   char *(*strdup)  (const char *str);
   void  (*strfree) (void *str);
-} VarMem;
+} varMem;
 
 static void oi_free_default (size_t size, void *mem)
 {
   free (mem);
 }
 
-static VarMem memfuncs = {oi_free_default, malloc, realloc, strdup, free};
+static varMem memfuncs = {oi_free_default, malloc, realloc, strdup, free};
 
 void oi_set_memory_functions (
   void  (*free)    (size_t size, void *mem),

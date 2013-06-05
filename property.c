@@ -23,7 +23,7 @@
 
 @trait Property 
 {
-  Var props;
+  var props;
 };
 
 typedef enum
@@ -44,7 +44,7 @@ typedef struct
     int         value_int;
     const char *value_string;
     void       *value_pointer;
-    Var          value_oi;
+    var          value_oi;
   };
 } PropertyEntry;
 
@@ -107,7 +107,7 @@ static int match_name! (void *property_entry, const char *name)
   PropertyEntry *entry = property_entry;
   return (entry && entry->name && name && !strcmp (entry->name, name));
 }
-static PropertyEntry *oi_get_entry_read! (Var oi, const char *name)
+static PropertyEntry *oi_get_entry_read! (var oi, const char *name)
 {
   Property *property = ((void*)trait_ensure (oi, PROPERTY, NULL));
   int no;
@@ -128,7 +128,7 @@ static PropertyEntry *oi_get_entry_read! (Var oi, const char *name)
   return entry;
 }
 
-static PropertyEntry *oi_get_entry_write! (Var oi, const char *name)
+static PropertyEntry *oi_get_entry_write! (var oi, const char *name)
 {
   Property *property = ((void*)trait_ensure (oi, PROPERTY, NULL));
   int no;
@@ -152,7 +152,7 @@ static PropertyEntry *oi_get_entry_write! (Var oi, const char *name)
   return entry;
 }
 
-void   oi_set_float! (Var oi, const char *name, float       value)
+void   oi_set_float! (var oi, const char *name, float       value)
 {
   PropertyEntry *entry = oi_get_entry_write (oi, name);
   int changed = entry->value_float != value;
@@ -162,7 +162,7 @@ void   oi_set_float! (Var oi, const char *name, float       value)
     oi@"notify"((void*)name);
 }
 
-void   oi_set_int! (Var oi, const char *name, int         value)
+void   oi_set_int! (var oi, const char *name, int         value)
 {
   PropertyEntry *entry = oi_get_entry_write (oi, name);
   int changed = entry->value_int != value;
@@ -171,7 +171,7 @@ void   oi_set_int! (Var oi, const char *name, int         value)
   if (changed)
     oi@"notify"((void*)name);
 }
-void   oi_set_string! (Var oi, const char *name, const char *value)
+void   oi_set_string! (var oi, const char *name, const char *value)
 {
   PropertyEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_STRING;
@@ -188,7 +188,7 @@ void   oi_set_string! (Var oi, const char *name, const char *value)
     entry->value_string = NULL;
   oi@"notify"((void*)name);
 }
-void   oi_set_oi! (Var oi, const char *name, Var value)
+void   oi_set_oi! (var oi, const char *name, var value)
 {
   PropertyEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_OI;
@@ -199,7 +199,7 @@ void   oi_set_oi! (Var oi, const char *name, Var value)
   oi@"notify"((void*)name);
 }
 
-void   oi_set_pointer! (Var oi, const char *name, void       *value)
+void   oi_set_pointer! (var oi, const char *name, void       *value)
 {
   PropertyEntry *entry = oi_get_entry_write (oi, name);
   entry->type = OI_PTYPE_POINTER;
@@ -207,7 +207,7 @@ void   oi_set_pointer! (Var oi, const char *name, void       *value)
   oi@"notify"((void*)name);
 }
 
-float  oi_get_float! (Var oi, const char *name)
+float  oi_get_float! (var oi, const char *name)
 {
   PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
@@ -219,7 +219,7 @@ float  oi_get_float! (Var oi, const char *name)
     }
 }
 
-int    oi_get_int! (Var oi, const char *name)
+int    oi_get_int! (var oi, const char *name)
 {
   PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
@@ -231,7 +231,7 @@ int    oi_get_int! (Var oi, const char *name)
     }
 }
 
-const char *oi_get_string! (Var oi, const char *name)
+const char *oi_get_string! (var oi, const char *name)
 {
   PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
@@ -244,7 +244,7 @@ const char *oi_get_string! (Var oi, const char *name)
     }
 }
 
-Var oi_get_oi! (Var oi, const char *name)
+var oi_get_oi! (var oi, const char *name)
 {
   PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)
@@ -254,7 +254,7 @@ Var oi_get_oi! (Var oi, const char *name)
     }
 }
 
-void  *oi_get_pointer!     (Var oi, const char *name)
+void  *oi_get_pointer!     (var oi, const char *name)
 {
   PropertyEntry *entry = oi_get_entry_read (oi, name);
   switch (entry->type)

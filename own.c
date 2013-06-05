@@ -20,14 +20,14 @@
 
 @trait Own
 {
-  Var message_cbs;
-  Var instances;
-  Var custom;
+  var message_cbs;
+  var instances;
+  var custom;
 };
 
 typedef struct
 {
-  Var  instance;
+  var  instance;
   Type *trait_type; /* or NULL/Trait if meaning the full instance */
 } InstanceEntry;
 
@@ -127,12 +127,12 @@ void add_message_cb (void *trait, const char *name, int id)
   entry->id = id;
 }
 
-static void unref_instance_cb! (Var instance)
+static void unref_instance_cb! (var instance)
 {
   instance@ref:dec();
 }
 
-void add_instance (Var *instance)
+void add_instance (var *instance)
 {
   /*
   Own *own = self@trait:ensure (OWN, NULL);

@@ -40,7 +40,7 @@ static void destroy ()
   pthread_mutex_destroy (&mutex->mutex);
 }
 
-Var lock ()
+var lock ()
 {
   Mutex *mutex = self@trait:ensure (MUTEX, NULL);
   pthread_mutex_lock (&mutex->mutex);

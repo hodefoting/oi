@@ -24,24 +24,24 @@
 
 @trait Message
 {
-  Var callbacks;
+  var callbacks;
 };
 
 typedef struct
 {
   const char *message_name;
-  void  (*callback) (Var *self, void *arg, void *user_data);
+  void  (*callback) (var *self, void *arg, void *user_data);
   void  *user_data;
 } MessageEntry;
 
 /*
-int listen (Var          *oi_self,
+int listen (var          *oi_self,
             void         *trait_self,
             const char   *message_name,
-            void        (*callback) (Var *self, void *arg, void *user_data),
+            void        (*callback) (var *self, void *arg, void *user_data),
             void         *user_data)
             */
-int listen (Var           listener,
+int listen (var           listener,
             void         *listener_trait,
             const char   *message_name,
             void         *callback,
@@ -118,15 +118,15 @@ static void destroy ()
 }
 
 
-static Var  queue = NULL;
+static var  queue = NULL;
 static void dispatch_queue_thread! (void *data)
 {
   while (1)
     {
       while (queue@list:get_size ())
         {
-          Var  i;
-          Var  oi;
+          var  i;
+          var  oi;
           const char *message_name;
           void *arg;
           void (*closure) (void *arg);
@@ -148,7 +148,7 @@ static void dispatch_queue_thread! (void *data)
       usleep (1000);
     }
 }
-static Var dispatch_queue! ()
+static var dispatch_queue! ()
 {
   if (!queue)
     {
@@ -172,7 +172,7 @@ void emit_remote (const char *message_name,
                   void       *arg,
                   void       *closure)
 {
-  Var item = var_new(NULL, NULL);
+  var item = var_new(NULL, NULL);
   dispatch_queue ()@mutex:lock ();
   item@oi:set_oi      ("oi", self);
   item@oi:set_string  ("message", message_name);
@@ -191,7 +191,7 @@ match_func! (void *entryp, void *callback)
   return 0;
 }
 
-/* void handler_disconnect_by_func (void (*callback) (Var *self, void *arg, void *user_data))
+/* void handler_disconnect_by_func (void (*callback) (var *self, void *arg, void *user_data))
  */
 
 void handler_disconnect_by_func (void *callback)

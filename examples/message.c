@@ -15,7 +15,7 @@
 
 @main ()
 {
-  Var test = var_new(FOO, NULL);
+  var test = var_new(FOO, NULL);
   test@"hello"("void");
   test@"hello"(NULL);
   test@ref:dec();
