@@ -12,13 +12,11 @@ static void init ()
 
 void  set_it (float f)
 {
-  Foo *this = self@trait:ensure (FOO, NULL);
   this->number= f;
 }
 
 float get_it ()
 {
-  Foo *this = self@trait:ensure (FOO, NULL);
   return this->number;
 }
 

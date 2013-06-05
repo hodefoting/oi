@@ -47,7 +47,6 @@ int listen (var           listener,
             void         *callback,
             void         *user_data)
 {
-  Message *this = (Message*)trait_ensure (self, MESSAGE, NULL);
   MessageEntry *entry;
   entry = oi_malloc (sizeof (MessageEntry));
   entry->message_name = message_name;
@@ -69,7 +68,6 @@ int listen (var           listener,
 
 void handler_disconnect (int handler_id)
 {
-  Message *this = self@trait:get(MESSAGE);
   if (!this)
     return;
   self@"oi:message-disconnect"((void*)((MessageEntry*)list_get (this->callbacks, handler_id))->message_name);
@@ -91,11 +89,12 @@ static void emit_matching! (void *entr, void *data)
 void emit (const char *message_name,
            void       *arg)
 {
-  Message *this = self@trait:get(MESSAGE);
-  if (this)//self@trait:check (MESSAGE))
+  Message *message = self@trait:get(MESSAGE);
+  /* short circuit if we do not have message trait */
+  if (message)
     {
       void *emit_data[4] = {self, (void*)message_name, arg, NULL};
-      list_each (this->callbacks, emit_matching, emit_data);
+      list_each (message->callbacks, emit_matching, emit_data);
       if (emit_data[3] == NULL && strcmp(message_name, "message-trap"))
         {
           self@"message-trap"((void*)message_name);
@@ -196,7 +195,6 @@ match_func! (void *entryp, void *callback)
 
 void handler_disconnect_by_func (void *callback)
 {
-  Message *this = self@trait:get(MESSAGE);
   int no;
   if (!this)
     return;

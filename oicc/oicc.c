@@ -25,7 +25,7 @@ typedef struct State
 
   int state;
 
-  char inbuf[40960];
+  char inbuf[409600];
   long ipos;
 
   int parend;
@@ -46,10 +46,15 @@ typedef struct State
   int got_init;
   int got_pre_init;
   int got_destroy;
+  int used_this;
 
   int gen_header;
   char header[40960];
   int  headpos;
+
+  int  fun_start;
+  int  in_fun;
+  char *fun_name;
 } State;
 
 enum {
@@ -71,6 +76,50 @@ enum {
 #if 0
 
 #endif
+
+#include <string.h>
+
+void enter_function (State *o, const char *name)
+{
+  o->used_this = 0;
+  o->fun_start = o->ipos;
+  o->fun_name = strdup (name);
+}
+
+void leave_function (State *o)
+{
+  if (o->used_this && 
+      o->fun_name &&
+      strcmp (o->fun_name, "init") &&
+      strcmp (o->fun_name, "destroy")
+      )
+  {
+    int i;
+    for (i = o->fun_start; i< o->ipos; i++)
+      {
+        if (o->inbuf[i]=='{')
+          {
+            int j;
+            char insertion[512];
+            sprintf (insertion, "{%s *this = trait_ensure (self, %s, NULL);",
+                o->Trait, o->TRAIT);
+            for (j = 0; insertion[j]; j++)
+              {
+                memmove ( &o->inbuf[i+1+j], &o->inbuf[i+j], o->ipos -(i+j));
+                o->inbuf[i+j]=insertion[j];
+                o->ipos++;
+              }
+            o->inbuf[i+j]=' ';
+            break;
+          }
+      }
+  }
+  if (o->fun_name)
+  {
+    free (o->fun_name);
+    o->fun_name = NULL;
+  }
+}
 
 void handle_at (State *o)
 {
@@ -253,8 +302,11 @@ done:
 void process_token (State *o)
 {
   int do_flush = 0;
+  
   if (o->toklen == 0)
     return;
+  if (!strcmp ("this", o->token))
+    o->used_this++;
 
   if (o->state == S_IN_END)
     {
@@ -602,10 +654,15 @@ void process_token (State *o)
                  break;
                case '}':
                  o->brackd--;
+                 if (o->brackd == 0 && o->in_fun >= 0)
+                   {
+                     o->in_fun = 0;
+                     leave_function (o);
+                   }
                  break;
                case ';':
                  o->parend = 0;
-                 FLUSH();
+                 //FLUSH();
                  break;
 
                case '(':
@@ -647,6 +704,8 @@ void process_token (State *o)
                      for (i = 0; pos + i < o->ipos; i++)
                        name[i] = o->inbuf[pos + i];
                      name[i] = 0;
+
+                     enter_function (o, name);
 
                      if (!strcmp (name, "init"))
                        {
@@ -711,8 +770,7 @@ void process_token (State *o)
                    }
                  break;
                case ')':
-                 if (o->brackd==0 && o->in_trait && o->parend==1
-                     && o->gen_header)
+                 if (o->brackd==0 && o->parend==1 && o->gen_header)
                    {
                      int start = 0;
                      int done = 0;
@@ -737,10 +795,15 @@ void process_token (State *o)
                             o->inbuf[o->ipos+start] == '/'
                             )
                        start++;
-                     if (!strstr (&o->inbuf[o->ipos+start], "static"))
+                     if (o->in_trait)
                      {
-                       o->headpos += sprintf (&o->header[o->headpos], "%s);\n", &o->inbuf[o->ipos+start]);
+                       if (!strstr (&o->inbuf[o->ipos+start], "static"))
+                       {
+                         o->headpos += sprintf (&o->header[o->headpos], "%s);\n", &o->inbuf[o->ipos+start]);
+                       }
                      }
+
+                     o->in_fun++;
                    }
                  break;
                  o->parend--;
@@ -758,7 +821,7 @@ void process_token (State *o)
              {
                case '*':
                  o->state = S_IN_COMMENT;
-                 FLUSH();
+                 //FLUSH();
                  break;
                default:
                  o->state = S_NEUTRAL;
@@ -824,8 +887,8 @@ void process_token (State *o)
     o->inbuf[o->ipos]=0;
   }
 
-  if (do_flush)
-    FLUSH();
+  //if (do_flush)
+  //  FLUSH();
     //fprintf (o->fpw, "%s", o->token);
     //printf ("%s", o->token);
 }

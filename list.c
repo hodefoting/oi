@@ -43,9 +43,8 @@ void each (void *cbp, void *user_data)
 {
   int i;
   void (*cb)(void *item, void *user_data) = cbp;
-  List *list = self@trait:get_assert (LIST);
-  for (i = 0; i < list->size; i++)
-    cb (list->items[i], user_data);
+  for (i = 0; i < this->size; i++)
+    cb (this->items[i], user_data);
 }
 
 static void destroy ()
@@ -58,7 +57,6 @@ static void destroy ()
 
 void * get (int no)
 {
-  List *this = self@trait:get_assert (LIST);
   if (no >= 0 && no < this->size)
     return this->items[no];
   return NULL;
@@ -66,7 +64,6 @@ void * get (int no)
 
 var remove_index_fast (int index)
 {
-  List *this = self@trait:get_assert (LIST);
   if (!(index >= 0 && index < this->size))
     return self;
 
@@ -80,24 +77,22 @@ var remove_index_fast (int index)
 var remove_index (int index)
 {
   int j;
-  List *list = self@trait:get_assert (LIST);
-  if (!(index >= 0 && index < list->size))
+  if (!(index >= 0 && index < this->size))
     return self;
 
-  if (list->destroy)
-    list->destroy (list->items[index], list->destroy_data);
-  list->size--;
-  for (j = index; j < list->size; j++)
-    list->items[j] = list->items[j+1];
+  if (this->destroy)
+    this->destroy (this->items[index], this->destroy_data);
+  this->size--;
+  for (j = index; j < this->size; j++)
+    this->items[j] = this->items[j+1];
   return self;
 }
 
 var remove (void *data)
 {
-  List *list = self@trait:get_assert (LIST);
   int i;
-  for (i = 0; i < list->size; i++)
-    if (list->items[i] == data)
+  for (i = 0; i < this->size; i++)
+    if (this->items[i] == data)
       {
         self@list:remove_index (i);
         return self;
@@ -107,16 +102,14 @@ var remove (void *data)
 
 int get_size ()
 {
-  List *list = self@trait:get_assert (LIST);
-  return list->size;
+  return this->size;
 }
 
 var list_remove_fast (void *data)
 {
-  List *list = self@trait:get_assert (LIST);
   int i;
-  for (i = 0; i < list->size; i++)
-    if (list->items[i] == data)
+  for (i = 0; i < this->size; i++)
+    if (this->items[i] == data)
       {
         self@list:remove_index_fast (i);
         return self;
@@ -126,33 +119,30 @@ var list_remove_fast (void *data)
 
 var remove_zombie_index_fast (int index)
 {
-  List *list = self@trait:get_assert (LIST);
-  if (!(index >= 0 && index < list->size))
+  if (!(index >= 0 && index < this->size))
     return self;
 
-  list->items[index] = list->items[list->size-1];
-  list->size--;
+  this->items[index] = this->items[this->size-1];
+  this->size--;
   return self;
 }
 
 var remove_zombie_index (int index)
 {
-  List *list = self@trait:get_assert (LIST);
   int j;
-  if (!(index >= 0 && index < list->size))
+  if (!(index >= 0 && index < this->size))
     return self;
-  list->size--;
-  for (j = index; j < list->size; j++)
-    list->items[j] = list->items[j+1];
+  this->size--;
+  for (j = index; j < this->size; j++)
+    this->items[j] = this->items[j+1];
   return self;
 }
 
 var remove_zombie (void *data)
 {
-  List *list = self@trait:get_assert (LIST);
   int i;
-  for (i = 0; i < list->size; i++)
-    if (list->items[i] == data)
+  for (i = 0; i < this->size; i++)
+    if (this->items[i] == data)
       {
         self@list:remove_zombie_index (i);
         return self;
@@ -162,10 +152,9 @@ var remove_zombie (void *data)
 
 var remove_zombie_fast (void *data)
 {
-  List *list = self@trait:get_assert (LIST);
   int i;
-  for (i = 0; i < list->size; i++)
-    if (list->items[i] == data)
+  for (i = 0; i < this->size; i++)
+    if (this->items[i] == data)
       {
         self@list:remove_zombie_index_fast (i);
         return self;
@@ -180,9 +169,8 @@ var *set_destroy (void (*destroy)(void *item, void *user_data),
 
 var set_destroy (void *destroy, void *user_data)
 {
-  List *list = self@trait:get_assert (LIST);
-  list->destroy = destroy;
-  list->destroy_data = user_data;
+  this->destroy = destroy;
+  this->destroy_data = user_data;
   return self;
 }
 
@@ -197,10 +185,9 @@ int find_custom (void *matchfunp,
                  void *user_data)
 {
   int (*match_fun)(void *item, void *user_data) = matchfunp;
-  List *list = self@trait:get_assert (LIST);
   int i;
-  for (i = 0; i < list->size; i++)
-    if (match_fun (list->items[i], user_data))
+  for (i = 0; i < this->size; i++)
+    if (match_fun (this->items[i], user_data))
       return i;
   return -1;
 }
@@ -219,19 +206,17 @@ int find (void *data)
 
 var append (void *data)
 {
-  List *list = self@trait:get_assert (LIST);
-
-  if (((list->size + CS)/CS) * CS >
-      ((list->size + (CS-1))/CS) * CS)
+  if (((this->size + CS)/CS) * CS >
+      ((this->size + (CS-1))/CS) * CS)
     {
-      if (list->items == NULL)
-        list->items = oi_malloc (sizeof (void*) * CS);
+      if (this->items == NULL)
+        this->items = oi_malloc (sizeof (void*) * CS);
       else
-        list->items = oi_realloc (list->items, sizeof (Type*) *
-                                  ((list->size + CS)/CS)*CS);
+        this->items = oi_realloc (this->items, sizeof (Type*) *
+                                  ((this->size + CS)/CS)*CS);
     }
-  list->items[list->size] = data;
-  list->size++;
+  this->items[this->size] = data;
+  this->size++;
 
   return self;
 }

@@ -40,7 +40,6 @@ typedef struct
 
 "oi:remove-trait" (void *arg, void *user_data)
 {
-  Own *this = self@trait:get_assert(OWN);
   Type *type = arg;
   int i;
 again:
@@ -101,7 +100,6 @@ static int listener_match_trait_and_name! (void *listener_entry, void *arg)
 
 static MessageEntry *get_msg_entry_write (Type *type, const char *name)
 {
-  Own *this = ((void*)self@trait:ensure (OWN, NULL));
   int no;
   MessageEntry *entry;
   void *args[]={(void*)name, type};
@@ -134,12 +132,6 @@ static void unref_instance_cb! (var instance)
 
 void add_instance (var *instance)
 {
-  /*
-  Own *this = self@trait:ensure (OWN, NULL);
-  InstanceEntry *entry = oi_malloc (sizeof(InstanceEntry));
-  this->instances@list:append (entry); 
-  entry->instance = instance;
-  */;
   self@message:listen(self, NULL, "oi:die",
       unref_instance_cb, instance);
 }

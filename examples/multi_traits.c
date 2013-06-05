@@ -10,12 +10,10 @@ static void init ()
 }
 void  set_it (float f)
 {
-  Foo *this = self@trait:ensure (FOO, NULL);
   this->number= f;
 }
 float get_it ()
 {
-  Foo *this = self@trait:ensure (FOO, NULL);
   return this->number;
 }
 @end
@@ -30,12 +28,10 @@ static void init ()
 }
 void  set_it (float f)
 {
-  Bar *this = self@trait:ensure (BAR, NULL);
   this->number= f;
 }
 float get_it ()
 {
-  Bar *this = self@trait:ensure (BAR, NULL);
   return this->number;
 }
 @end

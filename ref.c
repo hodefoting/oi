@@ -30,7 +30,6 @@ static void init ()
 
 var inc ()
 {
-  Ref *this= self@trait:ensure (REF, NULL);
   if (self@trait:get (MUTEX))
     self@mutex:lock ();
   this->count++;
@@ -41,10 +40,11 @@ var inc ()
 
 var dec ()
 {
-  Ref *this = self@trait:get (REF);
+  /* using other_this is that we do not trigger addition of ref trait */
+  Ref *other_this = self@trait:get (REF);
   if (self@trait:get (MUTEX))
     self@mutex:lock ();
-  if (!this || -- this->count == 0)
+  if (!other_this || -- other_this->count == 0)
     {
       self@var:finalize ();
       return NULL;

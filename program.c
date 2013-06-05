@@ -37,7 +37,6 @@ static void init (char **argv)
 
 var get_args ()
 {
-  Program *this = self@trait:get (PROGRAM);
   return this->args;
 }
 

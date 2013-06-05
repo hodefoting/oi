@@ -42,20 +42,18 @@ static void destroy ()
 
 var lock ()
 {
-  Mutex *mutex = self@trait:ensure (MUTEX, NULL);
-  pthread_mutex_lock (&mutex->mutex);
-  mutex->lock++;
+  pthread_mutex_lock (&this->mutex);
+  this->lock++;
   return self;
 }
 
 int trylock ()
 {
-  Mutex *mutex = self@trait:get (MUTEX);
   int res;
-  res = pthread_mutex_trylock (&mutex->mutex);
+  res = pthread_mutex_trylock (&this->mutex);
   if (!res)
     {
-      mutex->lock++;
+      this->lock++;
       return 0;
     }
   return res;
@@ -63,10 +61,9 @@ int trylock ()
 
 void unlock ()
 {
-  Mutex *mutex = self@trait:get (MUTEX);
-  if (!mutex || mutex->lock-- == 0)
+  if (!this || this->lock-- == 0)
     fprintf (stderr, "unlocking unlocked mutex!\n");
-  pthread_mutex_unlock (&mutex->mutex);
+  pthread_mutex_unlock (&this->mutex);
 }
 
 @end

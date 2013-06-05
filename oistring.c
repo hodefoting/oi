@@ -20,8 +20,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#define OI_STRING(oi) ((String*)trait_get_assert (oi, STRING))
-
 @trait String
 {
   char      *data;
@@ -49,7 +47,6 @@ static void destroy ()
 
 var clear ()
 {
-  String *this = OI_STRING (self);
   this->len = 0;
   this->data[this->len]=0;
   return self;
@@ -57,7 +54,6 @@ var clear ()
 
 var appendc (int val)
 {
-  String *this = OI_STRING (self);
   if (this->len + 2 >= this->allocated)
     {
       char *old = this->data;
@@ -93,7 +89,6 @@ var append_string (var oi2)
 }
 const char *get ()
 {
-  String *this = OI_STRING (self);
   return this->data;
 }
 
@@ -103,7 +98,6 @@ const char *get ()
 
 char *dissolve   ()
 {
-  String *this = OI_STRING (self);
   char *ret = this->data;
   this->data = NULL;
   self@var:finalize();

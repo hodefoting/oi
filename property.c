@@ -75,7 +75,6 @@ void each (void (*cb)(const char *key, void *item, void *user_data),
 void each (void *cb, void *user_data)
 {
   void *args[] = {cb, user_data};
-  Property *this = (self@trait:get (PROPERTY));
   if (this)
     this->props@list:each(each_wrapper, args);
 }
