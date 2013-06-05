@@ -13,6 +13,7 @@ CFLAGS += -Wall -Wextra
 
 oicc/oicc: oicc/*.c
 	CC=gcc make -C oicc all
+	oicc/oipp *.c > /dev/null # generate initial headers
 
 #%.c:%.C /usr/local/bin/oicc /usr/local/bin/oipp
 #	oipp $< > $@
@@ -20,6 +21,7 @@ oicc/oicc: oicc/*.c
 clean: clean-too
 clean-too:
 	make -C oicc clean
+	rm -f `echo *.h | sed s/oi-mem\.h// | sed s/oi\.h//`
 install: install-too
 install-too:
 	make -C oicc install
