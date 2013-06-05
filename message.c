@@ -47,14 +47,14 @@ int listen (var           listener,
             void         *callback,
             void         *user_data)
 {
-  Message *message = (Message*)trait_ensure (self, MESSAGE, NULL);
+  Message *this = (Message*)trait_ensure (self, MESSAGE, NULL);
   MessageEntry *entry;
   entry = oi_malloc (sizeof (MessageEntry));
   entry->message_name = message_name;
   entry->callback = callback;
   entry->user_data = user_data;
 
-  message->callbacks@list:append (entry);
+  this->callbacks@list:append (entry);
 
   self@"oi:message-connect"((void*)message_name);
 
@@ -62,18 +62,18 @@ int listen (var           listener,
    * away the message callback goes away.
    */
   if (listener)
-    listener@own:add_message_cb (listener_trait, message_name, list_get_size (message->callbacks)-1);
+    listener@own:add_message_cb (listener_trait, message_name, list_get_size (this->callbacks)-1);
 
-  return (message->callbacks@list:get_size () - 1);
+  return (this->callbacks@list:get_size () - 1);
 }
 
 void handler_disconnect (int handler_id)
 {
-  Message *message = self@trait:get(MESSAGE);
-  if (!message)
+  Message *this = self@trait:get(MESSAGE);
+  if (!this)
     return;
-  self@"oi:message-disconnect"((void*)((MessageEntry*)list_get (message->callbacks, handler_id))->message_name);
-  message->callbacks@list:remove_index (handler_id);
+  self@"oi:message-disconnect"((void*)((MessageEntry*)list_get (this->callbacks, handler_id))->message_name);
+  this->callbacks@list:remove_index (handler_id);
 }
 
 static void emit_matching! (void *entr, void *data)
@@ -91,11 +91,11 @@ static void emit_matching! (void *entr, void *data)
 void emit (const char *message_name,
            void       *arg)
 {
-  Message *message = self@trait:get(MESSAGE);
-  if (message)//self@trait:check (MESSAGE))
+  Message *this = self@trait:get(MESSAGE);
+  if (this)//self@trait:check (MESSAGE))
     {
       void *emit_data[4] = {self, (void*)message_name, arg, NULL};
-      list_each (message->callbacks, emit_matching, emit_data);
+      list_each (this->callbacks, emit_matching, emit_data);
       if (emit_data[3] == NULL && strcmp(message_name, "message-trap"))
         {
           self@"message-trap"((void*)message_name);
@@ -109,12 +109,12 @@ static void free_sentry! (void *sentry)
 }
 static void init ()
 {
-  message->callbacks = @list:new ();
-  message->callbacks@list:set_destroy ((void*) free_sentry, NULL);
+  this->callbacks = @list:new ();
+  this->callbacks@list:set_destroy ((void*) free_sentry, NULL);
 }
 static void destroy ()
 {
-  message->callbacks@var:finalize();
+  this->callbacks@var:finalize();
 }
 
 
@@ -196,11 +196,11 @@ match_func! (void *entryp, void *callback)
 
 void handler_disconnect_by_func (void *callback)
 {
-  Message *message = self@trait:get(MESSAGE);
+  Message *this = self@trait:get(MESSAGE);
   int no;
-  if (!message)
+  if (!this)
     return;
-  no = message->callbacks@list:find_custom (match_func, callback);
+  no = this->callbacks@list:find_custom (match_func, callback);
   if (no>=0)
     self@message:handler_disconnect (no);
 }

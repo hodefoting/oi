@@ -51,13 +51,13 @@ typedef struct
 static void prop_destroy! (PropertyEntry *entry, void *user_data);
 static void init ()
 {
-  property->props = @list:new ();
-  property->props@list:set_destroy ((void*) prop_destroy, NULL);
+  this->props = @list:new ();
+  this->props@list:set_destroy ((void*) prop_destroy, NULL);
 }
 
 static void destroy ()
 {
-  property->props@var:finalize();
+  this->props@var:finalize();
 }
 
 static void
@@ -75,9 +75,9 @@ void each (void (*cb)(const char *key, void *item, void *user_data),
 void each (void *cb, void *user_data)
 {
   void *args[] = {cb, user_data};
-  Property *property = (self@trait:get (PROPERTY));
-  if (property)
-    property->props@list:each(each_wrapper, args);
+  Property *this = (self@trait:get (PROPERTY));
+  if (this)
+    this->props@list:each(each_wrapper, args);
 }
 
 static void prop_unset! (PropertyEntry *entry)
@@ -109,18 +109,18 @@ static int match_name! (void *property_entry, const char *name)
 }
 static PropertyEntry *oi_get_entry_read! (var oi, const char *name)
 {
-  Property *property = ((void*)trait_ensure (oi, PROPERTY, NULL));
+  Property *this = ((void*)trait_ensure (oi, PROPERTY, NULL));
   int no;
   PropertyEntry *entry;
-  no = property->props@list:find_custom ((void*)match_name, (void*)name);
+  no = this->props@list:find_custom ((void*)match_name, (void*)name);
   oi@mutex:lock (); /* XXX: is this lock really needed? */
   if (no >= 0)
-    entry = property->props@list:get (no);
+    entry = this->props@list:get (no);
   else
     {
       entry = oi_malloc (sizeof (PropertyEntry));
       entry->name = name@oi:strdup ();
-      property->props@list:append (entry);
+      this->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
       entry->o.value_int = 0;
     } 
@@ -130,14 +130,14 @@ static PropertyEntry *oi_get_entry_read! (var oi, const char *name)
 
 static PropertyEntry *oi_get_entry_write! (var oi, const char *name)
 {
-  Property *property = ((void*)trait_ensure (oi, PROPERTY, NULL));
+  Property *this = ((void*)trait_ensure (oi, PROPERTY, NULL));
   int no;
   PropertyEntry *entry;
   oi@mutex:lock ();
-  no = property->props@list:find_custom((void*)match_name, (void*)name);
+  no = this->props@list:find_custom((void*)match_name, (void*)name);
   if (no >= 0)
     {
-      entry = property->props@list:get(no);
+      entry = this->props@list:get(no);
       prop_unset (entry);
     }
   else
@@ -145,7 +145,7 @@ static PropertyEntry *oi_get_entry_write! (var oi, const char *name)
       entry = oi_malloc (sizeof (PropertyEntry));
       entry->name = name@oi:strdup();
       entry->o.value_int = 0;
-      property->props@list:append (entry);
+      this->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
     } /* XXX: oicc hack*/ ;
   oi@mutex:unlock ();

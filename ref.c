@@ -25,15 +25,15 @@
 
 static void init ()
 {
-  ref->count = 1;
+  this->count = 1;
 }
 
 var inc ()
 {
-  Ref *ref = self@trait:ensure (REF, NULL);
+  Ref *this= self@trait:ensure (REF, NULL);
   if (self@trait:get (MUTEX))
     self@mutex:lock ();
-  ref->count++;
+  this->count++;
   if (self@trait:get (MUTEX))
     self@mutex:unlock ();
   return self;
@@ -41,10 +41,10 @@ var inc ()
 
 var dec ()
 {
-  Ref *ref = self@trait:get (REF);
+  Ref *this = self@trait:get (REF);
   if (self@trait:get (MUTEX))
     self@mutex:lock ();
-  if (!ref || -- ref->count == 0)
+  if (!this || -- this->count == 0)
     {
       self@var:finalize ();
       return NULL;

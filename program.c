@@ -25,20 +25,20 @@
 
 static void init (char **argv)
 {
-  program->args = @list:new();
+  this->args = @list:new();
   self@["name"oi]=string_new(argv[0]);
   argv++;
   while (*argv)
     {
-      program->args@list:append (string_new (*argv));
+      this->args@list:append (string_new (*argv));
       argv++;
     }
 }
 
 var get_args ()
 {
-  Program *program = self@trait:get (PROGRAM);
-  return program->args;
+  Program *this = self@trait:get (PROGRAM);
+  return this->args;
 }
 
 @end

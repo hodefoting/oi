@@ -6,17 +6,17 @@
 };
 static void init ()
 {
-  foo->number = 42.0;
+  this->number = 42.0;
 }
 void  set_it (float f)
 {
-  Foo *foo = self@trait:ensure (FOO, NULL);
-  foo->number= f;
+  Foo *this = self@trait:ensure (FOO, NULL);
+  this->number= f;
 }
 float get_it ()
 {
-  Foo *foo = self@trait:ensure (FOO, NULL);
-  return foo->number;
+  Foo *this = self@trait:ensure (FOO, NULL);
+  return this->number;
 }
 @end
 
@@ -26,17 +26,17 @@ float get_it ()
 };
 static void init ()
 {
-  bar->number = 23.0;
+  this->number = 23.0;
 }
 void  set_it (float f)
 {
-  Bar *bar = self@trait:ensure (BAR, NULL);
-  bar->number= f;
+  Bar *this = self@trait:ensure (BAR, NULL);
+  this->number= f;
 }
 float get_it ()
 {
-  Bar *foo = self@trait:ensure (BAR, NULL);
-  return foo->number;
+  Bar *this = self@trait:ensure (BAR, NULL);
+  return this->number;
 }
 @end
 

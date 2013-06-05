@@ -694,7 +694,7 @@ void process_token (State *o)
                      else if (!strcmp (name, "init") ||
                          !strcmp (name, "destroy"))
                      {
-                     sprintf (tempbuf, "%s_%s (var self, %s *%s", o->trait, name, o->Trait, o->trait);
+                     sprintf (tempbuf, "%s_%s (var self, %s *this", o->trait, name, o->Trait);
                      }
                      else
                      sprintf (tempbuf, "%s_%s (var self", o->trait, name);

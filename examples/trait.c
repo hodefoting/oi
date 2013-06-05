@@ -7,19 +7,19 @@
 
 static void init ()
 {
-  foo->number = 1.0;
+  this->number = 1.0;
 }
 
 void  set_it (float f)
 {
-  Foo *foo = self@trait:ensure (FOO, NULL);
-  foo->number= f;
+  Foo *this = self@trait:ensure (FOO, NULL);
+  this->number= f;
 }
 
 float get_it ()
 {
-  Foo *foo = self@trait:ensure (FOO, NULL);
-  return foo->number;
+  Foo *this = self@trait:ensure (FOO, NULL);
+  return this->number;
 }
 
 @end

@@ -32,9 +32,9 @@
 /* this is where the initial string should be set.. */
 static void init (const char *initial)
 {
-  string->allocated = 8;
-  string->len = 0;
-  string->data = oi_malloc (string->allocated);
+  this->allocated = 8;
+  this->len = 0;
+  this->data = oi_malloc (this->allocated);
 
   if (initial)
     {
@@ -43,31 +43,31 @@ static void init (const char *initial)
 }
 static void destroy ()
 {
-  if (string->data)
-    oi_free (string->allocated, string->data);
+  if (this->data)
+    oi_free (this->allocated, this->data);
 }
 
 var clear ()
 {
-  String *string = OI_STRING (self);
-  string->len = 0;
-  string->data[string->len]=0;
+  String *this = OI_STRING (self);
+  this->len = 0;
+  this->data[this->len]=0;
   return self;
 }
 
 var appendc (int val)
 {
-  String *string = OI_STRING (self);
-  if (string->len + 2 >= string->allocated)
+  String *this = OI_STRING (self);
+  if (this->len + 2 >= this->allocated)
     {
-      char *old = string->data;
-      string->allocated *= 2;
-      string->data = oi_malloc (string->allocated);
-      memcpy (string->data, old, string->allocated/2);
-      oi_free (string->allocated/2, old);
+      char *old = this->data;
+      this->allocated *= 2;
+      this->data = oi_malloc (this->allocated);
+      memcpy (this->data, old, this->allocated/2);
+      oi_free (this->allocated/2, old);
     }
-  string->data[string->len++] = val;
-  string->data[string->len] = '\0';
+  this->data[this->len++] = val;
+  this->data[this->len] = '\0';
   return self;
 }
 
@@ -93,8 +93,8 @@ var append_string (var oi2)
 }
 const char *get ()
 {
-  String *string = OI_STRING (self);
-  return string->data;
+  String *this = OI_STRING (self);
+  return this->data;
 }
 
 /* dissolving a string, means destroying it, but returning
@@ -103,9 +103,9 @@ const char *get ()
 
 char *dissolve   ()
 {
-  String *string = OI_STRING (self);
-  char *ret = string->data;
-  string->data = NULL;
+  String *this = OI_STRING (self);
+  char *ret = this->data;
+  this->data = NULL;
   self@var:finalize();
   return ret;
 }

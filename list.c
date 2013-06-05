@@ -32,9 +32,9 @@
 
 static void init ()
 {
-  list->items = NULL;
-  list->destroy = NULL;
-  list->size  = 0;
+  this->items = NULL;
+  this->destroy = NULL;
+  this->size  = 0;
 }
 
 /* void each (void (*cb)(void *item, void *user_data), void *user_data) */
@@ -50,30 +50,30 @@ void each (void *cbp, void *user_data)
 
 static void destroy ()
 {
-  if (list->destroy)
-    self@list:each (list->destroy, list->destroy_data);
-  if (list->items)
-    oi_free (((list->size + CS)/CS)*CS, list->items);
+  if (this->destroy)
+    self@list:each (this->destroy, this->destroy_data);
+  if (this->items)
+    oi_free (((this->size + CS)/CS)*CS, this->items);
 }
 
 void * get (int no)
 {
-  List *list = self@trait:get_assert (LIST);
-  if (no >= 0 && no < list->size)
-    return list->items[no];
+  List *this = self@trait:get_assert (LIST);
+  if (no >= 0 && no < this->size)
+    return this->items[no];
   return NULL;
 }
 
 var remove_index_fast (int index)
 {
-  List *list = self@trait:get_assert (LIST);
-  if (!(index >= 0 && index < list->size))
+  List *this = self@trait:get_assert (LIST);
+  if (!(index >= 0 && index < this->size))
     return self;
 
-  if (list->destroy)
-    list->destroy (list->items[index], list->destroy_data);
-  list->items[index] = list->items[list->size-1];
-  list->size--;
+  if (this->destroy)
+    this->destroy (this->items[index], this->destroy_data);
+  this->items[index] = this->items[this->size-1];
+  this->size--;
   return self;
 }
 
