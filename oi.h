@@ -60,6 +60,7 @@ void     var_finalize (Var *oi);
 
 #include "oi-mem.h"
 
+#include "own.h"
 /* core capabilities */
 #include "trait.h"
 #include "property.h"

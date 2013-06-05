@@ -19,98 +19,8 @@
 #include <unistd.h>
 #include "oi.h"
 #include "pthread.h"
+
 @generateheader
-
-@trait MsgDisconnect
-{
-  Var *list;
-};
-
-typedef struct
-{
-  Type *type;
-  char *name;
-  int   id;
-} ListenerEntry;
-
-"oi:remove-trait" (void *arg, void *user_data)
-{
-  MsgDisconnect *msgdc = self@trait:get_assert(MSG_DISCONNECT);
-  Type *type = arg;
-  int i;
-again:
-  for (i = 0; i < (msgdc->list@list:get_size()); i++)
-    {
-      ListenerEntry *entry = msgdc->list@list:get(i);
-      if (entry->type == type)
-        {
-          self@message:handler_disconnect (entry->id);
-          msgdc->list@list:remove(entry);
-          goto again;
-        }
-    }
-  if (msgdc->list@list:get_size () == 0)
-    self@trait:remove (MSG_DISCONNECT);
-    /* we are no longer needed, so remove ourself */
-  return 0;
-}
-
-static void lnrfree! (ListenerEntry *entry)
-{
-  if (entry->name)
-    oi_strfree (entry->name);
-  oi_free (sizeof (ListenerEntry), entry);
-}
-
-static void init ()
-{
-  msg_disconnect->list= @list:new ();
-  msg_disconnect->list@list:set_destroy ((void*)lnrfree, NULL);
-}
-
-static void destroy ()
-{
-  msg_disconnect->list@var:finalize();
-
-  self@message:handler_disconnect_by_func ((void*)msg_disconnect_oi_remove_trait_cb);
-}
-
-static int listener_match_trait_and_name! (void *listener_entry, void *arg)
-{
-  void **args=arg;
-  ListenerEntry *entry = listener_entry;
-  return (entry->type == args[1] && !strcmp (entry->name, args[0]));
-}
-
-static ListenerEntry *get_entry_write (Type *type, const char *name)
-{
-  MsgDisconnect *msgdc = ((void*)self@trait:ensure (MSG_DISCONNECT, NULL));
-  int no;
-  ListenerEntry *entry;
-  void *args[]={(void*)name, type};
-  no = msgdc->list@list:find_custom ((void*)listener_match_trait_and_name, args);
-  if (no >= 0)
-    entry = msgdc->list@list:get (no);
-  else
-    {
-      entry = oi_malloc (sizeof (ListenerEntry));
-      entry->name = oi_strdup (name);
-      msgdc->list@list:append (entry);
-    }
-  return entry;
-}
-
-static void add (void *trait, const char *name, int id)
-{
-  Type *type = NULL;
-  if (trait)
-    type = *( (Type**)(trait));
-  ListenerEntry *entry = self@msg_disconnect:get_entry_write (type, name);
-  entry->type = type;
-  entry->id = id;
-}
-
-@end
 
 @trait Message
 {
@@ -152,7 +62,7 @@ int listen (Var          *oi_self,
    * away the message callback goes away.
    */
   if (oi_self)
-    oi_self@msg_disconnect:add (trait_self, message_name, list_get_size (message->callbacks)-1);
+    oi_self@own:add_message_cb (trait_self, message_name, list_get_size (message->callbacks)-1);
 
   return (message->callbacks@list:get_size () - 1);
 }
