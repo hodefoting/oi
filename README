@@ -1,57 +1,46 @@
-I like exploring ideas by compulsively writing code. GObject provides a way to
-do inheritance based higher level programming; at the cost of having to write
-quite a bit of boiler plate.
-
 This is an experiment in writing a dynamically configurable type system in C
 where traits/capabilities can be added and removed on instances at runtime.
 
-Encapsulation within an instance is done by developing orthogonal traits that
-each carry state and has methods per instance. Traits can be instantiated on
-demand by their methods on the instance they are called on, providing a highly
-dynamic programming environment.
+Encapsulation within an instance is done by developing orthogonal modules of
+data and logic called traits.  Traits can be added to an instantiated on
+demand by the traits methods, providing a highly dynamic programming
+environment.
+
+The core traits are demand driven, and are added as needed when the relevant
+API methods like ref_inc or set_float or listening to particular message. This
+ensures that the size of each instance remains low.
 
 The core traits in Oi:
 
-TRAIT    - handles memory management and life cycle management of the other
+TRAIT      handles memory management and life cycle management of the other
            capabilities/traits on an object.
 
-LIST     - provides a container API and storage of pointers, allows to register
+LIST       provides a container API and storage of pointers, allows to register
            a destruction function when items are removed.
 
-REFCOUNT - provides reference counting mechanism that is added implicitly when
-           oi_ref(oi) is called. Calling oi_unref(oi) without having a reference
-           causes direct destruction without allocating the memory needed to
-           keep reference counting state.
+REF        provides reference counting mechanism that is added implicitly when
+           @ref:inc() is called. Calling @ref:dec() without having a reference
+           causes direct destruction - without instantiating the ref trait.
 
-PROPERTIES - provides implictly created storage for key/value pairs of
-           floats,ints, strings, pointers and oi instances. Does not have
-           a proper concept of paramspecs yet.
+PROPERTY   provides implictly created storage for key/value pairs of
+           floats,ints, strings, pointers and oi instances.
 
-MESSAGE  - signalling mechanism - capabilities can listen for messages emitted
+MESSAGE    Signalling mechanism - capabilities can listen for messages emitted
            on the instance itself or on other instances. Use of messages permits
            a form of polymorphism by swapping out capabilities responding
-           to given messages. Messages created by capabilities should be 
-           associated with the capability, this makes the message listener 
-           automatically be destroyed when the listener is destroyed.
-           Weak references can be implemented by attaching to an objects
-           "oi:die" signal for full instances or by listening for
-           "oi:remove-capability".
+           to given messages.
 
-The core capabilities are demand driven, and are added as needed when the
-relevant API methods like ref_inc or set_float or listening to particular
-message. This ensures that the size of each instance remains low.
+OWN        Ownership tracking, to make working with manual reference counting
+           easier. The Own trait tracks destruction of traits/instances
+           and can disconnect message handlers or unref instances that an
+           owner-ship is held for. Adding per-trait malloc/free; that is
+           also tracked this way would give talloc like functionality as well.
 
-Building additional capabilities that can be instantiated alone (like the 
-list can) or capabilitiess that cooperate among other capabilitiess in an
-object as well as with other objects permits flexible creation of dynamic
-structures.
+Oi exist both as a C level API, that provides a traditional OOP with C like
+calling semantic; passing the instance as the first argument. And as an
+extension to C that transforms to the aforementioned C API; with a 1:1
+matching for the lines - allowing it to be used as a gcc front-end providing
+warnings with correct line numbers.
 
 By making a trait ensure the existance of a dependent trait one can implement
 traditional inheritance with a chain of these.
-
-Performance
------------
-
-Performance of the system seems to be good, comparison with roughly equivalent
-gobject code indicates that this systems overhead is smaller. (see test in
-examples/).

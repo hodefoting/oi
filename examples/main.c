@@ -10,8 +10,6 @@ static void each_arg_cb (Var argb, void *oi)
 {
   Var test = var_new (NULL,NULL);
 
-  test@property:each (cb, test);
-
   printf ("%s\n", self@["name"oi]@string:get());
   printf ("%i arguments\n", args@list:get_size());
 

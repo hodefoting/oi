@@ -1,12 +1,16 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <glib.h>
+#include <string.h>
+#include <glib-object.h>
 #include "oi.h"
 
+#define TEST_ITERATIONS 100000
+
+/* disable things that would slow down gobject */
 #define G_DISABLE_ASSERT
 #define G_DISABLE_CHECKS
 #define G_DISABLE_CAST_CHECKS
-#define TEST_ITERATIONS 1000000
 
 long oi_ticks (void);
 static struct timeval start_time;
@@ -274,12 +278,6 @@ struct _GObjClass
 {
   GObjectClass parent_class;
 };
-
-
-
-#include <string.h>
-
-#include <glib-object.h>
 
 
 enum
