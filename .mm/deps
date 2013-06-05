@@ -1,0 +1,3 @@
+deps: $(LIB_CFILES) $(LIB_HFILES) $(BIN_CFILES) $(BIN_HFILES) Makefile
+	@echo "deps" $@;$(CC) $(LIB_CFLAGS) -MM $^ > $@
+

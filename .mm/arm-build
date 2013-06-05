@@ -1,0 +1,24 @@
+# hack to build using android ndk's passing -DDROID which is picked up in some
+# of the code for special casing the android build.
+#
+# Maybe, just maybe - the binaries built this way also work on the raspberry
+# pi..
+ANDROID_PATH=$(HOME)/android/android-ndk-r8b
+ANDROID_SYSROOT=$(ANDROID_PATH)/platforms/android-14/arch-arm
+ANDROID_BIN=    $(ANDROID_PATH)/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86/bin
+ANDROID_GCC=    $(ANDROID_BIN)/arm-linux-androideabi-gcc
+ANDROID_LD=     $(ANDROID_BIN)/arm-linux-androideabi-ld
+ANDROID_STRIP=  $(ANDROID_BIN)/arm-linux-androideabi-strip
+
+$(BINARY).arm: $(BIN_CFILES) $(LIBNAME).a bin/argvs-commands.inc
+	make clean; \
+	test "$(BINARY)" && CFLAGS=-DDROID SYSROOT=--sysroot=$(ANDROID_SYSROOT) CC=$(ANDROID_GCC) LD=$(ANDROID_LD) make $(BINARY)
+	test "$(LIBNAME)" && CFLAGS=-DDROID SYSROOT=--sysroot=$(ANDROID_SYSROOT) CC=$(ANDROID_GCC) LD=$(ANDROID_LD) make $(LIBNAME).$(LIBEXT)
+	mv $(BINARY) $@
+	$(ANDROID_STRIP) $@
+
+CLEAN_FILES += $(BINARY).arm
+
+help: _armhelp
+_armhelp:
+	@echo "$(BINARY).arm    - do a build using android/arm toolchain"

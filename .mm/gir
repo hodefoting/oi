@@ -1,0 +1,20 @@
+GIR_VERSIONED=$(GIR_NAME)-$(API_VERSION)
+
+$(GIR_VERSIONED).typelib: $(GIR_VERSIONED).gir
+	@echo " gen" $@; g-ir-compiler --includedir=. $(GIR_VERSIONED).gir -o $@
+
+$(GIR_VERSIONED).gir: $(LIBNAME).$(LIBEXT)
+	@echo " gen" $@; g-ir-scanner -L `pwd` --library=$(PROJECT_NAME) --pkg=$(GIR_PKG) \
+               --nsversion=$(GIR_VERSION) -n $(GIR_NAME) --symbol-prefix=$(SYMBOL_PREFIX) \
+                --warn-all *.[ch] -o $@ > /dev/null
+
+
+all: $(GIR_VERSIONED).typelib
+CLEAN_FILES+=$(GIR_VERSIONED).gir $(GIR_VERSIONED).typelib
+install: _install_gir
+_install_gir:: $(GIR_VERSIONED).typelib
+	sudo install -d $(DESTDIR)$(PREFIX)/girepository-1.0
+	sudo install -t $(DESTDIR)$(PREFIX)/girepository-1.0 $(GIR_VERSIONED).typelib
+uninstall: _install_gir
+_uninstall_gir:
+	sudo rm -rf $(DESTDIR)$(PREFIX)/girepository-1.0/$(GIR_VERSIONED).typelib

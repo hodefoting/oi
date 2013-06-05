@@ -1,0 +1,18 @@
+# utility for building more sub projects living as part of ourself
+# expecting standard make / make clean / make install behavior for them
+# list all of them in the variable WORLD=
+
+sudo-install: all
+	sudo make install
+world: sudo-install 
+	@for a in $(WORLD);do echo Building $$a; make -C $$a;done
+world-install: sudo-install
+	@for a in $(WORLD);do echo Building $$a; make -C $$a; sudo make -C $$a install;done
+world-clean: clean
+	@for a in $(WORLD);do echo Building $$a; make -C $$a clean; done
+
+
+_worldhelp:
+	@echo "world world-clean world install - build and install this lib, then do action on: $(WORLD)"
+
+help: _worldhelp

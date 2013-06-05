@@ -1,13 +1,13 @@
 CC = ./oicc/oicc
 
-include ../.mm/magic
+include .mm/magic
 
 
 EXAMPLES_PKGMODULES=gobject-2.0
 LIB_PKGMODULES=
 PROJECT_NAME      = oi
 
-include ../.mm/lib
+include .mm/lib
 
 CFLAGS += -Wall -Wextra
 

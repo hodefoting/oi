@@ -217,7 +217,6 @@ int find (void *data)
   return (self@list:find_custom (match_direct, data));
 }
 
-
 var append (void *data)
 {
   List *list = self@trait:get_assert (LIST);

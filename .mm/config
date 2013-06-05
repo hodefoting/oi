@@ -1,0 +1,11 @@
+
+all: config.h
+
+PROJECT_NAME_CAPS=$(shell echo $(PROJECT_NAME) | tr [:lower:] [:upper:])
+
+CLEAN_FILES+= config.h
+config.h:
+	@echo "#define $(PROJECT_NAME_CAPS)_VERSION_MAJOR $(LIB_MAJOR_VERSION)" > $@
+	@echo "#define $(PROJECT_NAME_CAPS)_VERSION_MINOR $(LIB_MINOR_VERSION)" >> $@
+	@echo "#define $(PROJECT_NAME_CAPS)_VERSION_MICRO $(LIB_MICRO_VERSION)" >> $@
+

@@ -1,0 +1,8 @@
+TIMESTAMP?=$(shell date +%Y%m%d-%H%M)
+PACKAGE=../$(PROJECT_NAME)-$(TIMESTAMP).tar.bz2
+# the refusal to dist on untracked files.. is a bit mean
+$(PACKAGE): clean $(BIN_CFILES) $(BIN_HFILES)
+	@git status . | grep "# Untracked files:" > /dev/null && git status . || (\
+	cd ..;tar cjvf $(PROJECT_NAME)-$(TIMESTAMP).tar.bz2 $(PROJECT_NAME)/*;\
+	cd -;ls -slah ../$(PROJECT_NAME)-$(TIMESTAMP).tar.bz2 ) 
+dist: $(PACKAGE) 

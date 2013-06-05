@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# magic make projects do not really need a configure, one is
+# provided though for some pre-build sanity checking as well
+# as providing a common interface to specifying things like
+# the desired installation prefix.
+
+# buildapi-variable-no-builddir
+# buildapi-variable-supports-runtime-devel
+
+echo > config
+while [ "$1" ] ; do
+  if ( echo $1 | grep "^--prefix=" > /dev/null ); then
+    echo PREFIX=`echo $1 | sed 's/^--prefix=//'` >> config
+    exit
+  fi
+  if ( echo $1 | grep "^--libdir=" > /dev/null ); then
+    echo LIBDIR=`echo $1 | sed 's/^--libdir=//'` >> config
+    exit
+  fi
+  if ( echo $1 | grep "^CFLAGS=" > /dev/null ); then
+    echo CFLAGS=`echo $1 | sed 's/^CFLAGS=//'` >> config
+    exit
+  fi
+  if ( echo $1 | grep "^CXXFLAGS=" > /dev/null ); then
+    echo CXXFLAGS=`echo $1 | sed 's/^CXXFLAGS=//'` >> config
+    exit
+  fi
+
+  if [ "x$1" = "x--help" ]; then
+    echo ""
+    echo "Usage:"
+    echo "  ./configure [--prefix=/opt] [--libdir=/lib] [CFLAGS='-Ofast'] [CXXFLAGS='..']"
+    echo ""
+    exit 0
+  fi
+
+  shift;
+done
+
+echo The configure script for `make _name`
+echo ""
+echo "checking for dependencies"
+
+deps='pkg-config make sed'
+for a in $deps;do which $a || ( echo "$a missing"; exit);done
+
+make _pkgtest || exit
+echo ""
+echo "It seems like we are ready for make"

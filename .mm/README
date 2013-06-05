@@ -1,0 +1,23 @@
+The files in this folder are makefile snippets, they can be reused across
+projects without much change at all.
+
+Features:
+  uses wildcards, no need to add files to project when adding code
+  works best with pkg-config based dependencies
+  is just plain makefile and shellscript - feasible to understand
+  dist target - creates tarball if git status . is clean
+  generic script and gnu diff based test driving framework
+
+Magic make is a project in progress, but as my need for deduplicating my build
+processes grow it might be growin in capability.
+
+How to use:
+  drop a symlink into your project and include the parts needed from
+  you main Makefile with import .mm/lib inside your own makefile - see the
+  examples for a few skeleton projects that even use their directorys
+  name as the basis for configuring the project name.
+
+Desirable todos:
+  On dist: create a bundle of the included makefiles and drop it in as the
+  makefile in the directory - leaving the distribution with a simpler file
+  structure.
