@@ -254,6 +254,7 @@ foo:
                  * the next char is a )*/
 
                 int foo = o->inbuf[a];
+                o->state = S_MAYBE_COMMA;
                 switch (o->inbuf[a])
                 {
                   case '(':
@@ -265,13 +266,18 @@ foo:
                   default:
                   if (trait[0]=='"')
                   {
-                  
-                    sprintf (tempbuf, "message_emit (%s, %s", preamble, trait);
+                    if (o->token[0]=='(')
+                    {
+                      sprintf (tempbuf, "message_emit (%s, %s", preamble, trait);
+                    }
+                    else
+                    {
+                      sprintf (tempbuf, "string_new (%s)%c", trait, o->token[0]);
+                      o->state = S_NEUTRAL;
+                    }
                   }
                   break;
                 }
-
-                o->state = S_MAYBE_COMMA;
               }
                   //fprintf (stderr, "%s\n", tempbuf);
 
