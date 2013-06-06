@@ -87,6 +87,8 @@ static void init ()
 static void destroy ()
 {
   this->message_cbs@var:finalize();
+  this->custom@var:finalize();
+  this->instances@var:finalize();
 
   self@message:handler_disconnect_by_func ((void*)own_oi_remove_trait_cb);
 }
