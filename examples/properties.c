@@ -3,7 +3,7 @@
 
 static void cb (const char *name, void *value, void* oi)
 {
-  printf ("%s %f\n", name, oi@oi:get_float(name));
+  printf ("%s %f\n", name, oi@property:get_float(name));
 }
 void list_properties (var oi)
 {

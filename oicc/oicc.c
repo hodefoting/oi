@@ -213,7 +213,7 @@ foo:
                       type[a-start] = o->inbuf[a];
                     }
                   type[a-start]=0;
-                  sprintf (tempbuf, "oi_get_%s (%s, \"%s\")", type, preamble, name);
+                  sprintf (tempbuf, "property_get_%s (%s, \"%s\")", type, preamble, name);
 
                   o->state = S_MAYBE_EQUALS;
                 }
@@ -546,8 +546,8 @@ void process_token (State *o)
         {
           int i;
           for (i = o->ipos;
-              !(o->inbuf[i-2]=='o' &&
-                o->inbuf[i-1]=='i' &&
+              !(o->inbuf[i-2]=='t' &&
+                o->inbuf[i-1]=='y' &&
                 o->inbuf[i+0]=='_' &&
                 o->inbuf[i+1]=='g' &&
                 o->inbuf[i+2]=='e' &&

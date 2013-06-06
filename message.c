@@ -132,10 +132,10 @@ static void dispatch_queue_thread! (void *data)
 
           //oi_lock (queue);
           i = queue@list:get (0);
-          oi =           i@oi:get_oi ("oi");
-          message_name = i@oi:get_string ("message");
-          arg =          i@oi:get_pointer ("arg");
-          closure =      i@oi:get_pointer ("closure");
+          oi =           i@property:get_oi ("oi");
+          message_name = i@property:get_string ("message");
+          arg =          i@property:get_pointer ("arg");
+          closure =      i@property:get_pointer ("closure");
           oi@message:emit (message_name, arg);
           oi@ref:dec ();
           queue@list:remove_index (0);
@@ -173,10 +173,10 @@ void emit_remote (const char *message_name,
 {
   var item = var_new(NULL, NULL);
   dispatch_queue ()@mutex:lock ();
-  item@oi:set_oi      ("oi", self);
-  item@oi:set_string  ("message", message_name);
-  item@oi:set_pointer ("arg", arg);
-  item@oi:set_pointer ("closure", closure);
+  item@property:set_oi      ("oi", self);
+  item@property:set_string  ("message", message_name);
+  item@property:set_pointer ("arg", arg);
+  item@property:set_pointer ("closure", closure);
   dispatch_queue ()@list:append (item);
   dispatch_queue ()@mutex:unlock ();
 }
