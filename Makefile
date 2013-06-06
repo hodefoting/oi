@@ -2,6 +2,8 @@ CC = ./oicc/oicc
 
 include .mm/magic
 
+SYMBOL_PREFIX =
+
 LIB_LD_FLAGS += -lpthread
 EXAMPLES_PKGMODULES=
 LIB_PKGMODULES=
