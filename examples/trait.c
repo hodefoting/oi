@@ -34,5 +34,6 @@ float get_it ()
 
   test@ref:dec ();
 
+  self@ref:dec ();
   return 0;
 }

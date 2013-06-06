@@ -19,5 +19,6 @@
   test@"hello"("void");
   test@"hello"(NULL);
   test@ref:dec();
+  self@ref:dec();
   return 0;
 }

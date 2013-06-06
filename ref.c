@@ -40,11 +40,10 @@ var inc ()
 
 var dec ()
 {
-  /* using other_this is that we do not trigger addition of ref trait */
-  Ref *other_this = self@trait:get (REF);
+  Ref *ref = self@trait:get (REF);
   if (self@trait:get (MUTEX))
     self@mutex:lock ();
-  if (!other_this || -- other_this->count == 0)
+  if (!ref || -- ref->count == 0)
     {
       self@var:finalize ();
       return NULL;

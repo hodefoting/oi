@@ -23,10 +23,16 @@
   var args;
 };
 
+static void destroy ()
+{
+  this->args@ref:dec();
+}
+
 static void init (char **argv)
 {
   this->args = @list:new();
-  self@["name"oi]=string_new(argv[0]);
+  this->args@list:set_destroy (ref_dec, NULL);
+  self@["name"string]=argv[0];
   argv++;
   while (*argv)
     {

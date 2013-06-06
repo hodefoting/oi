@@ -20,5 +20,6 @@ void list_properties (var oi)
   list_properties (test);
 
   test@ref:dec();
+  self@ref:dec ();
   return 0;
 }

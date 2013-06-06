@@ -54,5 +54,6 @@ float get_it ()
   printf ("%f %f\n", test@foo:get_it(), test@bar:get_it());
 
   test@ref:dec ();
+  self@ref:dec ();
   return 0;
 }
