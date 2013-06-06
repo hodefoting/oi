@@ -2,8 +2,8 @@ CC = ./oicc/oicc
 
 include .mm/magic
 
-
-EXAMPLES_PKGMODULES=gobject-2.0
+LIB_LD_FLAGS += -lpthread
+EXAMPLES_PKGMODULES=
 LIB_PKGMODULES=
 PROJECT_NAME      = oi
 

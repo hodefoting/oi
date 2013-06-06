@@ -92,7 +92,7 @@ void *ensure (Type *trait, var args)
   return res;
 }
 
-#define ALLOC_CHUNK   16
+#define ALLOC_CHUNK   4
 
 /* adds an trait to an instance */
 void add (Type *type, var args)
