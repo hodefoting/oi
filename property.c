@@ -111,7 +111,7 @@ static PropertyEntry *get_entry_read (const char *name)
   int no;
   PropertyEntry *entry;
   no = this->props@list:find_custom ((void*)match_name, (void*)name);
-  self@mutex:lock (); /* XXX: is this lock really needed? */
+  //self@mutex:lock (); /* XXX: is this lock really needed? */
   if (no >= 0)
     entry = this->props@list:get (no);
   else
@@ -122,7 +122,7 @@ static PropertyEntry *get_entry_read (const char *name)
       entry->type = OI_PTYPE_INT;
       entry->o.value_int = 0;
     } 
-  self@mutex:unlock ();
+  //self@mutex:unlock ();
   return entry;
 }
 

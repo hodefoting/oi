@@ -34,6 +34,11 @@ static inline void check_dead ()
   if (self->trait_count == DEATH_MARK) fprintf (stderr, "Eeek");
 }
 
+int is_dead ()
+{
+  return (self->trait_count == DEATH_MARK);
+}
+
 /* checks if the object has the given trait */
 int check (Type *trait)
 {

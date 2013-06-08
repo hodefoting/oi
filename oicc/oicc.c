@@ -1001,7 +1001,7 @@ int oicc_filter (FILE *fpr, FILE *fpw, const char *header_name)
 
   if (state.gen_header && state.headpos)
     {
-      FILE * hf = fopen (header_name, "w");
+      char header[40960];
       {
         char *flattened = strdup (header_name);
         int i;
@@ -1014,19 +1014,33 @@ int oicc_filter (FILE *fpr, FILE *fpw, const char *header_name)
             default:flattened[i] = toupper(flattened[i]);
           }
         }
-        fprintf (hf, "/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */\n", flattened);
-        fprintf (hf, "/* !!!! GENERATED GENERATED GENERATED GENERATED GENERATED GENERATED   !!!! */\n", flattened);
-        fprintf (hf, "/* !!!!                                                               !!!! */\n", flattened);
-        fprintf (hf, "/* !!!! this file is generated from the corresponding .c file by oicc !!!! */\n", flattened);
-        fprintf (hf, "/* !!!!                                                               !!!! */\n", flattened);
-        fprintf (hf, "/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */\n", flattened);
-        fprintf (hf, "#ifndef _%s_\n", flattened);
-        fprintf (hf, "#define  _%s_\n", flattened);
-        fprintf (hf, "%s", state.header);
-        fprintf (hf, "#endif\n");
+        sprintf (header,
+"/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */\n"
+"/* !!!! GENERATED GENERATED GENERATED GENERATED GENERATED GENERATED   !!!! */\n"
+"/* !!!!                                                               !!!! */\n"
+"/* !!!! this file is generated from the corresponding .c file by oicc !!!! */\n"
+"/* !!!!                                                               !!!! */\n"
+"/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */\n"
+"#ifndef _%s_\n"
+"#define  _%s_\n"
+"%s"
+"#endif\n", flattened, flattened, state.header);
         free (flattened);
+      
+        FILE * hf = fopen (header_name, "r");
+        if (hf)
+          {
+            fread (state.header, 1, sizeof (state.header), hf);
+            fclose (hf);
+          }
+
+        if (hf == NULL || strcmp (state.header, header))
+          {
+            hf = fopen (header_name, "w");
+            fprintf (hf, "%s", header);
+            fclose (hf);
+          }
       }
-      fclose (hf);
 
     }
 

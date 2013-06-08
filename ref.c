@@ -38,8 +38,14 @@ var inc ()
   return self;
 }
 
+#include <stdio.h>
+
 var dec ()
 {
+  if (self@trait:is_dead())
+    {
+      fprintf (stderr, "was dead\n");
+    }
   Ref *ref = self@trait:get (REF);
   if (self@trait:get (MUTEX))
     self@mutex:lock ();
