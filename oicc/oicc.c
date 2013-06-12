@@ -160,6 +160,7 @@ void handle_at (State *o)
           //case '>': /* cannot be here, since derferencing uses it..
           //check for -?  */
           case '<':
+          case '!':
           case '}':
           case '{':
 

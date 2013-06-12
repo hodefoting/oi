@@ -52,6 +52,94 @@ var clear ()
   return self;
 }
 
+static char *unicode_to_utf8! (char *p, unsigned int code)
+{
+  /* attribution:
+   * http://stackoverflow.com/questions/4607413/c-library-to-convert-unicode-code-points-to-utf8
+   * answer by http://stackoverflow.com/users/379897/r*/
+  char *orig_p = p;
+  if (code<0x80)
+    *p++=code;
+  else if (code<0x800)
+    {
+      *p++=192+code/64;
+      *p++=128+code%64;
+    }
+  else if (code-0xd800u<0x800)
+    goto error;
+  else if (code<0x10000)
+    {
+      *p++=224+code/4096;
+      *p++=128+code/64%64;
+      *p++=128+code%64;
+    }
+  else if (code<0x110000)
+    {
+      *p++=240+code/262144;
+      *p++=128+code/4096%64;
+      *p++=128+code/64%64;
+      *p++=128+code%64;
+    }
+  else
+    goto error;
+  *p = '\0';
+  return p;
+error:
+  *orig_p = '\0';
+  return orig_p;
+}
+
+/* given that this is first byte of the character,
+ i ow many bytes is the character occupy?
+*/
+static int NumberOfUTF8Chars! (unsigned char ch)
+{
+if (ch < 0x80u) return 1;
+else if (ch < 0xE0u) return 2;
+else if (ch < 0xF0u) return 3;
+else if (ch < 0xF8u) return 4;
+else if (ch < 0xFCu) return 5;
+else return 6;
+}
+ 
+/* given that this is first byte of the character,
+   what is the code value of that character?
+
+attribution: http://mytecblog.wordpress.com/2008/12/23/simple-utf-8-c-decoder/
+   */
+unsigned int utf8_to_unicode (const char* ch)
+{
+  unsigned int Value;
+  int Size = NumberOfUTF8Chars( *ch );
+  switch( Size )
+  {
+    case 6:
+    Value  = ch[0] & 0x01;
+    break;
+    case 5:
+    Value  = ch[0] & 0x03;
+    break;
+    case 4:
+    Value  = ch[0] & 0x07;
+    break;
+    case 3:
+    Value  = ch[0] & 0x0F;
+    break;
+    case 2:
+    Value  = ch[0] & 0x1F;
+    break;
+    case 1:
+    Value = ch[0];
+  }
+   
+  for ( int i= 1; i < Size; i++ )
+  {
+  Value = Value << 6 | (ch[i] & 0x3F);
+  }
+  return Value;
+}
+
+
 var appendc (int val)
 {
   if (this->len + 2 >= this->allocated)
@@ -76,6 +164,14 @@ var append_str (const char *str)
     }
   return self;
 }
+
+var append_unicode (unsigned int val)
+{
+  char buf[6];
+  unicode_to_utf8 (buf, val);
+  return (self@string:append_str (buf));
+}
+
 
 var append_string (var oi2)
 {
