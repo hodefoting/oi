@@ -52,7 +52,7 @@ var clear ()
   return self;
 }
 
-static char *unicode_to_utf8! (char *p, unsigned int code)
+char *unicode_to_utf8! (char *p, unsigned int code)
 {
   /* attribution:
    * http://stackoverflow.com/questions/4607413/c-library-to-convert-unicode-code-points-to-utf8
@@ -92,7 +92,7 @@ error:
 /* given that this is first byte of the character,
  i ow many bytes is the character occupy?
 */
-static int NumberOfUTF8Chars! (unsigned char ch)
+int utf8_len !(unsigned char ch)
 {
 if (ch < 0x80u) return 1;
 else if (ch < 0xE0u) return 2;
@@ -101,44 +101,54 @@ else if (ch < 0xF8u) return 4;
 else if (ch < 0xFCu) return 5;
 else return 6;
 }
+
+/** from nchant by pippin: */
+
+int utf8_strlen (unsigned char *s)
+{
+  int count;
+  if (!s)
+    return 0;
+  for (count = 0; *s; s++)
+    if ((*s & 0xC0) != 0x80)
+      count ++;
+  return count;
+}
  
 /* given that this is first byte of the character,
    what is the code value of that character?
 
 attribution: http://mytecblog.wordpress.com/2008/12/23/simple-utf-8-c-decoder/
    */
-unsigned int utf8_to_unicode (const char* ch)
+unsigned int utf8_to_unicode! (const char* ch)
 {
-  unsigned int Value;
-  int Size = NumberOfUTF8Chars( *ch );
-  switch( Size )
+  unsigned int value = 0;
+  int len = utf8_len (*ch);
+  switch (len)
   {
     case 6:
-    Value  = ch[0] & 0x01;
-    break;
+      value = ch[0] & 0x01;
+      break;
     case 5:
-    Value  = ch[0] & 0x03;
-    break;
+      value = ch[0] & 0x03;
+      break;
     case 4:
-    Value  = ch[0] & 0x07;
-    break;
+      value = ch[0] & 0x07;
+      break;
     case 3:
-    Value  = ch[0] & 0x0F;
-    break;
+      value = ch[0] & 0x0F;
+      break;
     case 2:
-    Value  = ch[0] & 0x1F;
-    break;
+      value = ch[0] & 0x1F;
+      break;
     case 1:
-    Value = ch[0];
+      value = ch[0];
+      break;
   }
-   
-  for ( int i= 1; i < Size; i++ )
-  {
-  Value = Value << 6 | (ch[i] & 0x3F);
-  }
-  return Value;
+  for ( int i= 1; i < len; i++ )
+    value = value << 6 | (ch[i] & 0x3F);
+  return value;
 }
-
 
 var appendc (int val)
 {
