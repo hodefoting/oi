@@ -44,7 +44,7 @@ typedef struct
     int         value_int;
     const char *value_string;
     void       *value_pointer;
-    var          value_oi;
+    var         value_oi;
   } o;
 } PropertyEntry;
 
@@ -151,57 +151,95 @@ static PropertyEntry *get_entry_write (const char *name)
 
 void set_float (const char *name, float       value)
 {
-  PropertyEntry *entry = self@property:get_entry_write (name);
-  int changed = entry->o.value_float != value;
-  entry->o.value_float = value;
-  entry->type = OI_PTYPE_FLOAT;
-  if (changed)
+  PropertyEntry *entry = self@property:get_entry_read (name);
+
+  if (!entry ||
+      entry->type != OI_PTYPE_FLOAT ||
+      (entry->type == OI_PTYPE_FLOAT && entry->o.value_float != value))
+
+  {
+    entry = self@property:get_entry_write (name);
+    self@"pre-notify"((void*)name);
+    entry->o.value_float = value;
+    entry->type = OI_PTYPE_FLOAT;
     self@"notify"((void*)name);
+  }
 }
 
 void set_int (const char *name, int         value)
 {
-  PropertyEntry *entry = self@property:get_entry_write (name);
-  int changed = entry->o.value_int != value;
-  entry->type = OI_PTYPE_INT;
-  entry->o.value_int = value;
-  if (changed)
-    self@"notify"((void*)name);
+  PropertyEntry *entry = self@property:get_entry_read (name);
+
+  if (!entry ||
+      entry->type != OI_PTYPE_INT ||
+      (entry->type == OI_PTYPE_INT && entry->o.value_int != value))
+    {
+      self@"pre-notify"((void*)name);
+      entry = self@property:get_entry_write (name);
+      entry->type = OI_PTYPE_INT;
+      entry->o.value_int = value;
+      self@"notify"((void*)name);
+    }
 }
 void set_string (const char *name, const char *value)
 {
-  PropertyEntry *entry = self@property:get_entry_write (name);
-  entry->type = OI_PTYPE_STRING;
+  PropertyEntry *entry = self@property:get_entry_read (name);
+
+  if (!entry ||
+      entry->type != OI_PTYPE_STRING ||
+      (entry->type == OI_PTYPE_STRING && strcmp(entry->o.value_string, value)))
+      {
+
+        entry = self@property:get_entry_write (name);
+        self@"pre-notify"((void*)name);
+        entry->type = OI_PTYPE_STRING;
 #define OFF_BY_FUDGE 1
 
-  if (value)
-    {
-      char *tmp = oi_malloc (strlen (value) + 1 + OFF_BY_FUDGE);
-      memcpy (tmp, value, strlen (value));
-      tmp[strlen(value)]=0;
-      entry->o.value_string = tmp;
-    }
-  else
-    entry->o.value_string = NULL;
-  self@"notify"((void*)name);
+      if (value)
+        {
+          char *tmp = oi_malloc (strlen (value) + 1 + OFF_BY_FUDGE);
+          memcpy (tmp, value, strlen (value));
+          tmp[strlen(value)]=0;
+          entry->o.value_string = tmp;
+        }
+      else
+        entry->o.value_string = NULL;
+      self@"notify"((void*)name);
+      }
 }
 void set_oi (const char *name, var value)
 {
-  PropertyEntry *entry = self@property:get_entry_write (name);
-  entry->type = OI_PTYPE_OI;
-  if (value)
-    entry->o.value_oi = value@ref:inc();
-  else
-    entry->o.value_oi = NULL;
-  self@"notify"((void*)name);
+  PropertyEntry *entry = self@property:get_entry_read (name);
+
+  if (!entry ||
+      entry->type != OI_PTYPE_OI ||
+      (entry->type == OI_PTYPE_OI && entry->o.value_oi != value))
+  {
+    self@"pre-notify"((void*)name);
+    entry = self@property:get_entry_write (name);
+    entry->type = OI_PTYPE_OI;
+    if (value)
+      entry->o.value_oi = value@ref:inc();
+    else
+      entry->o.value_oi = NULL;
+    self@"notify"((void*)name);
+  }
 }
 
 void set_pointer (const char *name, void       *value)
 {
-  PropertyEntry *entry = self@property:get_entry_write (name);
-  entry->type = OI_PTYPE_POINTER;
-  entry->o.value_pointer = value;
-  self@"notify"((void*)name);
+  PropertyEntry *entry = self@property:get_entry_read (name);
+
+  if (!entry ||
+      entry->type != OI_PTYPE_POINTER || 
+      (entry->type == OI_PTYPE_POINTER && entry->o.value_pointer != value))
+  {
+    PropertyEntry *entry = self@property:get_entry_write (name);
+    self@"pre-notify"((void*)name);
+    entry->type = OI_PTYPE_POINTER;
+    entry->o.value_pointer = value;
+    self@"notify"((void*)name);
+  }
 }
 
 float get_float (const char *name)
