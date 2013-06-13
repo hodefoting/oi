@@ -105,7 +105,7 @@ int get_size ()
   return this->size;
 }
 
-var list_remove_fast (void *data)
+var remove_fast (void *data)
 {
   int i;
   for (i = 0; i < this->size; i++)
