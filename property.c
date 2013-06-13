@@ -111,18 +111,17 @@ static PropertyEntry *get_entry_read (const char *name)
   int no;
   PropertyEntry *entry;
   no = this->props@list:find_custom ((void*)match_name, (void*)name);
-  //self@mutex:lock (); /* XXX: is this lock really needed? */
   if (no >= 0)
     entry = this->props@list:get (no);
   else
     {
+      /* reading the property creates it! */
       entry = oi_malloc (sizeof (PropertyEntry));
       entry->name = name@oi:strdup ();
       this->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
       entry->o.value_int = 0;
     } 
-  //self@mutex:unlock ();
   return entry;
 }
 

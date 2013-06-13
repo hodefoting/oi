@@ -31,6 +31,8 @@
 
 static inline void check_dead ()
 {
+  if (!self)
+    return;
   if (self->trait_count == DEATH_MARK) fprintf (stderr, "Eeek");
 }
 
@@ -43,6 +45,8 @@ int is_dead ()
 int check (Type *trait)
 {
   int i;
+  if (!self)
+    return 0;
   self@trait:check_dead ();
   if (trait == TRAIT)
     return 1;
@@ -56,6 +60,8 @@ int check (Type *trait)
 void *get (Type *trait)
 {
   int i;
+  if (!self)
+    return NULL;
   self@trait:check_dead ();
   if (trait == TRAIT)
     return (Trait*)self;
@@ -102,6 +108,8 @@ void *ensure (Type *trait, var args)
 /* adds an trait to an instance */
 void add (Type *type, var args)
 {
+  if (!self)
+    return;
   self@trait:check_dead ();
   if (type == TRAIT)
     return;
@@ -122,13 +130,14 @@ void add (Type *type, var args)
                              ((self->trait_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK );
     }
 
-  self->traits[self->trait_count] = oi_malloc (type->size);
-  self->traits[self->trait_count]->trait_type = type;
+  int trait_no = self->trait_count;
   self->trait_count++;
+  self->traits[trait_no] = oi_malloc (type->size);
+  self->traits[trait_no]->trait_type = type;
   if (type->init)
-    type->init (self, self->traits[self->trait_count-1], args);
+    type->init (self, self->traits[trait_no], args);
   if (type->init_int)
-    type->init_int (self, self->traits[self->trait_count-1]);
+    type->init_int (self, self->traits[trait_no]);
 
   self@"oi:add-trait"(type);
 }
