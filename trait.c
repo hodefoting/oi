@@ -41,21 +41,6 @@ int is_dead ()
   return (self->trait_count == DEATH_MARK);
 }
 
-/* checks if the object has the given trait */
-int check (Type *trait)
-{
-  int i;
-  if (!self)
-    return 0;
-  self@trait:check_dead ();
-  if (trait == TRAIT)
-    return 1;
-  for (i = 0; i < self->trait_count; i++)
-    if (self->traits[i]->trait_type == trait)
-      return 1;
-  return 0;
-}
-
 /* gets the trait, if any */
 void *get (Type *trait)
 {
@@ -98,7 +83,7 @@ static void add (Type *type, var args)
   self@trait:check_dead ();
   if (type == TRAIT)
     return;
-  if (self@trait:check (type))
+  if (self@trait:get (type))
     {
       fprintf (stderr, "Object %p already have trait \"%s\"\n",
                self, type->name);
@@ -158,7 +143,7 @@ void remove (Type *trait)
   self@trait:check_dead ();
   if (trait == TRAIT)
     return;
-  if (!trait_check (self, trait))
+  if (!trait_get (self, trait))
     {
       fprintf (stderr, "Object %p doesn't have trait \"%s\"\n", self, trait->name);
       return;
