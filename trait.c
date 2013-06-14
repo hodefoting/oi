@@ -88,25 +88,10 @@ void *get_assert (Type *trait)
   return res;
 }
 
-/* gets the trait, creates and adds it if it doesn't already exist */
-void *ensure (Type *trait, var args)
-{
-  Trait *res = self@trait:get (trait);
-  self@trait:check_dead ();
-  if (trait == TRAIT)
-    return (Trait*)self;
-  if (!res)
-    {
-      self@trait:add (trait, args);
-      res = self@trait:get (trait);
-    }
-  return res;
-}
-
 #define ALLOC_CHUNK   4
 
 /* adds an trait to an instance */
-void add (Type *type, var args)
+static void add (Type *type, var args)
 {
   if (!self)
     return;
@@ -141,6 +126,22 @@ void add (Type *type, var args)
 
   self@"oi:add-trait"(type);
 }
+
+/* gets the trait, creates and adds it if it doesn't already exist */
+void *ensure (Type *trait, var args)
+{
+  Trait *res = self@trait:get (trait);
+  self@trait:check_dead ();
+  if (trait == TRAIT)
+    return (Trait*)self;
+  if (!res)
+    {
+      self@trait:add (trait, args);
+      res = self@trait:get (trait);
+    }
+  return res;
+}
+
 
 static void trait_destroy (Trait *trait)
 {
