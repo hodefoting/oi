@@ -79,6 +79,23 @@ void each (void *cb, void *user_data)
     this->props@list:each(each_wrapper, args);
 }
 
+
+static void
+add_to_list! (void *item, void *value, void *user_data)
+{
+  const char *entry = item;
+  var list = user_data;
+  list@list:append((void*)entry);
+}
+
+var list ()
+{
+  var ret = var_new (LIST, NULL);
+  self@property:each(add_to_list, ret);
+  //ret@list:set_destroy(oi_free, NULL);
+  return ret;
+}
+
 static void prop_unset! (PropertyEntry *entry)
 {
   if (entry->type == OI_PTYPE_STRING && entry->o.value_string)
