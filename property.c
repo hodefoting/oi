@@ -281,16 +281,30 @@ int get_int (const char *name)
 
 const char *get_string (const char *name)
 {
+  /* can possibly get away without having a lock on it.. */
+  static char ret_buf[128][32];
+  static int sretbuf_no = 0;
+  int retbuf_no = sretbuf_no++;
+  if (sretbuf_no>=128)
+    sretbuf_no=0;
+
   PropertyEntry *entry = self@property:get_entry_read (name);
   if (!entry)
     return "";
   switch (entry->type)
     {
-      case OI_PTYPE_INT:    return "(int)";   /* XXX: printf it?, but where to keep the value?.. keep a rotating buffer, and only permit that many concurrent users? .. evil ugly hack.. 
-      */
-      case OI_PTYPE_FLOAT:  return "(float)"; /* XXX: .....  */
       case OI_PTYPE_STRING: return entry->value.as_string;
-      case OI_PTYPE_POINTER:return "(pointer)";
+      case OI_PTYPE_INT:
+        sprintf(ret_buf[retbuf_no], "%i", entry->value.as_int);
+        return ret_buf[retbuf_no];
+      case OI_PTYPE_FLOAT:
+        sprintf(ret_buf[retbuf_no], "%f", entry->value.as_float);
+        return ret_buf[retbuf_no];
+      case OI_PTYPE_POINTER:
+        sprintf(ret_buf[retbuf_no], "<%p>", entry->value.as_pointer);
+      case OI_PTYPE_OI:
+        sprintf(ret_buf[retbuf_no], "<oi%p>", entry->value.as_oi);
+        return ret_buf[retbuf_no];
       default:              return "()";
     }
 }
