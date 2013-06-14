@@ -51,6 +51,20 @@ Type *NAME = &NAME##_trait;
 #include "own.h"
 /* core capabilities */
 #include "trait.h"
+
+/* we define property type globally, since use of properties
+ * is common; having a common integer type reference to them
+ * is useful.
+ */
+typedef enum
+{
+  OI_PTYPE_FLOAT,
+  OI_PTYPE_INT,
+  OI_PTYPE_STRING,
+  OI_PTYPE_POINTER,
+  OI_PTYPE_OI
+} PropertyType;
+
 #include "property.h"
 #include "message.h"
 #include "ref.h"

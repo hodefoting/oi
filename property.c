@@ -26,26 +26,17 @@
   var props;
 };
 
-typedef enum
-{
-  OI_PTYPE_FLOAT,
-  OI_PTYPE_INT,
-  OI_PTYPE_STRING,
-  OI_PTYPE_POINTER,
-  OI_PTYPE_OI
-} PropertyType;
-
 typedef struct
 {
-  const char *name;
-  PropertyType type;
+  PropertyType  type;
+  const char   *name; /* quark it */
   union {
-    float       value_float;
-    int         value_int;
-    const char *value_string;
-    void       *value_pointer;
-    var         value_oi;
-  } o;
+    float       as_float;
+    int         as_int;
+    const char *as_string;
+    void       *as_pointer;
+    var         as_oi;
+  } value;
 } PropertyEntry;
 
 static void prop_destroy! (PropertyEntry *entry, void *user_data);
@@ -98,15 +89,15 @@ var list ()
 
 static void prop_unset! (PropertyEntry *entry)
 {
-  if (entry->type == OI_PTYPE_STRING && entry->o.value_string)
+  if (entry->type == OI_PTYPE_STRING && entry->value.as_string)
     {
-      oi_strfree ((void*)entry->o.value_string);
-      entry->o.value_string = NULL;
+      oi_strfree ((void*)entry->value.as_string);
+      entry->value.as_string = NULL;
     }
-  else if (entry->type == OI_PTYPE_OI && entry->o.value_oi)
+  else if (entry->type == OI_PTYPE_OI && entry->value.as_oi)
     {
-      entry->o.value_oi@ref:dec ();
-      entry->o.value_oi = NULL;
+      entry->value.as_oi@ref:dec ();
+      entry->value.as_oi = NULL;
     }
 }
 
@@ -126,18 +117,20 @@ static int match_name! (void *property_entry, const char *name)
 static PropertyEntry *get_entry_read (const char *name)
 {
   int no;
-  PropertyEntry *entry;
+  PropertyEntry *entry = NULL;
   no = this->props@list:find_custom ((void*)match_name, (void*)name);
   if (no >= 0)
     entry = this->props@list:get (no);
   else
     {
+#if 0
       /* reading the property creates it! */
       entry = oi_malloc (sizeof (PropertyEntry));
       entry->name = name@oi:strdup ();
       this->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
-      entry->o.value_int = 0;
+      entry->value.as_int = 0;
+#endif
     } 
   return entry;
 }
@@ -157,7 +150,7 @@ static PropertyEntry *get_entry_write (const char *name)
     {
       entry = oi_malloc (sizeof (PropertyEntry));
       entry->name = name@oi:strdup();
-      entry->o.value_int = 0;
+      entry->value.as_int = 0;
       this->props@list:append (entry);
       entry->type = OI_PTYPE_INT;
     } /* XXX: oicc hack*/ ;
@@ -171,12 +164,12 @@ void set_float (const char *name, float       value)
 
   if (!entry ||
       entry->type != OI_PTYPE_FLOAT ||
-      (entry->type == OI_PTYPE_FLOAT && entry->o.value_float != value))
+      (entry->type == OI_PTYPE_FLOAT && entry->value.as_float != value))
 
   {
     entry = self@property:get_entry_write (name);
     self@"pre-notify"((void*)name);
-    entry->o.value_float = value;
+    entry->value.as_float = value;
     entry->type = OI_PTYPE_FLOAT;
     self@"notify"((void*)name);
   }
@@ -188,12 +181,12 @@ void set_int (const char *name, int         value)
 
   if (!entry ||
       entry->type != OI_PTYPE_INT ||
-      (entry->type == OI_PTYPE_INT && entry->o.value_int != value))
+      (entry->type == OI_PTYPE_INT && entry->value.as_int != value))
     {
       self@"pre-notify"((void*)name);
       entry = self@property:get_entry_write (name);
       entry->type = OI_PTYPE_INT;
-      entry->o.value_int = value;
+      entry->value.as_int = value;
       self@"notify"((void*)name);
     }
 }
@@ -203,7 +196,7 @@ void set_string (const char *name, const char *value)
 
   if (!entry ||
       entry->type != OI_PTYPE_STRING ||
-      (entry->type == OI_PTYPE_STRING && strcmp(entry->o.value_string, value)))
+      (entry->type == OI_PTYPE_STRING && strcmp(entry->value.as_string, value)))
       {
 
         entry = self@property:get_entry_write (name);
@@ -216,10 +209,10 @@ void set_string (const char *name, const char *value)
           char *tmp = oi_malloc (strlen (value) + 1 + OFF_BY_FUDGE);
           memcpy (tmp, value, strlen (value));
           tmp[strlen(value)]=0;
-          entry->o.value_string = tmp;
+          entry->value.as_string = tmp;
         }
       else
-        entry->o.value_string = NULL;
+        entry->value.as_string = NULL;
       self@"notify"((void*)name);
       }
 }
@@ -229,15 +222,15 @@ void set_oi (const char *name, var value)
 
   if (!entry ||
       entry->type != OI_PTYPE_OI ||
-      (entry->type == OI_PTYPE_OI && entry->o.value_oi != value))
+      (entry->type == OI_PTYPE_OI && entry->value.as_oi != value))
   {
     self@"pre-notify"((void*)name);
     entry = self@property:get_entry_write (name);
     entry->type = OI_PTYPE_OI;
     if (value)
-      entry->o.value_oi = value@ref:inc();
+      entry->value.as_oi = value@ref:inc();
     else
-      entry->o.value_oi = NULL;
+      entry->value.as_oi = NULL;
     self@"notify"((void*)name);
   }
 }
@@ -248,12 +241,12 @@ void set_pointer (const char *name, void       *value)
 
   if (!entry ||
       entry->type != OI_PTYPE_POINTER || 
-      (entry->type == OI_PTYPE_POINTER && entry->o.value_pointer != value))
+      (entry->type == OI_PTYPE_POINTER && entry->value.as_pointer != value))
   {
     PropertyEntry *entry = self@property:get_entry_write (name);
     self@"pre-notify"((void*)name);
     entry->type = OI_PTYPE_POINTER;
-    entry->o.value_pointer = value;
+    entry->value.as_pointer = value;
     self@"notify"((void*)name);
   }
 }
@@ -261,11 +254,13 @@ void set_pointer (const char *name, void       *value)
 float get_float (const char *name)
 {
   PropertyEntry *entry = self@property:get_entry_read (name);
+  if (!entry)
+    return 0.0;
   switch (entry->type)
     {
-      case OI_PTYPE_INT:    return entry->o.value_int;
-      case OI_PTYPE_FLOAT:  return entry->o.value_float;
-      case OI_PTYPE_STRING: return atof(entry->o.value_string);
+      case OI_PTYPE_INT:    return entry->value.as_int;
+      case OI_PTYPE_FLOAT:  return entry->value.as_float;
+      case OI_PTYPE_STRING: return atof(entry->value.as_string);
       default: return 0.0;
     }
 }
@@ -273,11 +268,13 @@ float get_float (const char *name)
 int get_int (const char *name)
 {
   PropertyEntry *entry = self@property:get_entry_read (name);
+  if (!entry)
+    return 0;
   switch (entry->type)
     {
-      case OI_PTYPE_INT:    return entry->o.value_int;
-      case OI_PTYPE_FLOAT:  return entry->o.value_float;
-      case OI_PTYPE_STRING: return atof(entry->o.value_string);
+      case OI_PTYPE_INT:    return entry->value.as_int;
+      case OI_PTYPE_FLOAT:  return entry->value.as_float;
+      case OI_PTYPE_STRING: return atof(entry->value.as_string);
       default: return 0.0;
     }
 }
@@ -285,11 +282,14 @@ int get_int (const char *name)
 const char *get_string (const char *name)
 {
   PropertyEntry *entry = self@property:get_entry_read (name);
+  if (!entry)
+    return "";
   switch (entry->type)
     {
-      case OI_PTYPE_INT:    return "(int)";   /* XXX: printf it?, but const? */
+      case OI_PTYPE_INT:    return "(int)";   /* XXX: printf it?, but where to keep the value?.. keep a rotating buffer, and only permit that many concurrent users? .. evil ugly hack.. 
+      */
       case OI_PTYPE_FLOAT:  return "(float)"; /* XXX: .....  */
-      case OI_PTYPE_STRING: return entry->o.value_string;
+      case OI_PTYPE_STRING: return entry->value.as_string;
       case OI_PTYPE_POINTER:return "(pointer)";
       default:              return "()";
     }
@@ -298,9 +298,11 @@ const char *get_string (const char *name)
 var get_oi (const char *name)
 {
   PropertyEntry *entry = self@property:get_entry_read (name);
+  if (!entry)
+    return NULL;
   switch (entry->type)
     {
-      case OI_PTYPE_OI: return (entry->o.value_oi@ref:inc());
+      case OI_PTYPE_OI: return (entry->value.as_oi@ref:inc());
       default:          return NULL;
     }
 }
@@ -308,19 +310,26 @@ var get_oi (const char *name)
 void  *get_pointer (const char *name)
 {
   PropertyEntry *entry = self@property:get_entry_read (name);
+  if (!entry)
+    return NULL;
   switch (entry->type)
     {
-      case OI_PTYPE_POINTER: return entry->o.value_pointer;
+      case OI_PTYPE_POINTER: return entry->value.as_pointer;
       default: return NULL;
     }
 }
 
-int is_string (const char *name)
+PropertyType type (const char *name)
 {
   PropertyEntry *entry = self@property:get_entry_read (name);
   if (!entry)
     return 0;
-  return entry->type == OI_PTYPE_STRING;
+  return entry->type;
+}
+
+int is_string (const char *name)
+{
+  return (self@property:type(name) == OI_PTYPE_STRING);
 }
 
 @end
