@@ -178,11 +178,24 @@ static void finalize ()
 /* get a list of traits, the returned list of pointers is NULL terminated
  * and should not be freed by the caller.
  */
-void **list (int *count)
+static void **list_int (int *count)
 {
   if (count)
     *count = self->trait_count;
   return (void*)self->traits;
+}
+
+var list ()
+{
+  var ret = var_new(LIST, NULL);
+  int i;
+  int count;
+  Type ***tlist = (void*)self@trait:list_int (&count);
+  for (i = 0; i < count; i ++)
+     {
+       ret@list:append((void*)(*(*tlist[i])).name);
+     }
+  return ret;
 }
 
 /* used to implement the object reaping side of oi_unref; do not use
