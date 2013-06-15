@@ -1210,7 +1210,7 @@ int filtered_cc (char commandline[])
   if (lpos)
     output_linebuf (linebuf);
   lpos = 0;
-  return pclose(pipe);
+  exit (pclose(pipe));
 }
 
 static int oicc_main (int argc, char **argv)
