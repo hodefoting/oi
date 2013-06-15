@@ -25,7 +25,7 @@
   int      trait_count;
   /* XXX: this could be a treap */
   Trait  **traits;
-};
+} PACKED;
 
 #define DEATH_MARK   -66
 
@@ -85,7 +85,7 @@ static void add (Type *type, var args)
     return;
   if (self@trait:get (type))
     {
-      fprintf (stderr, "Object %p already have trait \"%s\"\n",
+      fprintf (stderr, "Object %p already has trait \"%s\"\n",
                self, type->name);
       return;
     }

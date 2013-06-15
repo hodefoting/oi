@@ -41,6 +41,3 @@ calling semantic; passing the instance as the first argument. And as an
 extension to C that transforms to the aforementioned C API; with a 1:1
 matching for the lines - allowing it to be used as a gcc front-end providing
 warnings with correct line numbers.
-
-By making a trait ensure the existance of a dependent trait one can implement
-traditional inheritance with a chain of these.

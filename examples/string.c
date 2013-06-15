@@ -13,7 +13,6 @@
   printf ("%s\n", test@string:get());
 
   test@ref:dec();
-    
-  self@ref:dec ();
+  self@ref:dec();
   return 0;
 }

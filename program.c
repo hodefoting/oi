@@ -21,7 +21,7 @@
 @trait Program
 {
   var args;
-};
+} PACKED;
 
 static void destroy ()
 {

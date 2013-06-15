@@ -23,7 +23,7 @@
   var message_cbs;
   var instances;
   var custom;
-};
+} PACKED;
 
 typedef struct
 {

@@ -23,9 +23,9 @@
 
 @trait Mutex
 {
-  int             lock;
   pthread_mutex_t mutex;
-};
+  char            lock;
+} PACKED;
 
 static void init ()
 {

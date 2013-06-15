@@ -16,7 +16,6 @@ static void each_arg_cb (var argb, void *oi)
   args@list:each ((void*)each_arg_cb, NULL);
 
   test@ref:dec();
-
   self@ref:dec(); /* needed to satisfy valgrind */
   return 0;
 }

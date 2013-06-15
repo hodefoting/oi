@@ -22,6 +22,7 @@
 /* The variadic intance with trait's we use for all out oi-pointers */
 typedef struct _Trait * var;
 
+
 /* definition of a trait-type - to be associated with an instance */
 typedef struct 
 {
@@ -50,6 +51,18 @@ typedef struct
 static Type NAME##_trait = {"" #NAME, sizeof (s), init, init_pre, init_int, destroy};\
 Type *NAME = &NAME##_trait;
 
+#include "ref.h"
+
+inline static void ref_clean (void *p)
+{
+  void **pp = p;
+  ref_dec(*pp);
+}
+#define PACKED                __attribute__((packed))
+//#define CLEANUP(cleanup_func) __attribute__((cleanup(cleanup_func)))
+//#define avar var CLEANUP(ref_clean)
+
+
 #include "oi-mem.h"
 
 #include "own.h"
@@ -72,10 +85,11 @@ typedef enum
 #include "value.h"
 #include "property.h"
 #include "message.h"
-#include "ref.h"
 #include "mutex.h"
 #include "list.h"
 #include "oistring.h"
 #include "program.h"
+
+/* avar is an automatically dereffed version of var... */
 
 #endif

@@ -32,7 +32,7 @@ typedef struct
   const char *message_name;
   void *(*callback) (var *self, void *arg, void *user_data);
   void  *user_data;
-} MessageEntry;
+} PACKED MessageEntry;
 
 /*
 int listen (var          *oi_self,

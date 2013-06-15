@@ -24,7 +24,7 @@
 @trait Property 
 {
   var props;
-};
+} PACKED;
 
 typedef struct
 {

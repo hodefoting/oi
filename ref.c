@@ -21,7 +21,7 @@
 @trait Ref
 {
   int count;
-};
+} PACKED;
 
 static void init ()
 {

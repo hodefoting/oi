@@ -25,7 +25,7 @@
   char      *data;
   int         len;
   int   allocated;
-};
+} PACKED;
 
 /* this is where the initial string should be set.. */
 static void init (const char *initial)

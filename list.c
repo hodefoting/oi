@@ -26,7 +26,7 @@
   void  *destroy_data;
   void **items;
   int    size;
-};
+} PACKED;
 
 #define CS 8
 
