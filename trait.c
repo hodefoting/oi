@@ -100,6 +100,9 @@ static void add (Type *type, var args)
                              ((self->trait_count + ALLOC_CHUNK)/ALLOC_CHUNK)*ALLOC_CHUNK );
     }
 
+  if (type->init_pre)
+    type->init_pre (self);
+
   int trait_no = self->trait_count;
   self->trait_count++;
   self->traits[trait_no] = oi_malloc (type->size);

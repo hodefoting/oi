@@ -28,15 +28,8 @@
 
 typedef struct
 {
-  PropertyType  type;
   const char   *name; /* quark it */
-  union {
-    float       as_float;
-    int         as_int;
-    const char *as_string;
-    void       *as_pointer;
-    var         as_oi;
-  } value;
+  var           value;
 } PropertyEntry;
 
 static void prop_destroy! (PropertyEntry *entry, void *user_data);
@@ -87,25 +80,11 @@ var list ()
   return ret;
 }
 
-static void prop_unset! (PropertyEntry *entry)
-{
-  if (entry->type == OI_PTYPE_STRING && entry->value.as_string)
-    {
-      oi_strfree ((void*)entry->value.as_string);
-      entry->value.as_string = NULL;
-    }
-  else if (entry->type == OI_PTYPE_OI && entry->value.as_oi)
-    {
-      entry->value.as_oi@ref:dec ();
-      entry->value.as_oi = NULL;
-    }
-}
-
 static void prop_destroy! (PropertyEntry *entry, void *user_data)
 {
-  prop_unset (entry);
   if (entry->name)
     oi_strfree ((void*)entry->name);
+  ref_dec (entry->value);
   oi_free (sizeof (PropertyEntry), entry);
 }
 
@@ -144,15 +123,13 @@ static PropertyEntry *get_entry_write (const char *name)
   if (no >= 0)
     {
       entry = this->props@list:get(no);
-      prop_unset (entry);
     }
   else
     {
       entry = oi_malloc (sizeof (PropertyEntry));
       entry->name = name@oi:strdup();
-      entry->value.as_int = 0;
+      entry->value = var_new(VALUE, NULL);
       this->props@list:append (entry);
-      entry->type = OI_PTYPE_INT;
     } /* XXX: oicc hack*/ ;
   self@mutex:unlock ();
   return entry;
@@ -163,14 +140,14 @@ void set_float (const char *name, float       value)
   PropertyEntry *entry = self@property:get_entry_read (name);
 
   if (!entry ||
-      entry->type != OI_PTYPE_FLOAT ||
-      (entry->type == OI_PTYPE_FLOAT && entry->value.as_float != value))
+      entry->value@value:type() != OI_PTYPE_FLOAT ||
+      (entry->value@value:type() == OI_PTYPE_FLOAT &&
+       entry->value@value:get_float() != value))
 
   {
     entry = self@property:get_entry_write (name);
     self@"pre-notify"((void*)name);
-    entry->value.as_float = value;
-    entry->type = OI_PTYPE_FLOAT;
+    entry->value@value:set_float (value);
     self@"notify"((void*)name);
   }
 }
@@ -178,77 +155,76 @@ void set_float (const char *name, float       value)
 void set_int (const char *name, int         value)
 {
   PropertyEntry *entry = self@property:get_entry_read (name);
+  PropertyType type = 0;
+
+  if (entry)
+    type = entry->value@value:type();
 
   if (!entry ||
-      entry->type != OI_PTYPE_INT ||
-      (entry->type == OI_PTYPE_INT && entry->value.as_int != value))
+      type != OI_PTYPE_INT ||
+      (type == OI_PTYPE_INT &&
+       entry->value@value:get_int() != value))
     {
       self@"pre-notify"((void*)name);
       entry = self@property:get_entry_write (name);
-      entry->type = OI_PTYPE_INT;
-      entry->value.as_int = value;
+      entry->value@value:set_int (value);
       self@"notify"((void*)name);
     }
 }
 void set_string (const char *name, const char *value)
 {
   PropertyEntry *entry = self@property:get_entry_read (name);
+  PropertyType type = 0;
+
+  if (entry)
+    type = entry->value@value:type();
 
   if (!entry ||
-      entry->type != OI_PTYPE_STRING ||
-      (entry->type == OI_PTYPE_STRING && strcmp(entry->value.as_string, value)))
-      {
-
-        entry = self@property:get_entry_write (name);
-        self@"pre-notify"((void*)name);
-        entry->type = OI_PTYPE_STRING;
-#define OFF_BY_FUDGE 1
-
-      if (value)
-        {
-          char *tmp = oi_malloc (strlen (value) + 1 + OFF_BY_FUDGE);
-          memcpy (tmp, value, strlen (value));
-          tmp[strlen(value)]=0;
-          entry->value.as_string = tmp;
-        }
-      else
-        entry->value.as_string = NULL;
+      type != OI_PTYPE_STRING ||
+      (type == OI_PTYPE_STRING && strcmp(entry->value@value:get_string(), value)))
+    {
+      self@"pre-notify"((void*)name);
+      entry = self@property:get_entry_write (name);
+      entry->value@value:set_string (value);
       self@"notify"((void*)name);
-      }
+    }
 }
 void set_oi (const char *name, var value)
 {
   PropertyEntry *entry = self@property:get_entry_read (name);
+  PropertyType type = 0;
+
+  if (entry)
+    type = entry->value@value:type();
 
   if (!entry ||
-      entry->type != OI_PTYPE_OI ||
-      (entry->type == OI_PTYPE_OI && entry->value.as_oi != value))
-  {
-    self@"pre-notify"((void*)name);
-    entry = self@property:get_entry_write (name);
-    entry->type = OI_PTYPE_OI;
-    if (value)
-      entry->value.as_oi = value@ref:inc();
-    else
-      entry->value.as_oi = NULL;
-    self@"notify"((void*)name);
-  }
+      type != OI_PTYPE_OI ||
+      (type == OI_PTYPE_OI && entry->value@value:get_oi()!= value))
+    {
+      self@"pre-notify"((void*)name);
+      entry = self@property:get_entry_write (name);
+      entry->value@value:set_oi (value);
+      self@"notify"((void*)name);
+    }
 }
 
 void set_pointer (const char *name, void       *value)
 {
   PropertyEntry *entry = self@property:get_entry_read (name);
+  PropertyType type = 0;
+
+  if (entry)
+    type = entry->value@value:type();
 
   if (!entry ||
-      entry->type != OI_PTYPE_POINTER || 
-      (entry->type == OI_PTYPE_POINTER && entry->value.as_pointer != value))
-  {
-    PropertyEntry *entry = self@property:get_entry_write (name);
-    self@"pre-notify"((void*)name);
-    entry->type = OI_PTYPE_POINTER;
-    entry->value.as_pointer = value;
-    self@"notify"((void*)name);
-  }
+      type != OI_PTYPE_POINTER ||
+      (type == OI_PTYPE_POINTER && entry->value@value:get_pointer()!= value))
+    {
+      self@"pre-notify"((void*)name);
+      entry = self@property:get_entry_write (name);
+      entry->value@value:set_pointer (value);
+      self@"notify"((void*)name);
+    }
 }
 
 float get_float (const char *name)
@@ -256,13 +232,7 @@ float get_float (const char *name)
   PropertyEntry *entry = self@property:get_entry_read (name);
   if (!entry)
     return 0.0;
-  switch (entry->type)
-    {
-      case OI_PTYPE_INT:    return entry->value.as_int;
-      case OI_PTYPE_FLOAT:  return entry->value.as_float;
-      case OI_PTYPE_STRING: return atof(entry->value.as_string);
-      default: return 0.0;
-    }
+  return (entry->value@value:get_float());
 }
 
 int get_int (const char *name)
@@ -270,43 +240,15 @@ int get_int (const char *name)
   PropertyEntry *entry = self@property:get_entry_read (name);
   if (!entry)
     return 0;
-  switch (entry->type)
-    {
-      case OI_PTYPE_INT:    return entry->value.as_int;
-      case OI_PTYPE_FLOAT:  return entry->value.as_float;
-      case OI_PTYPE_STRING: return atof(entry->value.as_string);
-      default: return 0.0;
-    }
+  return (entry->value@value:get_int());
 }
 
 const char *get_string (const char *name)
 {
-  /* can possibly get away without having a lock on it.. */
-  static char ret_buf[128][32];
-  static int sretbuf_no = 0;
-  int retbuf_no = sretbuf_no++;
-  if (sretbuf_no>=128)
-    sretbuf_no=0;
-
   PropertyEntry *entry = self@property:get_entry_read (name);
   if (!entry)
     return "";
-  switch (entry->type)
-    {
-      case OI_PTYPE_STRING: return entry->value.as_string;
-      case OI_PTYPE_INT:
-        sprintf(ret_buf[retbuf_no], "%i", entry->value.as_int);
-        return ret_buf[retbuf_no];
-      case OI_PTYPE_FLOAT:
-        sprintf(ret_buf[retbuf_no], "%f", entry->value.as_float);
-        return ret_buf[retbuf_no];
-      case OI_PTYPE_POINTER:
-        sprintf(ret_buf[retbuf_no], "<%p>", entry->value.as_pointer);
-      case OI_PTYPE_OI:
-        sprintf(ret_buf[retbuf_no], "<oi%p>", entry->value.as_oi);
-        return ret_buf[retbuf_no];
-      default:              return "()";
-    }
+  return (entry->value@value:get_string());
 }
 
 var get_oi (const char *name)
@@ -314,11 +256,7 @@ var get_oi (const char *name)
   PropertyEntry *entry = self@property:get_entry_read (name);
   if (!entry)
     return NULL;
-  switch (entry->type)
-    {
-      case OI_PTYPE_OI: return (entry->value.as_oi@ref:inc());
-      default:          return NULL;
-    }
+  return (entry->value@value:get_oi());
 }
 
 void  *get_pointer (const char *name)
@@ -326,11 +264,7 @@ void  *get_pointer (const char *name)
   PropertyEntry *entry = self@property:get_entry_read (name);
   if (!entry)
     return NULL;
-  switch (entry->type)
-    {
-      case OI_PTYPE_POINTER: return entry->value.as_pointer;
-      default: return NULL;
-    }
+  return (entry->value@value:get_pointer());
 }
 
 PropertyType type (const char *name)
@@ -338,7 +272,7 @@ PropertyType type (const char *name)
   PropertyEntry *entry = self@property:get_entry_read (name);
   if (!entry)
     return 0;
-  return entry->type;
+  return (entry->value@value:type());
 }
 
 int is_string (const char *name)

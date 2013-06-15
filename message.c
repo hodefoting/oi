@@ -30,7 +30,7 @@
 typedef struct
 {
   const char *message_name;
-  void  (*callback) (var *self, void *arg, void *user_data);
+  void *(*callback) (var *self, void *arg, void *user_data);
   void  *user_data;
 } MessageEntry;
 
@@ -78,28 +78,33 @@ static void emit_matching! (void *entr, void *data)
 {
   MessageEntry *entry = entr;
   void **emit_data = data;
+  if (emit_data[4])
+    return;
   if (entr && entry->message_name && entry->callback &&
       !strcmp (emit_data[1], entry->message_name))
     {
-      entry->callback (emit_data[0], emit_data[2], entry->user_data);
+      emit_data[4] = 
+        entry->callback (emit_data[0], emit_data[2], entry->user_data);
       emit_data[3]++; /* mark that we found one */
     }
 }
 
-void emit (const char *message_name,
-           void       *arg)
+void *emit (const char *message_name,
+            void       *arg)
 {
   Message *message = self@trait:get(MESSAGE);
   /* short circuit if we do not have message trait */
   if (message)
     {
-      void *emit_data[4] = {self, (void*)message_name, arg, NULL};
+      void *emit_data[5] = {self, (void*)message_name, arg, NULL, NULL};
       list_each (message->callbacks, emit_matching, emit_data);
       if (emit_data[3] == NULL && strcmp(message_name, "message-trap"))
         {
           self@"message-trap"((void*)message_name);
         }
+      return emit_data[4];
     }
+  return NULL;
 }
 
 static void free_sentry! (void *sentry)

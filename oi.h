@@ -31,7 +31,11 @@ typedef struct
   /* function initializing a trait instance (or NULL) */
   void          (*init)    (var self, void *trait, var args);
 
-  /* additional intialization (used internally by oi) */
+  /* additional intialization used internally by oicc to make sure
+   * dependent traits are satisfied.  */
+  void          (*init_pre)(var self);
+
+  /* additional intialization used by oicc to hook up message callbacks */
   void          (*init_int)(var self, void *trait);
 
   /* release resources held by trait instance */
@@ -42,8 +46,8 @@ typedef struct
  * as well as declaring a pointer to the instance.
  *
  */
-#define OI(NAME, s, init, init_int, destroy) \
-static Type NAME##_trait = {"" #NAME, sizeof (s), init, init_int, destroy};\
+#define OI(NAME, s, init, init_pre, init_int, destroy) \
+static Type NAME##_trait = {"" #NAME, sizeof (s), init, init_pre, init_int, destroy};\
 Type *NAME = &NAME##_trait;
 
 #include "oi-mem.h"
@@ -65,6 +69,7 @@ typedef enum
   OI_PTYPE_OI
 } PropertyType;
 
+#include "value.h"
 #include "property.h"
 #include "message.h"
 #include "ref.h"

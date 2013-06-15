@@ -38,12 +38,16 @@ typedef struct State
 
   char cmd[256];
 
-  char msg[40960];
-  int mpos;
+  char init_int[40960];
+  int init_int_pos;
+
+  char init_pre[40960];
+  int init_pre_pos;
 
   int in_trait;
 
   int got_init;
+  int got_int_init;
   int got_pre_init;
   int got_destroy;
   int used_this;
@@ -306,6 +310,61 @@ done:
 
 #include <ctype.h>
 
+static void camel_to_upper (const char *camel, char *upper)
+{
+  int i;
+  int COUNTER = 0;
+  int was_upper = 1;
+  for (i = 0; camel[i]; i++)
+    {
+     int u = toupper (camel[i]);
+     if (isupper (camel[i]))
+       {
+         if (i != 0 &&
+             (!was_upper || islower (camel[i+1])))
+           {
+             upper[COUNTER++] = '_';
+           }
+         was_upper = 1;
+         upper[COUNTER++] = u;
+       }
+     else
+       {
+         was_upper = 0;
+         upper[COUNTER++] = u;
+       }
+    }
+  upper[COUNTER] = 0;
+}
+
+static void camel_to_lower (const char *camel, char *lower)
+{
+  int i;
+  int counter = 0;
+  int was_upper = 1;
+  for (i = 0; camel[i]; i++)
+    {
+      int l = tolower (camel[i]);
+      if (isupper (camel[i]))
+        {
+          if (i != 0 &&
+              (!was_upper || islower (camel[i+1])))
+            {
+              lower[counter++] = '_';
+            }
+          was_upper = 1;
+          lower[counter++] = l;
+        }
+      else
+        {
+          was_upper = 0;
+          lower[counter++] = l;
+        }
+    }
+  lower[counter] = 0;
+}
+
+
 void process_token (State *o)
 {
   int do_flush = 0;
@@ -338,13 +397,22 @@ void process_token (State *o)
             int pos = 0;
             int i;
 
-            if (o->mpos)
+            if (o->init_pre_pos)
               {
-                o->msg[o->mpos]=0;
+                o->init_pre[o->init_pre_pos]=0;
+
+            pos += sprintf (&buf[pos],
+                "static void %s_init_pre (var self){%s}", o->trait, o->init_pre);
+                o->init_pre_pos = 0;
+              }
+
+            if (o->init_int_pos)
+              {
+                o->init_int[o->init_int_pos]=0;
 
             pos += sprintf (&buf[pos], "static void %s_init_int (var self){"
-  "%s *%s=trait_get(self,%s);%s}", o->trait, o->Trait, o->trait, o->TRAIT, o->msg);
-                o->mpos = 0;
+  "%s *%s=trait_get(self,%s);%s}", o->trait, o->Trait, o->trait, o->TRAIT, o->init_int);
+                o->init_int_pos = 0;
               }
 
             pos += sprintf (&buf[pos], "OI(%s, %s,", o->TRAIT, o->Trait);
@@ -355,6 +423,11 @@ void process_token (State *o)
               pos += sprintf (&buf[pos], "NULL, ");
 
             if (o->got_pre_init)
+              pos += sprintf (&buf[pos], "(void*)%s_init_pre, ", o->trait);
+            else
+              pos += sprintf (&buf[pos], "NULL, ");
+
+            if (o->got_int_init)
               pos += sprintf (&buf[pos], "(void*)%s_init_int, ", o->trait);
             else
               pos += sprintf (&buf[pos], "NULL, ");
@@ -374,6 +447,7 @@ void process_token (State *o)
           o->state = S_NEUTRAL;
           o->in_trait = 0;
           o->got_init = 0;
+          o->got_int_init = 0;
           o->got_pre_init = 0;
           o->got_destroy = 0;
 
@@ -396,12 +470,13 @@ void process_token (State *o)
     }
   if (o->state == S_IN_TRAIT_DEF)
     {
+      char dependencies[256]="";
+      int deppos=0;
+
       if (o->token[0] == '{')
         {
-          int COUNTER = 0;
-          int counter = 0;
+          char *deps = NULL;
           int i;
-          int was_upper = 1;
           o->state = S_NEUTRAL;
           o->brackd++; /* XXX: since we return */
 
@@ -410,31 +485,58 @@ void process_token (State *o)
               o->Trait[strlen(o->Trait)-1] == ' ')
             o->Trait[strlen(o->Trait)-1] = 0;
 
-          for (i = 0; o->Trait[i]; i++)
+          if (strchr (o->Trait, '<'))
             {
-              int l = tolower (o->Trait[i]);
-              int u = toupper (o->Trait[i]);
-              if (isupper (o->Trait[i]))
-                {
-                  if (i != 0 &&
-                      (!was_upper || islower (o->Trait[i+1])))
-                    {
-                      o->TRAIT[COUNTER++] = '_';
-                      o->trait[counter++] = '_';
-                    }
-                  was_upper = 1;
-                  o->TRAIT[COUNTER++] = u;
-                  o->trait[counter++] = l;
-                }
-              else
-                {
-                  was_upper = 0;
-                  o->TRAIT[COUNTER++] = u;
-                  o->trait[counter++] = l;
-                }
+              deps = strdup (strchr (o->Trait, '<')+1);
+              *strchr (o->Trait, '<')=0;
+
+              o->got_pre_init ++;
             }
-          o->TRAIT[COUNTER] = 0;
-          o->trait[counter] = 0;
+
+          while (
+              o->Trait[strlen(o->Trait)-1] == '\n' ||
+              o->Trait[strlen(o->Trait)-1] == ' ')
+            o->Trait[strlen(o->Trait)-1] = 0;
+
+          camel_to_upper (o->Trait, o->TRAIT);
+          camel_to_lower (o->Trait, o->trait);
+
+          if (deps)
+          {
+            while (*deps == ' ' || *deps == '\n')deps++;
+            char dep[256];
+            int depp = 0;
+            int i;
+            for (i = 0; deps[i]; i++)
+              {
+                switch (deps[i])
+                  {
+                    case ' ':
+                      {
+                      char upper[256];
+                      dep[depp]=0;
+                      camel_to_upper (dep, upper);
+             o->init_pre_pos += sprintf (&o->init_pre[o->init_pre_pos],
+              "trait_ensure (self, %s, NULL);", upper);
+                      depp=0;
+                      }
+                      break;
+                    default:
+                      dep[depp++]=deps[i];
+                      break;
+                  }
+              }
+            if (depp)
+            {
+             char upper[256];
+             dep[depp]=0;
+             camel_to_upper (dep, upper);
+             o->init_pre_pos += sprintf (&o->init_pre[o->init_pre_pos],
+              "trait_ensure (self, %s, NULL);", upper);
+             o->got_pre_init ++;
+            }
+
+          }
 
           int add_nls = 0;
           {
@@ -746,9 +848,9 @@ void process_token (State *o)
                          /* add to list being built up for contents
                           * of init_int implementation. 
                           */
-                         o->got_pre_init++;
+                         o->got_int_init++;
 
-                         o->mpos += sprintf (&o->msg[o->mpos],
+                         o->init_int_pos += sprintf (&o->init_int[o->init_int_pos],
                              "message_listen(self, (void*)self,(void*)%s,\"%s\", (void*)%s_%s_cb, %s);",
                              o->trait, name, o->trait, cbname, o->trait);
                        }
