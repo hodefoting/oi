@@ -219,5 +219,35 @@ var var_new! (Type *type, void *args)
   return self;
 }
 
+var var_dup! (var self)
+{
+  if (!self)
+    return NULL;
+  var clone = var_new (NULL, NULL);
+
+  {
+    int count;
+    int i;
+    Type ***tlist = (void*)self@trait:list_int (&count);
+    self@property:dup (clone);
+
+    for (i = 0; i < count; i ++)
+       {
+         /* XXX: is this sufficient; is this or even always safe?*/
+         clone@trait:ensure (((*tlist[i])), NULL);
+         if ((*(*tlist[i])).dup)
+           {
+             (*(*tlist[i])).dup (self, clone);
+           }
+         else
+           {
+             /* XXX: unhandled trait in dup.. */
+             //fprintf (stderr, "%s: ", (*(*tlist[i])).name);
+           }
+       }
+  }
+  return clone;
+}
+
 @end
 

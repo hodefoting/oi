@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <assert.h>
 #include "oi.h"
 #include "pthread.h"
 
@@ -131,25 +132,33 @@ static void dispatch_queue_thread! (void *data)
         {
           var  i;
           var  oi;
-          const char *message_name;
           void *arg;
+          void *(*cb)     (void *cb);
           void (*closure) (void *arg);
 
-          //oi_lock (queue);
           i = queue@list:get (0);
-          oi =           i@property:get_oi ("oi");
-          message_name = i@property:get_string ("message");
-          arg =          i@property:get_pointer ("arg");
-          closure =      i@property:get_pointer ("closure");
-          oi@message:emit (message_name, arg);
+          oi      =      i@["oi"oi];
+          arg     =      i@["arg"pointer];
+          cb      =      i@["cb"pointer];
+          closure =      i@["closure"pointer];
+
+          if (oi)
+          {
+          oi@message:emit (i@["message"string], arg);
           oi@ref:dec ();
+          }
+          else
+          {
+            assert (cb);
+            /* ignoring retval */
+            cb (arg);
+          }
           queue@list:remove_index (0);
 
           if (closure)
             closure (arg);
-          //oi_unlock (queue);
         }
-      usleep (1000);
+      usleep (1000); /* XXX: using locks here would be better.. */
     }
 }
 static var dispatch_queue! ()
@@ -161,7 +170,6 @@ static var dispatch_queue! ()
       queue@mutex:lock();
       queue@list:set_destroy ((void*)ref_dec, NULL);
       queue@mutex:unlock();
-
       pthread_create (&thread, NULL, (void*)dispatch_queue_thread, NULL);
     }
   return queue;
@@ -180,6 +188,17 @@ void emit_remote (const char *message_name,
   dispatch_queue ()@mutex:lock ();
   item@property:set_oi      ("oi", self);
   item@property:set_string  ("message", message_name);
+  item@property:set_pointer ("arg", arg);
+  item@property:set_pointer ("closure", closure);
+  dispatch_queue ()@list:append (item);
+  dispatch_queue ()@mutex:unlock ();
+}
+
+void run_remote! (void *cb, void *arg, void *closure)
+{
+  var item = var_new(NULL, NULL);
+  dispatch_queue ()@mutex:lock ();
+  item@property:set_pointer ("cb", cb);
   item@property:set_pointer ("arg", arg);
   item@property:set_pointer ("closure", closure);
   dispatch_queue ()@list:append (item);

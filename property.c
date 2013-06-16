@@ -280,5 +280,46 @@ int is_string (const char *name)
   return (self@property:type(name) == OI_PTYPE_STRING);
 }
 
+void dup (var clone)
+{
+  var proplist = self@property:list();
+  int i ;
+  for (i = 0; i < proplist@list:get_size(); i++)
+    {
+      const char *name = proplist@list:get(i);
+      PropertyType type = self@property:type(name);
+      switch (type)
+      {
+        case OI_PTYPE_FLOAT:
+          property_set_float (clone, name,
+          property_get_float (self, name));
+          break;
+        case OI_PTYPE_INT:
+          property_set_int (clone, name,
+          property_get_int (self, name));
+          break;
+        case OI_PTYPE_STRING:
+          property_set_string (clone, name,
+          property_get_string (self, name));
+          break;
+        case OI_PTYPE_OI:
+          {
+            var oi = property_get_oi (self, name);
+            property_set_oi (clone, name, oi);
+            oi@ref:dec ();
+          }
+          break;
+        case OI_PTYPE_POINTER:
+          property_set_pointer (clone, name,
+          property_get_pointer (self, name));
+          break;
+        default:
+          fprintf (stderr, "cloning of property '%s' failed due to type %i %i\n",
+              name, type, OI_PTYPE_OI);
+      }
+    }
+  proplist@ref:dec ();
+}
+
 @end
 

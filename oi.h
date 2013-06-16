@@ -41,14 +41,17 @@ typedef struct
 
   /* release resources held by trait instance */
   void          (*destroy) (var self, void *trait);
+
+  /* duplicate this traits state in the clone (includes adding the trait) */
+  void          (*dup)     (var self, var clone);
 } Type;
 
 /* this macro is used for creating the instance from the set of pointers,
  * as well as declaring a pointer to the instance.
  *
  */
-#define OI(NAME, s, init, init_pre, init_int, destroy) \
-static Type NAME##_trait = {"" #NAME, sizeof (s), init, init_pre, init_int, destroy};\
+#define OI(NAME, s, init, init_pre, init_int, destroy, dup) \
+static Type NAME##_trait = {"" #NAME, sizeof (s), init, init_pre, init_int, destroy, dup};\
 Type *NAME = &NAME##_trait;
 
 #include "ref.h"

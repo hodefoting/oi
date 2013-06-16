@@ -46,6 +46,7 @@ typedef struct State
 
   int in_trait;
 
+  int got_dup;
   int got_init;
   int got_int_init;
   int got_pre_init;
@@ -433,9 +434,15 @@ void process_token (State *o)
               pos += sprintf (&buf[pos], "NULL, ");
 
             if (o->got_destroy)
-              pos += sprintf (&buf[pos], "(void*)%s_destroy);", o->trait);
+              pos += sprintf (&buf[pos], "(void*)%s_destroy, ", o->trait);
             else
-              pos += sprintf (&buf[pos], "NULL);");
+              pos += sprintf (&buf[pos], "NULL, ");
+
+            if (o->got_dup)
+              pos += sprintf (&buf[pos], "(void*)%s_dup) ", o->trait);
+            else
+              pos += sprintf (&buf[pos], "NULL) ");
+
 
             for (i = 0; buf[i]; i++)
               o->inbuf[o->ipos++] = buf[i];
@@ -447,6 +454,7 @@ void process_token (State *o)
           o->state = S_NEUTRAL;
           o->in_trait = 0;
           o->got_init = 0;
+          o->got_dup = 0;
           o->got_int_init = 0;
           o->got_pre_init = 0;
           o->got_destroy = 0;
@@ -819,6 +827,10 @@ void process_token (State *o)
                      if (!strcmp (name, "init"))
                        {
                          o->got_init ++;
+                       }
+                     if (!strcmp (name, "dup"))
+                       {
+                         o->got_dup ++;
                        }
                      if (!strcmp (name, "destroy"))
                        {

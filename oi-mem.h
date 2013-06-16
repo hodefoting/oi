@@ -31,4 +31,7 @@ void *oi_realloc (void *mem, size_t size);
 char *oi_strdup (const char *str);
 void oi_strfree (const char *mem);
 
+#define oi_destroy(type, item)  oi_free(sizeof(type), item)
+#define oi_new(type)            oi_malloc(sizeof(type))
+
 #endif

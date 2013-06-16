@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "oi.h"
+
 @trait Foo
 {
   float  number;
@@ -26,9 +27,10 @@ float get_it ()
 {
   var test;
 
-  test = var_new(NULL, NULL);
+  test = var_new (NULL, NULL);
 
   printf ("%f\n", test@foo:get_it());
+
   test@foo:set_it (1.2);
   printf ("%f\n", test@foo:get_it());
 

@@ -55,6 +55,7 @@ void oi_free (size_t size, void *mem)
 {
   memfuncs.free (size, mem);
 }
+
 void *oi_malloc (size_t size)
 {
   return memfuncs.malloc (size);

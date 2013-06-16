@@ -23,7 +23,7 @@ oicc/oicc: oicc/*.c
 clean: clean-too
 clean-too:
 	make -C oicc clean
-	rm -f `echo *.h | sed s/oi-mem\.h// | sed s/oi\.h//`
+	rm -f `echo *.h | sed -e s/oi-mem\.h// -e s/var\.h// -e s/oi\.h//`
 install: install-too
 install-too:
 	make -C oicc install

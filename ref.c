@@ -60,4 +60,6 @@ var dec ()
   return self;
 }
 
+static void dup (){}
+
 @end

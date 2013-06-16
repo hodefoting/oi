@@ -67,4 +67,6 @@ void unlock ()
   pthread_mutex_unlock (&this->mutex);
 }
 
+static void dup (){}
+
 @end
