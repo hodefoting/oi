@@ -79,6 +79,7 @@ inline static void ref_clean (void *p)
 typedef enum
 {
   OI_PTYPE_FLOAT,
+  OI_PTYPE_DOUBLE,
   OI_PTYPE_INT,
   OI_PTYPE_STRING,
   OI_PTYPE_POINTER,

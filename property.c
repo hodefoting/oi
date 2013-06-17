@@ -152,6 +152,23 @@ void set_float (const char *name, float       value)
   }
 }
 
+void set_double (const char *name, double  value)
+{
+  PropertyEntry *entry = self@property:get_entry_read (name);
+
+  if (!entry ||
+      entry->value@value:type() != OI_PTYPE_DOUBLE ||
+      (entry->value@value:type() == OI_PTYPE_DOUBLE &&
+       entry->value@value:get_double () != value))
+
+  {
+    entry = self@property:get_entry_write (name);
+    self@"pre-notify"((void*)name);
+    entry->value@value:set_double (value);
+    self@"notify"((void*)name);
+  }
+}
+
 void set_int (const char *name, int         value)
 {
   PropertyEntry *entry = self@property:get_entry_read (name);
@@ -233,6 +250,14 @@ float get_float (const char *name)
   if (!entry)
     return 0.0;
   return (entry->value@value:get_float());
+}
+
+float get_double (const char *name)
+{
+  PropertyEntry *entry = self@property:get_entry_read (name);
+  if (!entry)
+    return 0.0;
+  return (entry->value@value:get_double ());
 }
 
 int get_int (const char *name)

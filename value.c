@@ -8,6 +8,7 @@
   PropertyType  type;
   union {
     float       as_float;
+    double      as_double;
     int         as_int;
     const char *as_string;
     void       *as_pointer;
@@ -41,6 +42,13 @@ PropertyType type ()
   if (!self)
     return 0;
   return this->type;
+}
+
+void set_double (double value)
+{
+  self@value:scrub();
+  this->value.as_float = value;
+  this->type = OI_PTYPE_DOUBLE;
 }
 
 void set_float (float       value)
@@ -82,6 +90,9 @@ void set_oi (var value)
           case OI_PTYPE_FLOAT:/**/
             self@value:set_float (value@value:get_float());
             break;
+          case OI_PTYPE_DOUBLE:/**/
+            self@value:set_double (value@value:get_double());
+            break;
           case OI_PTYPE_STRING:/**/
             self@value:set_string (value@value:get_string());
             break;
@@ -112,6 +123,20 @@ void set_pointer (void       *value)
     this->value.as_pointer = NULL;
 }
 
+double get_double ()
+{
+  if (!self)
+    return 0.0;
+  switch (this->type)
+    {
+      case OI_PTYPE_INT:     return this->value.as_int;
+      case OI_PTYPE_FLOAT:   return this->value.as_float;
+      case OI_PTYPE_DOUBLE:  return this->value.as_double;
+      case OI_PTYPE_STRING:  return atof(this->value.as_string);
+      default: return 0.0;
+    }
+}
+
 float get_float ()
 {
   if (!self)
@@ -120,6 +145,7 @@ float get_float ()
     {
       case OI_PTYPE_INT:    return this->value.as_int;
       case OI_PTYPE_FLOAT:  return this->value.as_float;
+      case OI_PTYPE_DOUBLE: return this->value.as_double;
       case OI_PTYPE_STRING: return atof(this->value.as_string);
       default: return 0.0;
     }
@@ -131,9 +157,10 @@ int get_int ()
     return 0;
   switch (this->type)
     {
-      case OI_PTYPE_INT:    return this->value.as_int;
-      case OI_PTYPE_FLOAT:  return this->value.as_float;
-      case OI_PTYPE_STRING: return atof(this->value.as_string);
+      case OI_PTYPE_INT:     return this->value.as_int;
+      case OI_PTYPE_FLOAT:   return this->value.as_float;
+      case OI_PTYPE_DOUBLE:  return this->value.as_double;
+      case OI_PTYPE_STRING:  return atof(this->value.as_string);
       default: return 0.0;
     }
 }
@@ -157,6 +184,9 @@ const char *get_string ()
         return ret_buf[retbuf_no];
       case OI_PTYPE_FLOAT:
         sprintf(ret_buf[retbuf_no], "%f", this->value.as_float);
+        return ret_buf[retbuf_no];
+      case OI_PTYPE_DOUBLE:
+        sprintf(ret_buf[retbuf_no], "%f", this->value.as_double);
         return ret_buf[retbuf_no];
       case OI_PTYPE_POINTER:
         sprintf(ret_buf[retbuf_no], "<%p>", this->value.as_pointer);
