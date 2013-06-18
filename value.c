@@ -47,7 +47,7 @@ PropertyType type ()
 void set_double (double value)
 {
   self@value:scrub();
-  this->value.as_float = value;
+  this->value.as_double = value;
   this->type = OI_PTYPE_DOUBLE;
 }
 

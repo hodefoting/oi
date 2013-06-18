@@ -319,6 +319,10 @@ void dup (var clone)
           property_set_float (clone, name,
           property_get_float (self, name));
           break;
+        case OI_PTYPE_DOUBLE:
+          property_set_double (clone, name,
+          property_get_double (self, name));
+          break;
         case OI_PTYPE_INT:
           property_set_int (clone, name,
           property_get_int (self, name));
