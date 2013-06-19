@@ -28,8 +28,17 @@
   var callbacks;
 };
 
+
+/* need an id-pool */
+static long make_id! (void)
+{
+  static long id = 0;
+  return ++id;
+}
+
 typedef struct
 {
+  int id;
   const char *message_name;
   void *(*callback) (var *self, void *arg, void *user_data);
   void  *user_data;
@@ -53,6 +62,7 @@ int listen (var           listener,
   entry->message_name = message_name;
   entry->callback = callback;
   entry->user_data = user_data;
+  entry->id = make_id ();
 
   this->callbacks@list:append (entry);
 
@@ -62,17 +72,36 @@ int listen (var           listener,
    * away the message callback goes away.
    */
   if (listener)
-    listener@own:add_message_cb (listener_trait, message_name, list_get_size (this->callbacks)-1);
+    listener@own:add_message_cb (listener_trait, message_name, entry->id);
 
-  return (this->callbacks@list:get_size () - 1);
+  return entry->id;
+  //(this->callbacks@list:get_size () - 1);
+}
+
+static int match_id! (void *item, void *user_data)
+{
+  MessageEntry *entry = item;
+  if (entry->id == (int)user_data)
+    return 1;
+  return 0;
 }
 
 void handler_disconnect (int handler_id)
 {
+  MessageEntry *entry;
   if (!this)
     return;
-  self@"oi:message-disconnect"((void*)((MessageEntry*)list_get (this->callbacks, handler_id))->message_name);
-  this->callbacks@list:remove_index (handler_id);
+  int no = this->callbacks@list:find_custom (match_id, (void*)handler_id);
+  entry = list_get (this->callbacks, no);
+  if (entry)
+  {
+    self@"oi:message-disconnect"((void*)(entry->message_name));
+    this->callbacks@list:remove_index (no);
+  }
+  else
+  {
+    fprintf (stderr, "uhm, missing handler %i\n", handler_id);
+  }
 }
 
 static void emit_matching! (void *entr, void *data)
@@ -220,11 +249,15 @@ match_func! (void *entryp, void *callback)
 void handler_disconnect_by_func (void *callback)
 {
   int no;
+  MessageEntry *entry;
   if (!this)
     return;
   no = this->callbacks@list:find_custom (match_func, callback);
-  if (no>=0)
-    self@message:handler_disconnect (no);
+  entry = list_get (this->callbacks, no);
+  if (entry)
+    {
+      self@message:handler_disconnect (entry->id);
+    }
 }
 
 @end
